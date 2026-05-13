@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { PatientPlan } from '../domain/model/patient-plan.entity'
 import { PatientPlanStatus } from '../domain/model/plan-status.value-object'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { usePatientProfileStore } from '../../patient-profile/application/patient-profile.store'
+import { syncNutritionAccessForUser } from '../../subscriptions-billing/application/subscription-nutrition-access.service'
 import { patientPlanApiService } from '../infrastructure/patient-plan-api.service'
 
 export const usePatientPlanStore = defineStore('patient-plan', {
@@ -32,7 +34,22 @@ export const usePatientPlanStore = defineStore('patient-plan', {
       this.error = ''
       try {
         const identityStore = useIdentityAccessStore()
-        const response = await patientPlanApiService.fetchCurrentPlan(identityStore.currentUser?.id ?? 1)
+        const patientProfileStore = usePatientProfileStore()
+        const userId = identityStore.currentUser?.id
+        if (!userId) throw new Error('No existe un usuario autenticado.')
+        if (!patientProfileStore.profile) {
+          await patientProfileStore.fetchPatientProfile()
+        }
+        if (!identityStore.hasVerifiedAccount || !patientProfileStore.isProfileComplete) {
+          this.currentPlan = null
+          this.currentPlanId = null
+          this.planStatus = PatientPlanStatus.NONE
+          this.weeklyDiet = null
+          this.nutritionist = ''
+          return null
+        }
+        await syncNutritionAccessForUser(userId)
+        const response = await patientPlanApiService.fetchCurrentPlan(userId)
         this.currentPlan = response?.entity ?? null
         this.currentPlanId = response?.raw?.id ?? null
         this.planStatus = response?.raw?.status ?? PatientPlanStatus.NONE

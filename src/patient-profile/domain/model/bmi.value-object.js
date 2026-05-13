@@ -14,3 +14,12 @@ export function calculateBMI(weightKg, heightCm) {
   const heightM = Number(heightCm) / 100
   return new BMI(Number(weightKg) / (heightM * heightM))
 }
+
+export function getBMIStatus(bmiValue) {
+  const value = Number(bmiValue)
+  if (!Number.isFinite(value) || value <= 0) return 'Pendiente'
+  if (value < 18.5) return 'Bajo peso'
+  if (value < 25) return 'Normal'
+  if (value < 30) return 'Sobrepeso'
+  return 'Obesidad'
+}

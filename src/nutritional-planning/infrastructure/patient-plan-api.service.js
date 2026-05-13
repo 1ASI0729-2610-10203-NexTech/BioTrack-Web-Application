@@ -21,7 +21,7 @@ function mapPlan(payload, nutritionistName = 'Dra. Ana Torres') {
     title: payload.name,
     nutritionist: nutritionistName,
     date: formatDate(payload.createdAt),
-    targetCalories: payload.dailyCalories,
+    dailyCalories: payload.dailyCalories,
     goal: payload.objective,
     macros: {
       proteins: payload.proteinPercentage,

@@ -42,7 +42,7 @@ onMounted(() => {
       <div>
         <p class="microcopy">Seguimiento bloqueado</p>
         <h2>Aun no tienes un plan nutricional activo.</h2>
-        <p class="text-muted">Activa tu plan para visualizar la dieta semanal.</p>
+        <p class="text-muted">La dieta semanal aparece únicamente cuando tu cuenta está lista y tu plan nutricional ya fue activado.</p>
       </div>
       <Button label="Revisar plan nutricional" @click="router.push('/nutritional-plan')" />
     </section>
