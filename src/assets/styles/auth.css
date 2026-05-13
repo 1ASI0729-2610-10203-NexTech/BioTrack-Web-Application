@@ -1,0 +1,227 @@
+.bt-auth-shell {
+  min-height: 100vh;
+  background: var(--bt-background);
+}
+
+.bt-auth-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 32px;
+  border-bottom: 1px solid var(--bt-border);
+  background: var(--bt-white);
+}
+
+.bt-auth-brand {
+  color: var(--bt-success);
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.bt-auth-switch {
+  margin: 0;
+  color: var(--bt-text-muted);
+  font-size: 0.88rem;
+}
+
+.bt-auth-switch a {
+  color: var(--bt-primary);
+  font-weight: 600;
+}
+
+.bt-auth-main {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 48px 20px;
+}
+
+.bt-auth-card {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 18px;
+  padding: 32px;
+  border: 1px solid var(--bt-border);
+  border-radius: 18px;
+  background: var(--bt-white);
+  box-shadow: 0 18px 42px rgba(31, 41, 55, 0.12);
+}
+
+.bt-auth-card--register {
+  width: min(100%, 470px);
+}
+
+.bt-auth-kicker {
+  margin: 0 0 4px;
+  color: var(--bt-success-dark);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.bt-auth-title {
+  margin: 0;
+  color: var(--bt-text);
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+}
+
+.bt-auth-subtitle {
+  margin: 2px 0 0;
+  color: var(--bt-text-muted);
+  font-size: 0.92rem;
+}
+
+.bt-auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.bt-auth-field,
+.bt-auth-grid-field {
+  display: grid;
+  gap: 6px;
+}
+
+.bt-auth-field label,
+.bt-auth-grid-field label {
+  color: var(--bt-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.bt-auth-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.bt-auth-helper {
+  margin: 0;
+  color: var(--bt-danger);
+  font-size: 0.74rem;
+}
+
+.bt-auth-password .p-password,
+.bt-auth-password .p-inputtext,
+.bt-auth-field .p-inputtext,
+.bt-auth-grid-field .p-inputtext {
+  width: 100%;
+}
+
+.bt-auth-segmented {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bt-auth-segmented .p-button {
+  min-height: 38px;
+  border: 1px solid var(--bt-border);
+  border-radius: 8px;
+  color: var(--bt-text-muted);
+  background: var(--bt-white);
+  font-size: 0.78rem;
+}
+
+.bt-auth-segmented .p-button.bt-auth-segmented-active {
+  color: var(--bt-primary);
+  border-color: var(--bt-primary);
+  background: var(--bt-primary-soft);
+}
+
+.bt-auth-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.bt-auth-button.p-button {
+  width: 100%;
+  min-height: 46px;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  font-size: 0.92rem;
+}
+
+.bt-auth-inline-link {
+  justify-self: end;
+  color: var(--bt-primary);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.bt-auth-footer-link {
+  justify-self: center;
+  color: var(--bt-primary);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.bt-auth-message.p-message {
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.bt-auth-message .p-message-text {
+  display: grid;
+  gap: 3px;
+}
+
+.bt-auth-message strong {
+  font-size: 0.82rem;
+}
+
+.bt-auth-message span {
+  font-size: 0.76rem;
+}
+
+.bt-auth-success .p-inputtext,
+.bt-auth-success .p-password-input {
+  border-color: var(--bt-success);
+}
+
+.bt-auth-error .p-inputtext,
+.bt-auth-error .p-password-input {
+  border-color: var(--bt-danger);
+}
+
+.bt-auth-disabled-copy {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  color: var(--bt-text-muted);
+  background: var(--bt-surface);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .bt-auth-header {
+    height: auto;
+    min-height: 64px;
+    gap: 12px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 16px 20px;
+  }
+
+  .bt-auth-main {
+    min-height: calc(100vh - 88px);
+    padding: 28px 16px;
+  }
+
+  .bt-auth-card,
+  .bt-auth-card--register {
+    padding: 24px;
+  }
+
+  .bt-auth-grid,
+  .bt-auth-segmented {
+    grid-template-columns: 1fr;
+  }
+}
