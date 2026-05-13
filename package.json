@@ -1,0 +1,32 @@
+{
+  "name": "biotrack-tf-web-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@primeuix/themes": "^1.2.5",
+    "axios": "^1.16.0",
+    "dotenv": "^17.4.2",
+    "pinia": "^3.0.4",
+    "primeflex": "^4.0.0",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.5.5",
+    "vue": "^3.5.34",
+    "vue-i18n": "^11.4.2",
+    "vue-router": "^5.0.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.6",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.9.1",
+    "prettier": "^3.8.3",
+    "vite": "^8.0.12",
+    "vite-tsconfig-paths": "^6.1.1"
+  }
+}

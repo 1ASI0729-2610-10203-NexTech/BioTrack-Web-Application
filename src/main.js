@@ -1,0 +1,26 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import { createI18n } from 'vue-i18n'
+import PrimeVue from 'primevue/config'
+import App from './App.vue'
+import router from './router'
+import messages from './locales'
+import { primeVueConfig } from './app/primevue/primevue.config'
+import 'primeflex/primeflex.css'
+import 'primeicons/primeicons.css'
+import './assets/styles/main.css'
+
+const app = createApp(App)
+const i18n = createI18n({
+  legacy: false,
+  locale: 'es',
+  fallbackLocale: 'en',
+  messages,
+})
+
+app.use(createPinia())
+app.use(router)
+app.use(i18n)
+app.use(PrimeVue, primeVueConfig)
+
+app.mount('#app')
