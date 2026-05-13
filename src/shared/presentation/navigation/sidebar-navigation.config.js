@@ -9,6 +9,7 @@ export const sidebarNavigationByRole = {
   ],
   ADMIN_CORPORATIVO: [
     { label: 'Dashboard', icon: 'pi pi-home', route: '/corporate-dashboard' },
+    { label: 'Registrar Empresa', icon: 'pi pi-building', route: '/corporate-register' },
     { label: 'Colaboradores', icon: 'pi pi-users', route: '/collaborators' },
     { label: 'Metricas', icon: 'pi pi-chart-bar', route: '/corporate-metrics' },
     { label: 'Facturacion', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },

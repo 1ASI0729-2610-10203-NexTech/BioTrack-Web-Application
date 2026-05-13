@@ -739,6 +739,20 @@
       "name": "NexTech Corporation",
       "ruc": "20123456789",
       "status": "VERIFIED"
+    },
+    {
+      "adminUserId": 3,
+      "name": "BioTech S.A.C.",
+      "ruc": "20601234568",
+      "status": "PENDING",
+      "id": 2
+    },
+    {
+      "adminUserId": 3,
+      "name": "BioTech S.A.C.",
+      "ruc": "20601234568",
+      "status": "PENDING",
+      "id": 3
     }
   ],
   "collaborators": [
@@ -761,7 +775,8 @@
       "companyId": 1,
       "name": "Lucía Campos",
       "email": "lucia.campos@nextech.com",
-      "status": "INVITED"
+      "status": "INVITED",
+      "sentAt": "2026-05-13T23:17:24.388Z"
     }
   ],
   "corporateMetrics": [
