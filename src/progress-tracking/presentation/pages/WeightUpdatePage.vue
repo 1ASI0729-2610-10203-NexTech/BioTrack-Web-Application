@@ -16,7 +16,11 @@ const validation = reactive({ weightKg: '', date: '' })
 const differenceInitial = computed(() => (progressStore.initialWeight - progressStore.currentWeight).toFixed(1))
 const differenceTarget = computed(() => (progressStore.currentWeight - progressStore.targetWeight).toFixed(1))
 
-onMounted(() => planStore.fetchPatientPlan())
+onMounted(async () => {
+  await planStore.fetchPatientPlan()
+  await progressStore.fetchProgressData()
+  form.weightKg = progressStore.currentWeight || form.weightKg
+})
 
 function validate() {
   validation.weightKg = form.weightKg < 10 || form.weightKg > 300 ? 'Peso entre 10 y 300 kg.' : ''

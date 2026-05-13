@@ -23,7 +23,7 @@ onMounted(() => {
     </header>
 
     <section v-if="patientPlanStore.hasActivePlan" class="bt-weekly-grid">
-      <article v-for="day in patientPlanStore.weeklyDiet.days" :key="day.name" class="bt-dashboard-panel">
+      <article v-for="day in patientPlanStore.weeklyDiet?.days ?? []" :key="day.name" class="bt-dashboard-panel">
         <h3>{{ day.name }}</h3>
         <div class="bt-day-meals">
           <div v-for="meal in day.meals" :key="`${day.name}-${meal.type}`" class="bt-meal-row">

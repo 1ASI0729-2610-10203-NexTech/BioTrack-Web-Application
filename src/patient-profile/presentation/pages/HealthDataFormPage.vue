@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
@@ -9,16 +9,15 @@ import { usePatientProfileStore } from '../../application/patient-profile.store'
 
 const router = useRouter()
 const profileStore = usePatientProfileStore()
-const health = profileStore.healthData
 const form = reactive({
-  weightKg: health.weightKg,
-  heightCm: health.heightCm,
-  age: health.age,
-  biologicalSex: health.biologicalSex.value,
-  activityLevel: health.activityLevel.value,
-  systolic: health.bloodPressure.systolic,
-  diastolic: health.bloodPressure.diastolic,
-  glucoseMgDl: health.glucoseMgDl,
+  weightKg: null,
+  heightCm: null,
+  age: null,
+  biologicalSex: '',
+  activityLevel: '',
+  systolic: null,
+  diastolic: null,
+  glucoseMgDl: null,
 })
 const validation = reactive({})
 const sexOptions = ['masculino', 'femenino', 'otro', 'prefiero-no-decir']
@@ -57,6 +56,22 @@ async function submit() {
   if (!canSave.value) return
   await profileStore.saveHealthData(form)
 }
+
+onMounted(async () => {
+  const profile = await profileStore.fetchPatientProfile()
+  const health = profile?.healthData
+  if (!health) return
+  Object.assign(form, {
+    weightKg: health.weightKg,
+    heightCm: health.heightCm,
+    age: health.age,
+    biologicalSex: health.biologicalSex.value,
+    activityLevel: health.activityLevel.value,
+    systolic: health.bloodPressure.systolic,
+    diastolic: health.bloodPressure.diastolic,
+    glucoseMgDl: health.glucoseMgDl,
+  })
+})
 </script>
 
 <template>

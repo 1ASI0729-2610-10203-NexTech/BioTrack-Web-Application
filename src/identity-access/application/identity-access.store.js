@@ -1,28 +1,7 @@
 import { defineStore } from 'pinia'
+import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
 
-const mockUsers = [
-  {
-    email: 'paciente@biotrack.com',
-    password: 'password123',
-    role: 'PACIENTE',
-    firstName: 'Juan',
-    lastName: 'Perez',
-  },
-  {
-    email: 'nutricionista@biotrack.com',
-    password: 'password123',
-    role: 'NUTRICIONISTA',
-    firstName: 'Lucia',
-    lastName: 'Ramos',
-  },
-  {
-    email: 'admin@biotrack.com',
-    password: 'password123',
-    role: 'ADMIN_CORPORATIVO',
-    firstName: 'Carlos',
-    lastName: 'Rojas',
-  },
-]
+const SESSION_STORAGE_KEY = 'biotrack.mock-session'
 
 function createIdleRegisterState() {
   return {
@@ -39,16 +18,19 @@ function createIdleLoginState() {
 }
 
 export const useIdentityAccessStore = defineStore('identity-access', {
-  state: () => ({
-    currentUser: null,
-    isAuthenticated: false,
-    role: null,
-    loginStatus: createIdleLoginState(),
-    registerStatus: createIdleRegisterState(),
-    loginAttempts: 0,
-    loading: false,
-    error: '',
-  }),
+  state: () => {
+    const storedSession = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) ?? 'null')
+    return {
+      currentUser: storedSession,
+      isAuthenticated: Boolean(storedSession),
+      role: storedSession?.role ?? null,
+      loginStatus: createIdleLoginState(),
+      registerStatus: createIdleRegisterState(),
+      loginAttempts: 0,
+      loading: false,
+      error: '',
+    }
+  },
   getters: {
     currentUserRole(state) {
       return state.role
@@ -62,13 +44,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.loading = true
       this.error = ''
       this.loginStatus = createIdleLoginState()
-
-      await new Promise((resolve) => setTimeout(resolve, 700))
-
-      const normalizedEmail = String(credentials.email ?? '').trim().toLowerCase()
-      const matchedUser = mockUsers.find(
-        (user) => user.email === normalizedEmail && user.password === credentials.password,
-      )
+      const matchedUser = await identityAccessApiService.login(credentials)
 
       if (!matchedUser) {
         this.loginAttempts += 1
@@ -87,14 +63,18 @@ export const useIdentityAccessStore = defineStore('identity-access', {
         return false
       }
 
+      const [firstName = matchedUser.name, ...lastNameParts] = String(matchedUser.name ?? '').split(' ')
       this.currentUser = {
+        id: matchedUser.id,
         email: matchedUser.email,
         role: matchedUser.role,
-        firstName: matchedUser.firstName,
-        lastName: matchedUser.lastName,
+        firstName,
+        lastName: lastNameParts.join(' '),
+        name: matchedUser.name,
       }
       this.role = matchedUser.role
       this.isAuthenticated = true
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentUser))
       this.loginAttempts = 0
       this.loading = false
       this.loginStatus = {
@@ -106,15 +86,13 @@ export const useIdentityAccessStore = defineStore('identity-access', {
     async register(command) {
       this.loading = true
       this.error = ''
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const createdUser = await identityAccessApiService.register(command)
       this.loading = false
       this.registerStatus = {
         status: 'success',
         message: 'Tu cuenta fue creada. Hemos enviado un correo de verificacion.',
       }
-      return {
-        ...command,
-      }
+      return createdUser
     },
     resetLoginFeedback() {
       this.error = ''
@@ -133,6 +111,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.loginAttempts = 0
       this.loading = false
       this.error = ''
+      localStorage.removeItem(SESSION_STORAGE_KEY)
     },
   },
 })

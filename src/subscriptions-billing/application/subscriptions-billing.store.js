@@ -3,6 +3,8 @@ import { SubscriptionPlan } from '../domain/model/subscription-plan.entity'
 import { IndividualSubscription } from '../domain/model/individual-subscription.entity'
 import { Payment } from '../domain/model/payment.entity'
 import { Invoice } from '../domain/model/invoice.entity'
+import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { subscriptionsBillingApiService } from '../infrastructure/subscriptions-billing-api.service'
 
 export const useSubscriptionsBillingStore = defineStore('subscriptions-billing', {
   state: () => ({
@@ -21,28 +23,25 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
   },
   actions: {
     async fetchPlans() {
-      if (this.plans.length) return this.plans
-      this.plans = [
-        new SubscriptionPlan({
-          id: 'basic',
-          name: 'Basico',
-          price: 29,
-          description: 'Para empezar tu camino',
-        }),
-        new SubscriptionPlan({
-          id: 'professional',
-          name: 'Profesional',
-          price: 59,
-          description: 'Nutricionista + seguimiento completo',
-          featured: true,
-        }),
-        new SubscriptionPlan({
-          id: 'premium',
-          name: 'Premium',
-          price: 99,
-          description: 'Maximo rendimiento',
-        }),
-      ]
+      this.loading = true
+      const identityStore = useIdentityAccessStore()
+      this.plans = await subscriptionsBillingApiService.fetchPlans()
+      const active = await subscriptionsBillingApiService.fetchActiveSubscription(
+        identityStore.currentUser?.id ?? 1,
+      )
+      this.activeSubscription = active?.entity ?? null
+      this.payments = active?.payments ?? []
+      this.billingSummary = active
+        ? {
+            planName: active.entity.planName,
+            paymentStatus: active.payments.length ? 'Pago procesado' : 'Pendiente',
+            cardLastFourDigits: active.payments[0]?.cardLastFourDigits ?? '----',
+            paidAt: active.payments[0]?.paidAt ?? active.entity.activatedAt,
+            renewsAt: active.entity.renewsAt,
+            invoice: active.invoice,
+          }
+        : null
+      this.loading = false
       return this.plans
     },
     async subscribeToPlan(planId) {
@@ -50,7 +49,6 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
       this.error = ''
       this.subscribedRecently = false
       await this.fetchPlans()
-      await new Promise((resolve) => setTimeout(resolve, 500))
 
       const selectedPlan = this.plans.find((plan) => plan.id === planId)
       if (!selectedPlan) {
@@ -59,30 +57,38 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
         return false
       }
 
-      const paymentDate = '24/04/2026'
-      const renewsAt = '24/05/2026'
+      const identityStore = useIdentityAccessStore()
+      const persisted = await subscriptionsBillingApiService.subscribeToPlan({
+        userId: identityStore.currentUser?.id ?? 1,
+        plan: selectedPlan,
+      })
+      const paymentDate = persisted.payment.paidAt
+      const renewsAt = persisted.subscription.nextRenewalAt
       this.activeSubscription = new IndividualSubscription({
         planId: selectedPlan.id,
         planName: selectedPlan.name,
-        status: 'ACTIVA',
+        status: persisted.subscription.status,
         activatedAt: paymentDate,
         renewsAt,
       })
       this.payments = [
         new Payment({
           planName: selectedPlan.name,
-          amount: selectedPlan.price,
+          amount: persisted.payment.amount,
           paidAt: paymentDate,
-          cardLastFourDigits: '4521',
+          cardLastFourDigits: persisted.payment.cardLastFourDigits,
         }),
       ]
       this.billingSummary = {
         planName: selectedPlan.name,
         paymentStatus: 'Pago procesado',
-        cardLastFourDigits: '4521',
+        cardLastFourDigits: persisted.payment.cardLastFourDigits,
         paidAt: paymentDate,
         renewsAt,
-        invoice: new Invoice({ number: 'INV-2026-001', issuedAt: paymentDate }),
+        invoice: new Invoice({
+          number: persisted.invoice.number,
+          issuedAt: persisted.invoice.issuedAt,
+        }),
       }
       this.subscribedRecently = true
       this.loading = false

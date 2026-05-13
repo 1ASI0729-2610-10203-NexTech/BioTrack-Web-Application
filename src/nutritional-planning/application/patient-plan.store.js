@@ -1,51 +1,16 @@
 import { defineStore } from 'pinia'
 import { PatientPlan } from '../domain/model/patient-plan.entity'
-import { WeeklyDiet } from '../domain/model/weekly-diet.entity'
 import { PatientPlanStatus } from '../domain/model/plan-status.value-object'
-
-const mealSet = [
-  {
-    type: 'desayuno',
-    icon: '☀️',
-    name: 'Avena con leche + platano',
-    description: 'Fibra, energia sostenida y fruta fresca.',
-    calories: 380,
-  },
-  {
-    type: 'almuerzo',
-    icon: '🍽️',
-    name: 'Arroz integral + pollo + ensalada',
-    description: 'Proteina magra con carbohidrato complejo.',
-    calories: 620,
-  },
-  {
-    type: 'merienda',
-    icon: '🥤',
-    name: 'Yogur griego + almendras',
-    description: 'Snack saciante con proteina.',
-    calories: 230,
-  },
-  {
-    type: 'cena',
-    icon: '🌙',
-    name: 'Crema de verduras + pan integral',
-    description: 'Cena ligera y reconfortante.',
-    calories: 380,
-  },
-]
-
-const weeklyDietMock = new WeeklyDiet({
-  days: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'].map(
-    (name) => ({ name, meals: mealSet }),
-  ),
-})
+import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { patientPlanApiService } from '../infrastructure/patient-plan-api.service'
 
 export const usePatientPlanStore = defineStore('patient-plan', {
   state: () => ({
     currentPlan: null,
-    planStatus: PatientPlanStatus.PROPOSED,
-    weeklyDiet: weeklyDietMock,
-    nutritionist: 'Dra. Ana Torres',
+    currentPlanId: null,
+    planStatus: PatientPlanStatus.NONE,
+    weeklyDiet: null,
+    nutritionist: '',
     loading: false,
     error: '',
     acceptedRecently: false,
@@ -60,37 +25,45 @@ export const usePatientPlanStore = defineStore('patient-plan', {
   },
   actions: {
     async fetchPatientPlan() {
-      if (this.currentPlan) return this.currentPlan
-      this.currentPlan = new PatientPlan({
-        title: 'Plan Nutricional - Semana 1',
-        nutritionist: 'Dra. Ana Torres',
-        date: '23/04/2026',
-        targetCalories: 1850,
-        goal: 'Bajar de peso',
-        macros: {
-          proteins: 35,
-          carbohydrates: 45,
-          fats: 20,
-        },
-        status: this.planStatus,
-      })
+      this.loading = true
+      this.error = ''
+      const identityStore = useIdentityAccessStore()
+      const response = await patientPlanApiService.fetchCurrentPlan(identityStore.currentUser?.id ?? 1)
+      this.currentPlan = response?.entity ?? null
+      this.currentPlanId = response?.raw?.id ?? null
+      this.planStatus = response?.raw?.status ?? PatientPlanStatus.NONE
+      this.nutritionist = response?.entity?.nutritionist ?? ''
+      this.weeklyDiet = this.currentPlanId
+        ? await patientPlanApiService.fetchWeeklyDiet(this.currentPlanId)
+        : null
+      this.loading = false
       return this.currentPlan
     },
     async acceptPlan() {
       this.loading = true
-      await new Promise((resolve) => setTimeout(resolve, 500))
       await this.fetchPatientPlan()
-      this.currentPlan.activate()
-      this.planStatus = PatientPlanStatus.ACTIVE
+      const updatedPlan = await patientPlanApiService.acceptPlan(this.currentPlanId)
+      this.planStatus = updatedPlan.status
+      this.currentPlan = new PatientPlan({
+        ...this.currentPlan,
+        status: updatedPlan.status,
+      })
       this.acceptedRecently = true
       this.loading = false
     },
-    async rejectPlan() {
+    async rejectPlan(reason = 'Rechazado por el paciente') {
       await this.fetchPatientPlan()
-      this.currentPlan.reject()
-      this.planStatus = PatientPlanStatus.REJECTED
+      const updatedPlan = await patientPlanApiService.rejectPlan(this.currentPlanId, reason)
+      this.planStatus = updatedPlan.status
+      this.currentPlan = new PatientPlan({
+        ...this.currentPlan,
+        status: updatedPlan.status,
+      })
     },
     async getWeeklyDiet() {
+      if (!this.weeklyDiet && this.currentPlanId) {
+        this.weeklyDiet = await patientPlanApiService.fetchWeeklyDiet(this.currentPlanId)
+      }
       return this.weeklyDiet
     },
     resetPlanAcceptance() {

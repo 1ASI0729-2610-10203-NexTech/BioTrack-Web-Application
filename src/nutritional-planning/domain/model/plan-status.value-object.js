@@ -1,6 +1,6 @@
 export const PatientPlanStatus = Object.freeze({
-  NONE: 'SIN_PLAN',
-  PROPOSED: 'PROPUESTO',
-  ACTIVE: 'ACTIVADO',
-  REJECTED: 'RECHAZADO',
+  NONE: 'NONE',
+  PROPOSED: 'PROPOSED',
+  ACTIVE: 'ACTIVATED',
+  REJECTED: 'REJECTED',
 })

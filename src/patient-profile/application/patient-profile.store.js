@@ -1,49 +1,37 @@
 import { defineStore } from 'pinia'
-import { PatientProfile } from '../domain/model/patient-profile.entity'
 import { HealthData } from '../domain/model/health-data.value-object'
-import { NutritionalGoal } from '../domain/model/nutritional-goal.value-object'
-import { DietaryRestriction } from '../domain/model/dietary-restriction.entity'
 import { calculateBMI } from '../domain/model/bmi.value-object'
+import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { patientProfileApiService } from '../infrastructure/patient-profile-api.service'
 
-function createMockHealthData() {
-  return new HealthData({
-    weightKg: 78,
-    heightCm: 175,
-    age: 32,
-    biologicalSex: 'masculino',
-    activityLevel: 'moderada',
-    systolic: 120,
-    diastolic: 80,
-    glucoseMgDl: 90,
-  })
+const sexToApi = {
+  masculino: 'MALE',
+  femenino: 'FEMALE',
+  otro: 'OTHER',
+  'prefiero-no-decir': 'OTHER',
 }
-
-function createMockProfile() {
-  return new PatientProfile({
-    patientId: 'patient-juan-perez',
-    firstName: 'Juan',
-    lastName: 'Perez',
-    healthData: createMockHealthData(),
-    nutritionalGoal: new NutritionalGoal('bajar-peso'),
-    dietaryRestrictions: [new DietaryRestriction({ label: 'Sin restricciones' })],
-    restrictionsConfirmed: true,
-    nutritionist: 'Dra. Ana Torres',
-  })
+const activityToApi = {
+  sedentaria: 'LOW',
+  baja: 'LOW',
+  moderada: 'MODERATE',
+  activa: 'HIGH',
+  alta: 'HIGH',
+}
+const goalToApi = {
+  'bajar-peso': 'LOSE_WEIGHT',
+  'mantener-peso': 'MAINTAIN_WEIGHT',
+  'ganar-masa': 'GAIN_MUSCLE',
 }
 
 export const usePatientProfileStore = defineStore('patient-profile', {
   state: () => ({
-    profile: createMockProfile(),
-    healthData: createMockHealthData(),
-    nutritionalGoal: new NutritionalGoal('bajar-peso'),
-    dietaryRestrictions: [new DietaryRestriction({ label: 'Sin restricciones' })],
-    isProfileComplete: true,
-    profileCompletionEvent: {
-      type: 'PerfilPacienteCompleto',
-      patientId: 'patient-juan-perez',
-      occurredAt: new Date(),
-    },
-    restrictionsConfirmed: true,
+    profile: null,
+    healthData: null,
+    nutritionalGoal: null,
+    dietaryRestrictions: [],
+    isProfileComplete: false,
+    profileCompletionEvent: null,
+    restrictionsConfirmed: false,
     loading: false,
     error: '',
     savedRecently: false,
@@ -85,33 +73,63 @@ export const usePatientProfileStore = defineStore('patient-profile', {
   },
   actions: {
     async fetchPatientProfile() {
+      this.loading = true
+      this.error = ''
+      const identityStore = useIdentityAccessStore()
+      const fetchedProfile = await patientProfileApiService.fetchByUserId(
+        identityStore.currentUser?.id ?? 1,
+      )
+      this.profile = fetchedProfile
+      this.healthData = fetchedProfile?.healthData ?? null
+      this.nutritionalGoal = fetchedProfile?.nutritionalGoal ?? null
+      this.dietaryRestrictions = fetchedProfile?.dietaryRestrictions ?? []
+      this.restrictionsConfirmed = fetchedProfile?.restrictionsConfirmed ?? false
+      this.checkProfileCompletion()
+      this.loading = false
       return this.profile
     },
     async saveHealthData(data) {
       this.loading = true
       this.error = ''
-      await new Promise((resolve) => setTimeout(resolve, 350))
-      this.healthData = new HealthData(data)
-      this.profile.healthData = this.healthData
+      const healthData = new HealthData(data)
+      const updatedProfile = await patientProfileApiService.update(this.profile.id, {
+        weightKg: healthData.weightKg,
+        heightCm: healthData.heightCm,
+        age: healthData.age,
+        biologicalSex: sexToApi[healthData.biologicalSex.value],
+        activityLevel: activityToApi[healthData.activityLevel.value],
+        systolicPressure: healthData.bloodPressure.systolic,
+        diastolicPressure: healthData.bloodPressure.diastolic,
+        basalGlucose: healthData.glucoseMgDl,
+        bmi: Number(healthData.bmi.value.toFixed(2)),
+      })
+      this.profile = updatedProfile
+      this.healthData = updatedProfile.healthData
       this.savedRecently = true
       this.loading = false
       this.checkProfileCompletion()
       return this.healthData
     },
-    calculateBMI(weightKg = this.healthData.weightKg, heightCm = this.healthData.heightCm) {
+    calculateBMI(weightKg = this.healthData?.weightKg, heightCm = this.healthData?.heightCm) {
       return calculateBMI(weightKg, heightCm)
     },
     async saveNutritionalGoal(goal) {
-      this.nutritionalGoal = new NutritionalGoal(goal)
-      this.profile.nutritionalGoal = this.nutritionalGoal
+      const updatedProfile = await patientProfileApiService.update(this.profile.id, {
+        nutritionalGoal: goalToApi[goal],
+      })
+      this.profile = updatedProfile
+      this.nutritionalGoal = updatedProfile.nutritionalGoal
       this.savedRecently = true
       this.checkProfileCompletion()
     },
     async saveDietaryRestrictions(restrictions) {
-      this.dietaryRestrictions = restrictions.map(
-        (restriction) => new DietaryRestriction({ label: restriction }),
-      )
-      this.profile.dietaryRestrictions = this.dietaryRestrictions
+      const normalizedRestrictions = restrictions.includes('Sin restricciones') ? [] : restrictions
+      const updatedProfile = await patientProfileApiService.update(this.profile.id, {
+        dietaryRestrictions: normalizedRestrictions,
+        restrictionsConfirmed: true,
+      })
+      this.profile = updatedProfile
+      this.dietaryRestrictions = updatedProfile.dietaryRestrictions
       this.restrictionsConfirmed = true
       this.profile.restrictionsConfirmed = true
       this.savedRecently = true
@@ -120,6 +138,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     markProfileComplete() {
       this.isProfileComplete = true
       this.profileCompletionEvent = this.profile.markCompletedEvent()
+      patientProfileApiService.update(this.profile.id, { isComplete: true })
     },
     checkProfileCompletion() {
       this.isProfileComplete = Boolean(
@@ -137,13 +156,13 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       return calorieByGoal[this.nutritionalGoal?.value] ?? 2180
     },
     resetProfileMock() {
-      this.profile = createMockProfile()
-      this.healthData = createMockHealthData()
-      this.nutritionalGoal = new NutritionalGoal('bajar-peso')
-      this.dietaryRestrictions = [new DietaryRestriction({ label: 'Sin restricciones' })]
-      this.restrictionsConfirmed = true
-      this.isProfileComplete = true
-      this.profileCompletionEvent = this.profile.markCompletedEvent()
+      this.profile = null
+      this.healthData = null
+      this.nutritionalGoal = null
+      this.dietaryRestrictions = []
+      this.restrictionsConfirmed = false
+      this.isProfileComplete = false
+      this.profileCompletionEvent = null
       this.savedRecently = false
       this.error = ''
     },

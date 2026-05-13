@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -24,6 +24,11 @@ async function saveGoal() {
   await profileStore.saveNutritionalGoal(selectedGoal.value)
   saved.value = true
 }
+
+onMounted(async () => {
+  await profileStore.fetchPatientProfile()
+  selectedGoal.value = profileStore.nutritionalGoal?.value ?? ''
+})
 </script>
 
 <template>

@@ -17,7 +17,10 @@ const form = reactive({ type: '', durationMinutes: null, intensity: '' })
 const validation = reactive({ type: '', durationMinutes: '', intensity: '' })
 const burnedCalories = computed(() => progressStore.calculateActivityCalories(form))
 
-onMounted(() => planStore.fetchPatientPlan())
+onMounted(async () => {
+  await planStore.fetchPatientPlan()
+  await progressStore.fetchProgressData()
+})
 
 function validate() {
   validation.type = !form.type ? 'Selecciona una actividad.' : ''

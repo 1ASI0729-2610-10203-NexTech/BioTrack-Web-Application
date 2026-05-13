@@ -1,0 +1,778 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Juan Pérez",
+      "email": "paciente@biotrack.com",
+      "password": "password123",
+      "role": "PACIENTE",
+      "status": "ACTIVE",
+      "emailVerified": true
+    },
+    {
+      "id": 2,
+      "name": "Ana Torres",
+      "email": "nutricionista@biotrack.com",
+      "password": "password123",
+      "role": "NUTRICIONISTA",
+      "status": "ACTIVE",
+      "emailVerified": true
+    },
+    {
+      "id": 3,
+      "name": "Carlos Ruiz",
+      "email": "admin@biotrack.com",
+      "password": "password123",
+      "role": "ADMIN_CORPORATIVO",
+      "status": "ACTIVE",
+      "emailVerified": true
+    }
+  ],
+  "patientProfiles": [
+    {
+      "id": 1,
+      "userId": 1,
+      "weightKg": 78,
+      "heightCm": 175,
+      "age": 32,
+      "biologicalSex": "MALE",
+      "activityLevel": "MODERATE",
+      "systolicPressure": 120,
+      "diastolicPressure": 80,
+      "basalGlucose": 90,
+      "bmi": 25.5,
+      "nutritionalGoal": "GAIN_MUSCLE",
+      "dietaryRestrictions": [],
+      "restrictionsConfirmed": true,
+      "isComplete": true,
+      "assignedNutritionistId": 2
+    }
+  ],
+  "nutritionists": [
+    {
+      "id": 1,
+      "userId": 2,
+      "fullName": "Dra. Ana Torres",
+      "specialty": "Nutrición clínica",
+      "status": "AVAILABLE",
+      "assignedPatientsCount": 1
+    }
+  ],
+  "nutritionistAssignments": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "assignedAt": "2026-04-23",
+      "status": "ACTIVE"
+    }
+  ],
+  "patientPlans": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "name": "Plan Nutricional — Semana 1",
+      "objective": "bajar de peso",
+      "dailyCalories": 1850,
+      "proteinPercentage": 35,
+      "carbohydratePercentage": 45,
+      "fatPercentage": 20,
+      "status": "ACTIVATED",
+      "createdAt": "2026-04-23",
+      "activatedAt": "2026-05-13",
+      "rejectedReason": null
+    }
+  ],
+  "weeklyDiets": [
+    {
+      "id": 1,
+      "planId": 1,
+      "weekNumber": 1,
+      "days": [
+        {
+          "name": "Lunes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Martes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Miércoles",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Jueves",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Viernes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Sábado",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Domingo",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "foodLogs": [
+    {
+      "patientId": 1,
+      "planId": 1,
+      "date": "2026-05-13",
+      "mealType": "desayuno",
+      "description": "avena",
+      "calories": 400,
+      "id": 1
+    }
+  ],
+  "activityLogs": [],
+  "weightRecords": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "date": "2026-04-01",
+      "weightKg": 80,
+      "comment": "Peso inicial"
+    },
+    {
+      "id": 2,
+      "patientId": 1,
+      "date": "2026-04-24",
+      "weightKg": 78,
+      "comment": "Actualización semanal"
+    }
+  ],
+  "subscriptionPlans": [
+    {
+      "id": 1,
+      "name": "Básico",
+      "price": 29,
+      "currency": "PEN",
+      "interval": "MONTHLY",
+      "description": "Para empezar tu camino"
+    },
+    {
+      "id": 2,
+      "name": "Profesional",
+      "price": 59,
+      "currency": "PEN",
+      "interval": "MONTHLY",
+      "description": "Nutricionista + seguimiento completo",
+      "featured": true
+    },
+    {
+      "id": 3,
+      "name": "Premium",
+      "price": 99,
+      "currency": "PEN",
+      "interval": "MONTHLY",
+      "description": "Máximo rendimiento"
+    }
+  ],
+  "subscriptions": [
+    {
+      "userId": 1,
+      "planId": 2,
+      "status": "ACTIVE",
+      "startedAt": "2026-05-13",
+      "nextRenewalAt": "2026-06-13",
+      "id": 1
+    }
+  ],
+  "payments": [
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 1
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 2
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 3
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 4
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 5
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 6
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 7
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 8
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 9
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 10
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 11
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 12
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 13
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 14
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 15
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 16
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 17
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 18
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 19
+    }
+  ],
+  "invoices": [
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 1
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 2
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 3
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 4
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 5
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 6
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 7
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 8
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 9
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 10
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 11
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 12
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 13
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 14
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 15
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 16
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 17
+    }
+  ],
+  "evaluations": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "status": "COMPLETED",
+      "completedAt": "2026-04-23",
+      "notes": "Evaluación inicial completada."
+    }
+  ],
+  "consultations": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "date": "2026-05-20",
+      "status": "SCHEDULED",
+      "notes": ""
+    }
+  ],
+  "adherenceAlerts": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "period": "2026-W18",
+      "adherence": 54,
+      "status": "OPEN",
+      "reviewed": false
+    }
+  ],
+  "evolutionReports": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "period": "2026-04",
+      "status": "AVAILABLE",
+      "generatedAt": "2026-04-30"
+    }
+  ],
+  "companies": [
+    {
+      "id": 1,
+      "adminUserId": 3,
+      "name": "NexTech Corporation",
+      "ruc": "20123456789",
+      "status": "VERIFIED"
+    }
+  ],
+  "collaborators": [
+    {
+      "id": 1,
+      "companyId": 1,
+      "name": "María Salas",
+      "email": "maria.salas@nextech.com",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "companyId": 1,
+      "name": "Diego Paredes",
+      "email": "diego.paredes@nextech.com",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 3,
+      "companyId": 1,
+      "name": "Lucía Campos",
+      "email": "lucia.campos@nextech.com",
+      "status": "INVITED"
+    }
+  ],
+  "corporateMetrics": [
+    {
+      "id": 1,
+      "companyId": 1,
+      "activeCollaborators": 247,
+      "averageAdherence": 72,
+      "averageBmi": 24.8,
+      "usedLicenses": 247,
+      "totalLicenses": 300
+    }
+  ]
+}

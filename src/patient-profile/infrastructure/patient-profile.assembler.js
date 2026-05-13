@@ -2,27 +2,45 @@ import { PatientProfile } from '../domain/model/patient-profile.entity'
 
 export const PatientProfileAssembler = {
   fromApi(payload) {
+    const biologicalSexByApi = {
+      MALE: 'masculino',
+      FEMALE: 'femenino',
+      OTHER: 'otro',
+    }
+    const activityLevelByApi = {
+      LOW: 'baja',
+      MODERATE: 'moderada',
+      HIGH: 'alta',
+    }
+    const goalByApi = {
+      LOSE_WEIGHT: 'bajar-peso',
+      MAINTAIN_WEIGHT: 'mantener-peso',
+      GAIN_MUSCLE: 'ganar-masa',
+    }
+
     return new PatientProfile({
       id: payload.id,
-      patientId: payload.patient_id,
-      firstName: payload.first_name,
-      lastName: payload.last_name,
+      patientId: payload.userId,
+      firstName: payload.firstName ?? 'Juan',
+      lastName: payload.lastName ?? 'Pérez',
       healthData: {
-        weightKg: payload.health_data?.weight_kg,
-        heightCm: payload.health_data?.height_cm,
-        age: payload.health_data?.age,
-        biologicalSex: payload.health_data?.biological_sex,
-        activityLevel: payload.health_data?.activity_level,
-        systolic: payload.health_data?.blood_pressure?.systolic,
-        diastolic: payload.health_data?.blood_pressure?.diastolic,
-        glucoseMgDl: payload.health_data?.glucose_mg_dl,
+        weightKg: payload.weightKg,
+        heightCm: payload.heightCm,
+        age: payload.age,
+        biologicalSex: biologicalSexByApi[payload.biologicalSex] ?? payload.biologicalSex,
+        activityLevel: activityLevelByApi[payload.activityLevel] ?? payload.activityLevel,
+        systolic: payload.systolicPressure,
+        diastolic: payload.diastolicPressure,
+        glucoseMgDl: payload.basalGlucose,
       },
-      dietaryRestrictions: payload.dietary_restrictions,
-      nutritionalGoal: payload.nutritional_goal?.value ?? payload.nutritional_goal,
-      restrictionsConfirmed: payload.restrictions_confirmed,
-      nutritionist: payload.nutritionist,
-      createdAt: payload.created_at,
-      updatedAt: payload.updated_at,
+      dietaryRestrictions: payload.dietaryRestrictions?.length
+        ? payload.dietaryRestrictions
+        : ['Sin restricciones'],
+      nutritionalGoal: goalByApi[payload.nutritionalGoal] ?? payload.nutritionalGoal,
+      restrictionsConfirmed: payload.restrictionsConfirmed,
+      nutritionist: payload.nutritionist ?? 'Dra. Ana Torres',
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt,
     })
   },
 }

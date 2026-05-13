@@ -26,7 +26,8 @@ const todayLabel = computed(() =>
 
 onMounted(async () => {
   const plan = await patientPlanStore.fetchPatientPlan()
-  patientProgressStore.setDailyTargetCalories(plan.targetCalories)
+  await patientProgressStore.fetchProgressData()
+  patientProgressStore.setDailyTargetCalories(plan?.targetCalories ?? 1850)
   patientProgressStore.calculateDailyCalories()
   patientProgressStore.calculateDailyAdherence()
 })

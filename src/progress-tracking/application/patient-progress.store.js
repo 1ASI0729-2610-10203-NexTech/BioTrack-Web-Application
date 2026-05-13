@@ -4,6 +4,11 @@ import { AdherencePercentage } from '../domain/model/adherence-percentage.value-
 import { ActivityRecord } from '../domain/model/activity-record.entity'
 import { WeightRecord } from '../domain/model/weight-record.entity'
 import { ProgressSummary } from '../domain/model/progress-summary.entity'
+import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { patientPlanApiService } from '../../nutritional-planning/infrastructure/patient-plan-api.service'
+import { patientProfileApiService } from '../../patient-profile/infrastructure/patient-profile-api.service'
+import { calculateBMI } from '../../patient-profile/domain/model/bmi.value-object'
+import { patientProgressApiService } from '../infrastructure/patient-progress-api.service'
 
 function getTodayIsoDate() {
   return new Date().toISOString().slice(0, 10)
@@ -22,10 +27,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
   state: () => ({
     foodLogs: [],
     activityLogs: [],
-    weightRecords: [
-      new WeightRecord({ weightKg: 80, date: '2026-04-01', comment: 'Peso inicial' }),
-      new WeightRecord({ weightKg: 78, date: '2026-05-01', comment: 'Seguimiento mensual' }),
-    ],
+    weightRecords: [],
     dailyTargetCalories: 1850,
     dailyConsumedCalories: 0,
     dailyAdherence: new AdherencePercentage(0),
@@ -76,6 +78,27 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     },
   },
   actions: {
+    async fetchProgressData() {
+      this.loading = true
+      this.error = ''
+      const identityStore = useIdentityAccessStore()
+      const patientId = identityStore.currentUser?.id ?? 1
+      const [foodLogs, activityLogs, weightRecords, planResponse] = await Promise.all([
+        patientProgressApiService.fetchFoodLogs(patientId),
+        patientProgressApiService.fetchActivityLogs(patientId),
+        patientProgressApiService.fetchWeightRecords(patientId),
+        patientPlanApiService.fetchCurrentPlan(patientId),
+      ])
+      this.foodLogs = foodLogs
+      this.activityLogs = activityLogs
+      this.weightRecords = weightRecords
+      this.dailyTargetCalories = planResponse?.entity?.targetCalories ?? this.dailyTargetCalories
+      this.calculateDailyCalories()
+      this.calculateDailyAdherence()
+      this.calculateWeeklyAdherence()
+      this.loading = false
+      return this.progressSummary
+    },
     async addFoodLog(foodLog) {
       this.error = ''
       this.savedRecently = false
@@ -90,8 +113,18 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       }
 
       this.loading = true
-      await new Promise((resolve) => setTimeout(resolve, 350))
-      this.foodLogs.push(new FoodLog({ ...foodLog, date: today }))
+      const identityStore = useIdentityAccessStore()
+      const patientId = identityStore.currentUser?.id ?? 1
+      const planResponse = await patientPlanApiService.fetchCurrentPlan(patientId)
+      const created = await patientProgressApiService.createFoodLog({
+        patientId,
+        planId: planResponse?.raw?.id,
+        date: today,
+        mealType: foodLog.mealType,
+        description: foodLog.description,
+        calories: Number(foodLog.calories),
+      })
+      this.foodLogs.push(created)
       this.calculateDailyCalories()
       this.calculateDailyAdherence()
       this.calculateWeeklyAdherence()
@@ -135,15 +168,17 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       this.error = ''
       this.activitySavedRecently = false
       this.loading = true
-      await new Promise((resolve) => setTimeout(resolve, 350))
       const burnedCalories = this.calculateActivityCalories(activity)
-      this.activityLogs.push(
-        new ActivityRecord({
-          ...activity,
-          burnedCalories,
-          date: getTodayIsoDate(),
-        }),
-      )
+      const identityStore = useIdentityAccessStore()
+      const created = await patientProgressApiService.createActivityLog({
+        patientId: identityStore.currentUser?.id ?? 1,
+        date: getTodayIsoDate(),
+        activityType: activity.type,
+        durationMinutes: Number(activity.durationMinutes),
+        intensity: activity.intensity,
+        burnedCalories,
+      })
+      this.activityLogs.push(created)
       this.activitySavedRecently = true
       this.loading = false
       this.calculateProgressSummary()
@@ -157,8 +192,23 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         return false
       }
       this.loading = true
-      await new Promise((resolve) => setTimeout(resolve, 350))
-      this.weightRecords.push(new WeightRecord(weightRecord))
+      const identityStore = useIdentityAccessStore()
+      const patientId = identityStore.currentUser?.id ?? 1
+      const created = await patientProgressApiService.createWeightRecord({
+        patientId,
+        date: weightRecord.date,
+        weightKg: Number(weightRecord.weightKg),
+        comment: weightRecord.comment ?? '',
+      })
+      this.weightRecords.push(created)
+      const profile = await patientProfileApiService.fetchByUserId(patientId)
+      if (profile) {
+        const bmi = calculateBMI(Number(weightRecord.weightKg), profile.healthData.heightCm)
+        await patientProfileApiService.update(profile.id, {
+          weightKg: Number(weightRecord.weightKg),
+          bmi: Number(bmi.value.toFixed(2)),
+        })
+      }
       this.weightSavedRecently = true
       this.loading = false
       this.calculateProgressSummary()

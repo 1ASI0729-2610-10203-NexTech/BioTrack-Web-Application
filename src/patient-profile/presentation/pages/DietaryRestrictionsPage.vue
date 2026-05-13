@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -52,6 +52,11 @@ async function saveRestrictions() {
   await profileStore.saveDietaryRestrictions(restrictions)
   saved.value = true
 }
+
+onMounted(async () => {
+  await profileStore.fetchPatientProfile()
+  selectedRestrictions.value = profileStore.dietaryRestrictions.map((restriction) => restriction.label)
+})
 </script>
 
 <template>

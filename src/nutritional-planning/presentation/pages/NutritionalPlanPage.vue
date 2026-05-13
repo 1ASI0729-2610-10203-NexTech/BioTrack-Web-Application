@@ -13,7 +13,7 @@ const patientProgressStore = usePatientProgressStore()
 
 onMounted(async () => {
   const plan = await patientPlanStore.fetchPatientPlan()
-  patientProgressStore.setDailyTargetCalories(plan.targetCalories)
+  patientProgressStore.setDailyTargetCalories(plan?.targetCalories ?? 1850)
 })
 
 const plan = computed(() => patientPlanStore.currentPlan)
