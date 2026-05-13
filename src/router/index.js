@@ -66,16 +66,13 @@ const router = createRouter({
     {
       path: '/collaborators',
       component: CorporateCollaboratorsPage,
-      props: { title: 'Colaboradores', eyebrow: 'Admin corporativo' },
       meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
     },
     {
       path: '/corporate-metrics',
       component: CorporateMetricsPage,
-      props: { title: 'Metricas corporativas', eyebrow: 'Admin corporativo' },
       meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
     },
-
     {
       path: '/nutritionist-dashboard',
       component: PlaceholderPage,
