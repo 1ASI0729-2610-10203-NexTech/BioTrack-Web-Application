@@ -1,9 +1,9 @@
 import { apiService } from '../../shared/infrastructure/api.service'
-import { NutritionalPlanAssembler } from './nutritional-plan.assembler'
+import { patientPlanApiService } from './patient-plan-api.service'
 
 export const nutritionalPlanningApiService = {
-  async fetchCurrentPlan() {
-    const payload = await apiService.get('/nutritional-planning/current-plan')
-    return NutritionalPlanAssembler.fromApi(payload)
+  async fetchCurrentPlan(patientId = 1) {
+    const response = await patientPlanApiService.fetchCurrentPlan(patientId)
+    return response?.entity ?? null
   },
 }
