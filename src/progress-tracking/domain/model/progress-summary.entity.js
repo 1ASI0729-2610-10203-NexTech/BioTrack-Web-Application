@@ -3,19 +3,21 @@ export class ProgressSummary {
     initialWeight,
     currentWeight,
     targetWeight,
+    currentBMI,
+    bmiStatus,
+    remainingToGoal,
     weeklyAdherence,
     registeredDays,
-    weeklyActivityMinutes,
-    weeklyBurnedCalories,
     averageConsumedCalories,
   }) {
     this.initialWeight = initialWeight
     this.currentWeight = currentWeight
     this.targetWeight = targetWeight
+    this.currentBMI = currentBMI
+    this.bmiStatus = bmiStatus
+    this.remainingToGoal = remainingToGoal
     this.weeklyAdherence = weeklyAdherence
     this.registeredDays = registeredDays
-    this.weeklyActivityMinutes = weeklyActivityMinutes
-    this.weeklyBurnedCalories = weeklyBurnedCalories
     this.averageConsumedCalories = averageConsumedCalories
   }
 }

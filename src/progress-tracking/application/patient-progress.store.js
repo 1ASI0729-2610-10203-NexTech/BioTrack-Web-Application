@@ -7,7 +7,7 @@ import { ProgressSummary } from '../domain/model/progress-summary.entity'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
 import { patientPlanApiService } from '../../nutritional-planning/infrastructure/patient-plan-api.service'
 import { patientProfileApiService } from '../../patient-profile/infrastructure/patient-profile-api.service'
-import { calculateBMI } from '../../patient-profile/domain/model/bmi.value-object'
+import { calculateBMI, getBMIStatus } from '../../patient-profile/domain/model/bmi.value-object'
 import { patientProgressApiService } from '../infrastructure/patient-progress-api.service'
 import {
   calculateRemainingToGoal,
@@ -33,12 +33,14 @@ function getWeekStart() {
 
 async function resolvePatientContext() {
   const identityStore = useIdentityAccessStore()
-  const userId = identityStore.currentUser?.id ?? 1
+  const userId = identityStore.currentUser?.id
+  if (!userId) throw new Error('No existe un usuario autenticado.')
   const planResponse = await patientPlanApiService.fetchCurrentPlan(userId)
   const profile = planResponse?.patientProfile ?? (await patientProfileApiService.fetchByUserId(userId))
+  if (!profile?.id) throw new Error('No existe un perfil de paciente asociado al usuario.')
   return {
     userId,
-    patientProfileId: profile?.id ?? userId,
+    patientProfileId: profile.id,
     profile,
     planResponse,
   }
@@ -49,7 +51,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     foodLogs: [],
     activityLogs: [],
     weightRecords: [],
-    dailyTargetCalories: 1850,
+    dailyCalories: 0,
     dailyConsumedCalories: 0,
     dailyAdherence: new AdherencePercentage(0),
     adherenceSummary: new AdherencePercentage(0),
@@ -74,6 +76,14 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     },
     targetWeight(state) {
       return getTargetWeight(state.patientProfile, this.initialWeight)
+    },
+    currentBMI(state) {
+      const heightCm = state.patientProfile?.healthData?.heightCm
+      if (!this.currentWeight || !heightCm) return null
+      return calculateBMI(this.currentWeight, heightCm).value
+    },
+    bmiStatus() {
+      return getBMIStatus(this.currentBMI)
     },
     weightChange() {
       return calculateWeightChange(this.initialWeight, this.currentWeight)
@@ -131,7 +141,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         this.foodLogs = foodLogs
         this.activityLogs = activityLogs
         this.weightRecords = sortWeightRecordsByDate(weightRecords)
-        this.dailyTargetCalories = planResponse?.entity?.targetCalories ?? this.dailyTargetCalories
+        this.dailyCalories = planResponse?.entity?.dailyCalories ?? 0
         this.calculateDailyCalories()
         this.calculateDailyAdherence()
         this.calculateWeeklyAdherence()
@@ -183,8 +193,8 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     },
     calculateDailyAdherence() {
       const percentage =
-        this.dailyTargetCalories > 0
-          ? (this.dailyConsumedCalories / this.dailyTargetCalories) * 100
+        this.dailyCalories > 0
+          ? (this.dailyConsumedCalories / this.dailyCalories) * 100
           : 0
       this.dailyAdherence = new AdherencePercentage(percentage)
       return this.dailyAdherence
@@ -198,8 +208,8 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       this.error = ''
       this.calculateWeeklyAdherence()
     },
-    setDailyTargetCalories(targetCalories) {
-      this.dailyTargetCalories = targetCalories
+    setDailyCalories(dailyCalories) {
+      this.dailyCalories = Number(dailyCalories ?? 0)
       this.calculateDailyAdherence()
     },
     calculateActivityCalories(activity) {
@@ -271,10 +281,11 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         initialWeight: this.initialWeight,
         currentWeight: this.currentWeight,
         targetWeight: this.targetWeight,
+        currentBMI: this.currentBMI,
+        bmiStatus: this.bmiStatus,
+        remainingToGoal: this.remainingToGoal,
         weeklyAdherence: this.weeklyAdherencePercentage,
         registeredDays: this.registeredDaysCount,
-        weeklyActivityMinutes: this.weeklyActivityMinutes,
-        weeklyBurnedCalories: this.weeklyBurnedCalories,
         averageConsumedCalories,
       })
       return this.progressSummary
@@ -286,7 +297,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       return this.adherenceSummary
     },
     hasEnoughProgressData() {
-      return this.weightRecords.length > 1 || this.activityLogs.length > 0 || this.foodLogs.length > 0
+      return this.weightRecords.length > 1 || this.foodLogs.length > 0
     },
     async createInitialWeightRecordFromProfile(profile, existingRecords = []) {
       if (!profile?.id || !profile?.healthData?.weightKg) return null

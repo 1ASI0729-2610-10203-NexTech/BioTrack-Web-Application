@@ -1,9 +1,16 @@
 import { defineStore } from 'pinia'
 import { HealthData } from '../domain/model/health-data.value-object'
-import { calculateBMI } from '../domain/model/bmi.value-object'
+import { calculateBMI, getBMIStatus } from '../domain/model/bmi.value-object'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
 import { patientProgressApiService } from '../../progress-tracking/infrastructure/patient-progress-api.service'
-import { calculateTargetWeightByGoal } from '../../progress-tracking/domain/model/weight-progress.helpers'
+import {
+  buildWeightGoalMessage,
+  calculateRemainingToGoal,
+  calculateTargetWeightByGoal,
+  getCurrentWeight,
+  getInitialWeight,
+} from '../../progress-tracking/domain/model/weight-progress.helpers'
+import { syncNutritionAccessForUser } from '../../subscriptions-billing/application/subscription-nutrition-access.service'
 import { patientProfileApiService } from '../infrastructure/patient-profile-api.service'
 
 const sexToApi = {
@@ -31,6 +38,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     healthData: null,
     nutritionalGoal: null,
     dietaryRestrictions: [],
+    weightRecords: [],
     isProfileComplete: false,
     profileCompletionEvent: null,
     restrictionsConfirmed: false,
@@ -39,15 +47,40 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     savedRecently: false,
   }),
   getters: {
+    currentProfile(state) {
+      return state.profile
+    },
     bmiValue(state) {
       return state.healthData?.bmi?.value ?? 0
     },
     bmiStatus() {
-      const value = this.bmiValue
-      if (value < 18.5) return 'Bajo peso'
-      if (value < 25) return 'Normal'
-      if (value < 30) return 'Sobrepeso'
-      return 'Obesidad'
+      return getBMIStatus(this.bmiValue)
+    },
+    initialWeight(state) {
+      return getInitialWeight(state.weightRecords, state.profile)
+    },
+    currentWeight(state) {
+      return getCurrentWeight(state.weightRecords, state.profile)
+    },
+    targetWeight(state) {
+      return (
+        state.profile?.targetWeightKg ??
+        calculateTargetWeightByGoal(this.initialWeight, state.nutritionalGoal)
+      )
+    },
+    weightToGoal(state) {
+      return calculateRemainingToGoal(
+        this.currentWeight,
+        this.targetWeight,
+        state.nutritionalGoal,
+      )
+    },
+    weightGoalMessage(state) {
+      return buildWeightGoalMessage(
+        this.targetWeight,
+        this.initialWeight,
+        state.nutritionalGoal,
+      )
     },
     hasHealthData(state) {
       return Boolean(state.healthData)
@@ -74,19 +107,53 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     },
   },
   actions: {
+    async ensurePatientProfile() {
+      if (this.profile) return this.profile
+      const identityStore = useIdentityAccessStore()
+      const userId = identityStore.currentUser?.id
+      if (!userId) throw new Error('No existe un usuario autenticado.')
+
+      const createdProfile = await patientProfileApiService.create({
+        userId,
+        weightKg: null,
+        heightCm: null,
+        age: null,
+        biologicalSex: null,
+        activityLevel: null,
+        systolicPressure: null,
+        diastolicPressure: null,
+        basalGlucose: null,
+        bmi: null,
+        nutritionalGoal: null,
+        targetWeightKg: null,
+        dietaryRestrictions: [],
+        restrictionsConfirmed: false,
+        isComplete: false,
+        assignedNutritionistId: null,
+      })
+      this.profile = createdProfile
+      this.healthData = createdProfile.healthData
+      this.nutritionalGoal = createdProfile.nutritionalGoal
+      this.dietaryRestrictions = createdProfile.dietaryRestrictions
+      this.restrictionsConfirmed = createdProfile.restrictionsConfirmed
+      return createdProfile
+    },
     async fetchPatientProfile() {
       this.loading = true
       this.error = ''
       try {
         const identityStore = useIdentityAccessStore()
-        const fetchedProfile = await patientProfileApiService.fetchByUserId(
-          identityStore.currentUser?.id ?? 1,
-        )
+        const userId = identityStore.currentUser?.id
+        if (!userId) throw new Error('No existe un usuario autenticado.')
+        const fetchedProfile = await patientProfileApiService.fetchByUserId(userId)
         this.profile = fetchedProfile
         this.healthData = fetchedProfile?.healthData ?? null
         this.nutritionalGoal = fetchedProfile?.nutritionalGoal ?? null
         this.dietaryRestrictions = fetchedProfile?.dietaryRestrictions ?? []
         this.restrictionsConfirmed = fetchedProfile?.restrictionsConfirmed ?? false
+        this.weightRecords = fetchedProfile?.id
+          ? await patientProgressApiService.fetchWeightRecords(fetchedProfile.id)
+          : []
         this.checkProfileCompletion()
         return this.profile
       } catch (error) {
@@ -104,16 +171,21 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         const identityStore = useIdentityAccessStore()
         if (!this.profile) {
           await this.fetchPatientProfile()
+          if (!this.profile) await this.ensurePatientProfile()
           this.loading = true
         }
 
         const healthData = new HealthData(data)
         const willBeComplete = Boolean(this.nutritionalGoal && this.restrictionsConfirmed)
-        const targetWeightKg =
-          this.profile?.targetWeightKg ??
-          (this.nutritionalGoal
-            ? calculateTargetWeightByGoal(healthData.weightKg, this.nutritionalGoal)
-            : null)
+        const hasProgressWeightRecords = this.weightRecords.some(
+          (record) => record.type !== 'INITIAL',
+        )
+        const initialWeight = hasProgressWeightRecords
+          ? this.initialWeight ?? healthData.weightKg
+          : healthData.weightKg
+        const targetWeightKg = this.nutritionalGoal
+          ? calculateTargetWeightByGoal(initialWeight, this.nutritionalGoal)
+          : null
         const healthPayload = {
           weightKg: healthData.weightKg,
           heightCm: healthData.heightCm,
@@ -131,7 +203,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         const updatedProfile = this.profile?.id
           ? await patientProfileApiService.updateHealthData(this.profile.id, healthPayload)
           : await patientProfileApiService.create({
-              userId: identityStore.currentUser?.id ?? 1,
+              userId: identityStore.currentUser?.id,
               ...healthPayload,
               nutritionalGoal: this.nutritionalGoal ? goalToApi[this.nutritionalGoal.value] : null,
               dietaryRestrictions: this.dietaryRestrictions.map((restriction) => restriction.label),
@@ -145,8 +217,12 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         this.dietaryRestrictions = updatedProfile.dietaryRestrictions
         this.restrictionsConfirmed = updatedProfile.restrictionsConfirmed
         this.savedRecently = true
-        await this.ensureInitialWeightRecord(updatedProfile)
+        const initialRecord = await this.ensureInitialWeightRecord(updatedProfile)
+        if (initialRecord) {
+          this.weightRecords = await patientProgressApiService.fetchWeightRecords(updatedProfile.id)
+        }
         this.checkProfileCompletion()
+        await this.syncEligibleNutritionAccess()
         return this.healthData
       } catch (error) {
         this.error = 'No se pudieron guardar los datos'
@@ -158,9 +234,26 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     calculateBMI(weightKg = this.healthData?.weightKg, heightCm = this.healthData?.heightCm) {
       return calculateBMI(weightKg, heightCm)
     },
+    getBMIStatus(bmiValue) {
+      return getBMIStatus(bmiValue)
+    },
+    calculateTargetWeight(initialWeight, nutritionalGoal = this.nutritionalGoal) {
+      return calculateTargetWeightByGoal(initialWeight, nutritionalGoal)
+    },
+    calculateWeightToGoal(
+      currentWeight,
+      targetWeight,
+      nutritionalGoal = this.nutritionalGoal,
+    ) {
+      return calculateRemainingToGoal(currentWeight, targetWeight, nutritionalGoal)
+    },
+    getWeightGoalMessage(targetWeight, initialWeight, nutritionalGoal = this.nutritionalGoal) {
+      return buildWeightGoalMessage(targetWeight, initialWeight, nutritionalGoal)
+    },
     async saveNutritionalGoal(goal) {
       if (!this.profile) await this.fetchPatientProfile()
-      const initialWeight = this.healthData?.weightKg
+      if (!this.profile) await this.ensurePatientProfile()
+      const initialWeight = this.initialWeight ?? this.healthData?.weightKg
       const targetWeightKg = initialWeight ? calculateTargetWeightByGoal(initialWeight, goal) : null
       const updatedProfile = await patientProfileApiService.update(this.profile.id, {
         nutritionalGoal: goalToApi[goal],
@@ -172,9 +265,11 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       this.nutritionalGoal = updatedProfile.nutritionalGoal
       this.savedRecently = true
       this.checkProfileCompletion()
+      await this.syncEligibleNutritionAccess()
     },
     async saveDietaryRestrictions(restrictions) {
       if (!this.profile) await this.fetchPatientProfile()
+      if (!this.profile) await this.ensurePatientProfile()
       const normalizedRestrictions = restrictions.includes('Sin restricciones') ? [] : restrictions
       const updatedProfile = await patientProfileApiService.update(this.profile.id, {
         dietaryRestrictions: normalizedRestrictions,
@@ -188,6 +283,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       this.profile.restrictionsConfirmed = true
       this.savedRecently = true
       this.checkProfileCompletion()
+      await this.syncEligibleNutritionAccess()
     },
     markProfileComplete() {
       if (!this.profile) return
@@ -200,6 +296,16 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       )
       if (this.isProfileComplete) this.markProfileComplete()
       return this.isProfileComplete
+    },
+    async syncEligibleNutritionAccess() {
+      if (!this.isProfileComplete) return null
+      const identityStore = useIdentityAccessStore()
+      if (!identityStore.hasVerifiedAccount || !identityStore.currentUser?.id) return null
+      try {
+        return await syncNutritionAccessForUser(identityStore.currentUser.id)
+      } catch {
+        return null
+      }
     },
     getRecommendedCalories() {
       const calorieByGoal = {
@@ -237,6 +343,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       this.healthData = null
       this.nutritionalGoal = null
       this.dietaryRestrictions = []
+      this.weightRecords = []
       this.restrictionsConfirmed = false
       this.isProfileComplete = false
       this.profileCompletionEvent = null

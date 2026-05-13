@@ -5,7 +5,7 @@ export class PatientPlan {
     title,
     nutritionist,
     date,
-    targetCalories,
+    dailyCalories,
     goal,
     macros,
     status = PatientPlanStatus.NONE,
@@ -13,7 +13,7 @@ export class PatientPlan {
     this.title = title
     this.nutritionist = nutritionist
     this.date = date
-    this.targetCalories = targetCalories
+    this.dailyCalories = Number(dailyCalories ?? 0)
     this.goal = goal
     this.macros = macros
     this.status = status

@@ -46,3 +46,18 @@ export function calculateRemainingToGoal(currentWeight, targetWeight, nutritiona
 export function calculateTargetWeightByGoal(initialWeight, nutritionalGoal) {
   return getTargetWeight({ nutritionalGoal }, initialWeight)
 }
+
+export function buildWeightGoalMessage(targetWeight, initialWeight, nutritionalGoal = null) {
+  if (targetWeight == null || initialWeight == null || !nutritionalGoal) {
+    return 'Selecciona un objetivo nutricional para calcular tu peso recomendado.'
+  }
+
+  const goal = normalizeGoal(nutritionalGoal)
+  if (goal === 'LOSE_WEIGHT' || goal === 'bajar-peso') {
+    return `Tu peso objetivo recomendado es ${Number(targetWeight).toFixed(1)} kg según tu objetivo de bajar de peso.`
+  }
+  if (goal === 'GAIN_MUSCLE' || goal === 'ganar-masa') {
+    return `Tu peso objetivo recomendado es ${Number(targetWeight).toFixed(1)} kg según tu objetivo de ganar masa muscular.`
+  }
+  return `Tu peso objetivo recomendado es mantenerte alrededor de ${Number(targetWeight).toFixed(1)} kg.`
+}

@@ -29,9 +29,9 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
       try {
         const identityStore = useIdentityAccessStore()
         this.plans = await subscriptionsBillingApiService.fetchPlans()
-        const active = await subscriptionsBillingApiService.fetchActiveSubscription(
-          identityStore.currentUser?.id ?? 1,
-        )
+        const userId = identityStore.currentUser?.id
+        if (!userId) throw new Error('No existe un usuario autenticado.')
+        const active = await subscriptionsBillingApiService.fetchActiveSubscription(userId)
         this.activeSubscription = active?.entity ?? null
         this.payments = active?.payments ?? []
         this.billingSummary = active
@@ -66,8 +66,13 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
         }
 
         const identityStore = useIdentityAccessStore()
+        const userId = identityStore.currentUser?.id
+        if (!userId) {
+          this.error = 'Debes iniciar sesion para activar una suscripcion.'
+          return false
+        }
         const persisted = await subscriptionsBillingApiService.subscribeToPlan({
-          userId: identityStore.currentUser?.id ?? 1,
+          userId,
           plan: selectedPlan,
         })
         const paymentDate = persisted.payment.paidAt
