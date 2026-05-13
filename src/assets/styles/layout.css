@@ -49,7 +49,8 @@
 }
 
 .bt-dashboard-drawer {
-  width: min(320px, calc(100vw - 24px));
+  width: 40vw;
+  max-width: 360px;
 }
 
 @media (min-width: 641px) {
@@ -70,7 +71,8 @@
     grid-template-columns: 1fr;
   }
 
-  .bt-dashboard-sidebar {
+  .bt-dashboard-sidebar,
+  .bt-enterprise-sidebar.bt-dashboard-sidebar {
     display: none;
   }
 }
@@ -86,5 +88,10 @@
 
   .bt-dashboard-content {
     padding: 24px 16px 32px;
+  }
+
+  .bt-dashboard-drawer {
+    width: 40vw;
+    max-width: none;
   }
 }

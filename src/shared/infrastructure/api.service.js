@@ -3,7 +3,7 @@ import axios from 'axios'
 class ApiService {
   constructor() {
     this.client = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1',
       timeout: 8000,
     })
   }

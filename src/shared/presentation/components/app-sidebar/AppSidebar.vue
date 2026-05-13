@@ -1,6 +1,10 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Avatar from 'primevue/avatar'
 import ScrollPanel from 'primevue/scrollpanel'
+import { useIdentityAccessStore } from '../../../../identity-access/application/identity-access.store'
+import { getSidebarNavigationByRole } from '../../navigation/sidebar-navigation.config'
 
 defineProps({
   drawer: {
@@ -11,14 +15,35 @@ defineProps({
 
 defineEmits(['navigate'])
 
-const navigationItems = [
-  { label: 'Dashboard', icon: 'pi pi-home', to: '/corporate-dashboard' },
-  { label: 'Mi Perfil', icon: 'pi pi-user', to: '/patient-profile' },
-  { label: 'Mis Pacientes', icon: 'pi pi-users', to: '/corporate-dashboard' },
-  { label: 'Plan Nutricional', icon: 'pi pi-check-square', to: '/nutritional-planning' },
-  { label: 'Mi Progreso', icon: 'pi pi-chart-bar', to: '/progress-tracking' },
-  { label: 'Facturacion', icon: 'pi pi-credit-card', to: '/subscriptions-billing' },
-]
+const route = useRoute()
+const identityAccessStore = useIdentityAccessStore()
+
+const navigationItems = computed(() =>
+  getSidebarNavigationByRole(identityAccessStore.currentUser?.role),
+)
+
+const currentUserName = computed(() => {
+  const firstName = identityAccessStore.currentUser?.firstName ?? ''
+  const lastName = identityAccessStore.currentUser?.lastName ?? ''
+  const fullName = `${firstName} ${lastName}`.trim()
+  return fullName || identityAccessStore.currentUser?.email || 'Usuario'
+})
+const currentUserRole = computed(() => identityAccessStore.currentUser?.role ?? '')
+const currentUserInitials = computed(() => {
+  const firstName = identityAccessStore.currentUser?.firstName ?? ''
+  const lastName = identityAccessStore.currentUser?.lastName ?? ''
+  const email = identityAccessStore.currentUser?.email ?? 'BT'
+
+  if (firstName || lastName) {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  }
+
+  return email.slice(0, 2).toUpperCase()
+})
+
+function isActive(routePath) {
+  return route.path === routePath
+}
 </script>
 
 <template>
@@ -38,22 +63,28 @@ const navigationItems = [
               :key="item.label"
               v-ripple
               class="bt-sidebar-link"
-              :to="item.to"
+              :class="{ 'bt-sidebar-link--active': isActive(item.route) }"
+              :to="item.route"
+              :aria-label="item.label"
+              :aria-current="isActive(item.route) ? 'page' : undefined"
               @click="$emit('navigate')"
             >
               <i :class="item.icon" aria-hidden="true" />
               <span>{{ item.label }}</span>
             </RouterLink>
+            <p v-if="!navigationItems.length" class="bt-sidebar-empty">
+              Sin accesos disponibles.
+            </p>
           </nav>
         </ScrollPanel>
       </section>
     </div>
 
     <footer class="bt-sidebar-profile">
-      <Avatar label="JP" shape="circle" class="bt-sidebar-avatar" />
+      <Avatar :label="currentUserInitials" shape="circle" class="bt-sidebar-avatar" />
       <div class="bt-sidebar-profile-copy">
-        <strong>Juan Perez</strong>
-        <span>Paciente</span>
+        <strong>{{ currentUserName }}</strong>
+        <span>{{ currentUserRole || 'Sin rol' }}</span>
       </div>
     </footer>
   </aside>
