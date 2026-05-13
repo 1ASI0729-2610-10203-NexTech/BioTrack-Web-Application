@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { syncNutritionAccessForUser } from '../../subscriptions-billing/application/subscription-nutrition-access.service'
 import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
 
 const SESSION_STORAGE_KEY = 'biotrack.mock-session'
@@ -123,6 +124,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
         this.role = updatedUser.role
         this.isAuthenticated = true
         persistSession(this.currentUser)
+        await syncNutritionAccessForUser(updatedUser.id)
         return true
       } catch (error) {
         this.error = 'No se pudo verificar el correo.'
