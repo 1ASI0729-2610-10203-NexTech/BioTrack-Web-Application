@@ -14,6 +14,7 @@ export class PatientProfile extends BaseEntity {
     dietaryRestrictions = [],
     restrictionsConfirmed = false,
     nutritionist = null,
+    targetWeightKg = null,
     createdAt,
     updatedAt,
   }) {
@@ -39,6 +40,7 @@ export class PatientProfile extends BaseEntity {
     )
     this.restrictionsConfirmed = restrictionsConfirmed
     this.nutritionist = nutritionist
+    this.targetWeightKg = targetWeightKg == null ? null : Number(targetWeightKg)
   }
 
   isComplete() {

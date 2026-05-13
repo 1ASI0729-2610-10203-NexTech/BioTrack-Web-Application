@@ -9,6 +9,14 @@ import { patientPlanApiService } from '../../nutritional-planning/infrastructure
 import { patientProfileApiService } from '../../patient-profile/infrastructure/patient-profile-api.service'
 import { calculateBMI } from '../../patient-profile/domain/model/bmi.value-object'
 import { patientProgressApiService } from '../infrastructure/patient-progress-api.service'
+import {
+  calculateRemainingToGoal,
+  calculateWeightChange,
+  getCurrentWeight,
+  getInitialWeight,
+  getTargetWeight,
+  sortWeightRecordsByDate,
+} from '../domain/model/weight-progress.helpers'
 
 function getTodayIsoDate() {
   return new Date().toISOString().slice(0, 10)
@@ -46,7 +54,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     dailyAdherence: new AdherencePercentage(0),
     adherenceSummary: new AdherencePercentage(0),
     progressSummary: null,
-    targetWeight: 72,
+    patientProfile: null,
     loading: false,
     error: '',
     savedRecently: false,
@@ -59,10 +67,23 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       return state.foodLogs.filter((log) => log.date === today)
     },
     currentWeight(state) {
-      return state.weightRecords[state.weightRecords.length - 1]?.weightKg ?? 0
+      return getCurrentWeight(state.weightRecords, state.patientProfile)
     },
     initialWeight(state) {
-      return state.weightRecords[0]?.weightKg ?? 0
+      return getInitialWeight(state.weightRecords, state.patientProfile)
+    },
+    targetWeight(state) {
+      return getTargetWeight(state.patientProfile, this.initialWeight)
+    },
+    weightChange() {
+      return calculateWeightChange(this.initialWeight, this.currentWeight)
+    },
+    remainingToGoal(state) {
+      return calculateRemainingToGoal(
+        this.currentWeight,
+        this.targetWeight,
+        state.patientProfile?.nutritionalGoal,
+      )
     },
     weeklyActivityMinutes(state) {
       return this.getWeeklyActivityLogs.reduce(
@@ -87,28 +108,40 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       return state.activityLogs.filter((record) => new Date(record.date) >= weekStart)
     },
     getWeightHistory(state) {
-      return [...state.weightRecords].reverse()
+      return sortWeightRecordsByDate(state.weightRecords).reverse()
     },
   },
   actions: {
     async fetchProgressData() {
       this.loading = true
       this.error = ''
-      const { patientProfileId, planResponse } = await resolvePatientContext()
-      const [foodLogs, activityLogs, weightRecords] = await Promise.all([
-        patientProgressApiService.fetchFoodLogs(patientProfileId),
-        patientProgressApiService.fetchActivityLogs(patientProfileId),
-        patientProgressApiService.fetchWeightRecords(patientProfileId),
-      ])
-      this.foodLogs = foodLogs
-      this.activityLogs = activityLogs
-      this.weightRecords = weightRecords
-      this.dailyTargetCalories = planResponse?.entity?.targetCalories ?? this.dailyTargetCalories
-      this.calculateDailyCalories()
-      this.calculateDailyAdherence()
-      this.calculateWeeklyAdherence()
-      this.loading = false
-      return this.progressSummary
+      try {
+        const { patientProfileId, profile, planResponse } = await resolvePatientContext()
+        this.patientProfile = profile
+        let [foodLogs, activityLogs, weightRecords] = await Promise.all([
+          patientProgressApiService.fetchFoodLogs(patientProfileId),
+          patientProgressApiService.fetchActivityLogs(patientProfileId),
+          patientProgressApiService.fetchWeightRecords(patientProfileId),
+        ])
+        const hasInitialWeight = weightRecords.some((record) => record.type === 'INITIAL')
+        if (!hasInitialWeight && profile?.healthData?.weightKg) {
+          const initialRecord = await this.createInitialWeightRecordFromProfile(profile, weightRecords)
+          weightRecords = initialRecord ? [...weightRecords, initialRecord] : weightRecords
+        }
+        this.foodLogs = foodLogs
+        this.activityLogs = activityLogs
+        this.weightRecords = sortWeightRecordsByDate(weightRecords)
+        this.dailyTargetCalories = planResponse?.entity?.targetCalories ?? this.dailyTargetCalories
+        this.calculateDailyCalories()
+        this.calculateDailyAdherence()
+        this.calculateWeeklyAdherence()
+        return this.progressSummary
+      } catch (error) {
+        this.error = 'No se pudo cargar el progreso.'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
     async addFoodLog(foodLog) {
       this.error = ''
@@ -201,25 +234,31 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         return false
       }
       this.loading = true
-      const { patientProfileId, profile } = await resolvePatientContext()
-      const created = await patientProgressApiService.createWeightRecord({
-        patientId: patientProfileId,
-        date: weightRecord.date,
-        weightKg: Number(weightRecord.weightKg),
-        comment: weightRecord.comment ?? '',
-      })
-      this.weightRecords.push(created)
-      if (profile) {
-        const bmi = calculateBMI(Number(weightRecord.weightKg), profile.healthData.heightCm)
-        await patientProfileApiService.update(profile.id, {
+      try {
+        const { patientProfileId, profile } = await resolvePatientContext()
+        const created = await patientProgressApiService.createWeightRecord({
+          patientId: patientProfileId,
+          date: weightRecord.date,
           weightKg: Number(weightRecord.weightKg),
-          bmi: Number(bmi.value.toFixed(2)),
+          type: 'PROGRESS',
+          source: 'WEEKLY_UPDATE',
+          comment: weightRecord.comment ?? '',
         })
+        this.weightRecords = sortWeightRecordsByDate([...this.weightRecords, created])
+        if (profile) {
+          const bmi = calculateBMI(Number(weightRecord.weightKg), profile.healthData.heightCm)
+          this.patientProfile = await patientProfileApiService.update(profile.id, {
+            weightKg: Number(weightRecord.weightKg),
+            bmi: Number(bmi.value.toFixed(2)),
+            updatedAt: new Date().toISOString(),
+          })
+        }
+        this.weightSavedRecently = true
+        this.calculateProgressSummary()
+        return true
+      } finally {
+        this.loading = false
       }
-      this.weightSavedRecently = true
-      this.loading = false
-      this.calculateProgressSummary()
-      return true
     },
     calculateProgressSummary() {
       const averageConsumedCalories = this.registeredDaysCount
@@ -248,6 +287,23 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     },
     hasEnoughProgressData() {
       return this.weightRecords.length > 1 || this.activityLogs.length > 0 || this.foodLogs.length > 0
+    },
+    async createInitialWeightRecordFromProfile(profile, existingRecords = []) {
+      if (!profile?.id || !profile?.healthData?.weightKg) return null
+      const sortedRecords = sortWeightRecordsByDate(existingRecords)
+      const initialDate = sortedRecords.length
+        ? new Date(new Date(sortedRecords[0].date).getTime() - 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10)
+        : profile.createdAt?.toISOString?.().slice(0, 10) ?? getTodayIsoDate()
+      return patientProgressApiService.createWeightRecord({
+        patientId: profile.id,
+        date: initialDate,
+        weightKg: profile.healthData.weightKg,
+        type: 'INITIAL',
+        source: 'HEALTH_PROFILE',
+        comment: 'Peso inicial registrado desde perfil de salud',
+      })
     },
   },
 })
