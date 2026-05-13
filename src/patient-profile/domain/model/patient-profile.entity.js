@@ -14,6 +14,7 @@ export class PatientProfile extends BaseEntity {
     dietaryRestrictions = [],
     restrictionsConfirmed = false,
     nutritionist = null,
+    targetWeightKg = null,
     createdAt,
     updatedAt,
   }) {
@@ -21,9 +22,15 @@ export class PatientProfile extends BaseEntity {
     this.patientId = patientId
     this.firstName = firstName
     this.lastName = lastName
-    this.healthData = healthData instanceof HealthData ? healthData : new HealthData(healthData)
+    this.healthData = healthData
+      ? healthData instanceof HealthData
+        ? healthData
+        : new HealthData(healthData)
+      : null
     this.nutritionalGoal =
-      nutritionalGoal instanceof NutritionalGoal
+      nutritionalGoal == null
+        ? null
+        : nutritionalGoal instanceof NutritionalGoal
         ? nutritionalGoal
         : new NutritionalGoal(nutritionalGoal)
     this.dietaryRestrictions = dietaryRestrictions.map((restriction) =>
@@ -33,6 +40,7 @@ export class PatientProfile extends BaseEntity {
     )
     this.restrictionsConfirmed = restrictionsConfirmed
     this.nutritionist = nutritionist
+    this.targetWeightKg = targetWeightKg == null ? null : Number(targetWeightKg)
   }
 
   isComplete() {

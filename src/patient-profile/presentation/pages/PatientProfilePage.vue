@@ -14,6 +14,29 @@ const health = computed(() => profileStore.healthData)
 const restrictionLabels = computed(() =>
   profileStore.dietaryRestrictions.map((restriction) => restriction.label).join(', '),
 )
+const planReadinessItems = computed(() => [
+  {
+    label: 'Registrar datos de salud validos',
+    completed: profileStore.hasHealthData,
+    route: '/patient-profile/health-data',
+  },
+  {
+    label: 'Seleccionar objetivo nutricional',
+    completed: profileStore.hasGoal,
+    route: '/patient-profile/nutritional-goal',
+  },
+  {
+    label: 'Confirmar restricciones alimentarias',
+    completed: profileStore.hasRestrictionsConfirmed,
+    route: '/patient-profile/restrictions',
+  },
+])
+const canContinueToPlan = computed(() => profileStore.isProfileComplete)
+
+function goToNutritionalPlan() {
+  if (!canContinueToPlan.value) return
+  router.push('/nutritional-plan')
+}
 
 onMounted(() => profileStore.fetchPatientProfile())
 </script>
@@ -80,10 +103,29 @@ onMounted(() => profileStore.fetchPatientProfile())
           <div><dt>Restricciones</dt><dd>{{ restrictionLabels }}</dd></div>
           <div><dt>Nutricionista</dt><dd>{{ profile?.nutritionist ?? 'Pendiente' }}</dd></div>
         </dl>
+        <div class="bt-profile-requirements">
+          <h4>Condiciones para continuar al plan</h4>
+          <button
+            v-for="item in planReadinessItems"
+            :key="item.label"
+            type="button"
+            class="bt-requirement-row"
+            :class="{ 'bt-requirement-row--done': item.completed }"
+            @click="router.push(item.route)"
+          >
+            <i :class="item.completed ? 'pi pi-check-circle' : 'pi pi-circle'" />
+            <span>{{ item.label }}</span>
+          </button>
+        </div>
         <div class="bt-inline-actions">
           <Button label="Seleccionar objetivo" outlined @click="router.push('/patient-profile/nutritional-goal')" />
           <Button label="Registrar restricciones" outlined @click="router.push('/patient-profile/restrictions')" />
-          <Button label="Continuar a Plan Nutricional" @click="router.push('/nutritional-plan')" />
+          <Button
+            label="Continuar a Plan Nutricional"
+            :disabled="!canContinueToPlan"
+            :title="canContinueToPlan ? 'Continuar al plan nutricional' : 'Completa datos de salud, objetivo y restricciones para continuar'"
+            @click="goToNutritionalPlan"
+          />
         </div>
       </article>
     </section>

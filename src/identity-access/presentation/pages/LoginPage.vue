@@ -76,7 +76,6 @@ async function submitLogin() {
       :class="{ 'bt-auth-error': hasErrorState, 'bt-auth-success': hasSuccessState }"
     >
       <header>
-        <p class="bt-auth-kicker">USR1 - Escenario 0 - Credenciales validas</p>
         <h1 class="bt-auth-title">Iniciar sesion</h1>
         <p class="bt-auth-subtitle">Ingresa tus credenciales para acceder.</p>
       </header>
