@@ -27,7 +27,7 @@ const todayLabel = computed(() =>
 onMounted(async () => {
   const plan = await patientPlanStore.fetchPatientPlan()
   await patientProgressStore.fetchProgressData()
-  patientProgressStore.setDailyTargetCalories(plan?.targetCalories ?? 1850)
+  patientProgressStore.setDailyCalories(plan?.dailyCalories ?? 0)
   patientProgressStore.calculateDailyCalories()
   patientProgressStore.calculateDailyAdherence()
 })
@@ -60,12 +60,16 @@ async function submitFoodLog() {
       </div>
     </header>
     <section v-if="!patientPlanStore.hasActivePlan" class="bt-lock-card">
-      <div><p class="microcopy">Seguimiento bloqueado</p><h2>Debes tener un plan nutricional activo para registrar consumo.</h2></div>
+      <div>
+        <p class="microcopy">Seguimiento bloqueado</p>
+        <h2>Debes tener un plan nutricional activo para registrar consumo.</h2>
+        <p class="text-muted">El registro se habilita cuando tu correo está verificado, tu perfil está completo y ya existe un plan activo.</p>
+      </div>
     </section>
     <template v-else>
       <section class="bt-food-summary-grid">
         <article class="bt-patient-card bt-patient-card--blue">
-          <span>Calorias consumidas</span><strong>{{ patientProgressStore.dailyConsumedCalories }} kcal</strong><small>Objetivo: {{ patientProgressStore.dailyTargetCalories }} kcal</small>
+          <span>Calorias consumidas</span><strong>{{ patientProgressStore.dailyConsumedCalories }} kcal</strong><small>Objetivo: {{ patientProgressStore.dailyCalories }} kcal</small>
         </article>
         <article class="bt-patient-card">
           <span>Adherencia del dia</span><strong>{{ patientProgressStore.dailyAdherence.value.toFixed(0) }}%</strong><ProgressBar :value="patientProgressStore.dailyAdherence.value.toFixed(2)" />

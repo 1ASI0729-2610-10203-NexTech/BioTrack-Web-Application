@@ -159,18 +159,52 @@ export const subscriptionsBillingApiService = {
             status: 'PAID',
           })
 
-    const shouldActivateNutrition = ['Profesional', 'Premium'].includes(plan.name)
-    const patientProfile = shouldActivateNutrition ? await this.ensurePatientProfile(userId) : null
-    const patientPlan = shouldActivateNutrition
-      ? await this.ensureActivatedPatientPlan({
-          patientProfileId: patientProfile.id,
-          planName: plan.name,
-          today,
-        })
-      : null
-    const weeklyDiet = patientPlan ? await this.ensureWeeklyDiet(patientPlan.id) : null
+    const nutritionAccess = await this.ensureNutritionAccessForEligibleUser(userId)
+    return { subscription, payment, invoice, ...nutritionAccess }
+  },
 
-    return { subscription, payment, invoice, patientProfile, patientPlan, weeklyDiet }
+  async ensureNutritionAccessForEligibleUser(userId) {
+    const subscriptions = await apiService.get(`${jsonServerBaseUrl}/subscriptions`)
+    const activeSubscription = subscriptions.find(
+      (subscription) => subscription.userId === userId && subscription.status === 'ACTIVE',
+    )
+    if (!activeSubscription) {
+      return { eligible: false, eligibilityReason: 'NO_ACTIVE_SUBSCRIPTION' }
+    }
+
+    const plans = await apiService.get(`${jsonServerBaseUrl}/subscriptionPlans`)
+    const subscriptionPlan = plans.find((plan) => plan.id === activeSubscription.planId)
+    const hasNutritionAccess = ['Profesional', 'Premium'].includes(subscriptionPlan?.name)
+    if (!hasNutritionAccess) {
+      return { eligible: false, eligibilityReason: 'SUBSCRIPTION_WITHOUT_NUTRITION_ACCESS' }
+    }
+
+    const users = await apiService.get(`${jsonServerBaseUrl}/users`)
+    const currentUser = users.find((user) => user.id === userId)
+    if (!currentUser?.emailVerified || currentUser.status !== 'ACTIVE') {
+      return { eligible: false, eligibilityReason: 'EMAIL_NOT_VERIFIED' }
+    }
+
+    const patientProfile = await this.ensurePatientProfile(userId)
+    if (!patientProfile?.isComplete) {
+      return { patientProfile, eligible: false, eligibilityReason: 'PROFILE_INCOMPLETE' }
+    }
+
+    const today = new Date().toISOString().slice(0, 10)
+    const patientPlan = await this.ensureActivatedPatientPlan({
+      patientProfileId: patientProfile.id,
+      planName: subscriptionPlan.name,
+      today,
+    })
+    const weeklyDiet = await this.ensureWeeklyDiet(patientPlan.id)
+
+    return {
+      patientProfile,
+      patientPlan,
+      weeklyDiet,
+      eligible: true,
+      eligibilityReason: null,
+    }
   },
 
   async ensurePatientProfile(userId) {
@@ -180,20 +214,21 @@ export const subscriptionsBillingApiService = {
 
     return apiService.post(`${jsonServerBaseUrl}/patientProfiles`, {
       userId,
-      weightKg: 78,
-      heightCm: 175,
-      age: 32,
-      biologicalSex: 'MALE',
-      activityLevel: 'MODERATE',
-      systolicPressure: 120,
-      diastolicPressure: 80,
-      basalGlucose: 90,
-      bmi: 25.5,
-      nutritionalGoal: 'LOSE_WEIGHT',
+      weightKg: null,
+      heightCm: null,
+      age: null,
+      biologicalSex: null,
+      activityLevel: null,
+      systolicPressure: null,
+      diastolicPressure: null,
+      basalGlucose: null,
+      bmi: null,
+      nutritionalGoal: null,
+      targetWeightKg: null,
       dietaryRestrictions: [],
-      restrictionsConfirmed: true,
-      isComplete: true,
-      assignedNutritionistId: 1,
+      restrictionsConfirmed: false,
+      isComplete: false,
+      assignedNutritionistId: null,
     })
   },
 

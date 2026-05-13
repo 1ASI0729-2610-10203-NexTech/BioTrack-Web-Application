@@ -16,6 +16,21 @@ const goals = [
   { value: 'ganar-masa', label: 'Ganar masa muscular', description: 'Impulsar rendimiento y fuerza.' },
 ]
 const hasError = computed(() => attemptedSave.value && !selectedGoal.value)
+const previewInitialWeight = computed(
+  () => profileStore.initialWeight ?? profileStore.healthData?.weightKg ?? null,
+)
+const targetWeightPreview = computed(() =>
+  selectedGoal.value && previewInitialWeight.value
+    ? profileStore.calculateTargetWeight(previewInitialWeight.value, selectedGoal.value)
+    : null,
+)
+const targetWeightMessage = computed(() =>
+  profileStore.getWeightGoalMessage(
+    targetWeightPreview.value,
+    previewInitialWeight.value,
+    selectedGoal.value,
+  ),
+)
 
 async function saveGoal() {
   attemptedSave.value = true
@@ -41,6 +56,7 @@ onMounted(async () => {
     </header>
     <Message v-if="hasError" severity="error">Debes seleccionar un objetivo antes de continuar.</Message>
     <Message v-if="saved" severity="success">Objetivo nutricional guardado correctamente.</Message>
+    <Message severity="info">{{ targetWeightMessage }}</Message>
     <section class="bt-goal-grid">
       <button
         v-for="goal in goals"

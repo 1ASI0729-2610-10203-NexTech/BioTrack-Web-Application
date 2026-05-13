@@ -4,19 +4,31 @@ import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import Tag from 'primevue/tag'
+import { useIdentityAccessStore } from '../../../identity-access/application/identity-access.store'
+import { usePatientProfileStore } from '../../../patient-profile/application/patient-profile.store'
+import { useSubscriptionsBillingStore } from '../../../subscriptions-billing/application/subscriptions-billing.store'
 import { usePatientPlanStore } from '../../application/patient-plan.store'
 import { usePatientProgressStore } from '../../../progress-tracking/application/patient-progress.store'
 
 const router = useRouter()
+const identityAccessStore = useIdentityAccessStore()
+const patientProfileStore = usePatientProfileStore()
+const billingStore = useSubscriptionsBillingStore()
 const patientPlanStore = usePatientPlanStore()
 const patientProgressStore = usePatientProgressStore()
 
 onMounted(async () => {
+  await identityAccessStore.refreshCurrentUser()
+  await patientProfileStore.fetchPatientProfile()
+  await billingStore.fetchPlans()
   const plan = await patientPlanStore.fetchPatientPlan()
-  patientProgressStore.setDailyTargetCalories(plan?.targetCalories ?? 1850)
+  patientProgressStore.setDailyCalories(plan?.dailyCalories ?? 0)
 })
 
 const plan = computed(() => patientPlanStore.currentPlan)
+const hasNutritionSubscription = computed(() =>
+  ['Profesional', 'Premium'].includes(billingStore.activeSubscription?.planName),
+)
 
 async function acceptPlan() {
   await patientPlanStore.acceptPlan()
@@ -87,7 +99,7 @@ async function acceptPlan() {
       <aside class="bt-plan-side">
         <article class="bt-plan-highlight">
           <span>Calorias diarias</span>
-          <strong>{{ plan?.targetCalories }} kcal</strong>
+          <strong>{{ plan?.dailyCalories }} kcal</strong>
           <small>Objetivo: {{ plan?.goal }}</small>
         </article>
 
@@ -122,7 +134,25 @@ async function acceptPlan() {
         <div class="bt-empty-icon">✓</div>
         <h2>Sin plan nutricional</h2>
         <p>Aún no tienes un plan nutricional activo.</p>
+        <p v-if="!identityAccessStore.hasVerifiedAccount">
+          Tu cuenta debe estar verificada antes de habilitar el flujo nutricional.
+        </p>
+        <p v-else-if="!patientProfileStore.isProfileComplete">
+          Completa primero tu perfil de salud, objetivo nutricional y restricciones.
+        </p>
+        <p v-else-if="!hasNutritionSubscription">
+          Tu perfil está listo. Contrata un plan Profesional o Premium para activar tu plan nutricional.
+        </p>
+        <p v-else>
+          Tu suscripción está activa. Estamos preparando tu plan nutricional; vuelve a cargar esta vista si acabas de completar el proceso.
+        </p>
         <Button label="Completar mi perfil de salud" @click="router.push('/patient-profile')" />
+        <Button
+          v-if="identityAccessStore.hasVerifiedAccount && patientProfileStore.isProfileComplete && !hasNutritionSubscription"
+          label="Ir a Facturación"
+          outlined
+          @click="router.push('/subscriptions-billing')"
+        />
       </article>
     </section>
   </section>
