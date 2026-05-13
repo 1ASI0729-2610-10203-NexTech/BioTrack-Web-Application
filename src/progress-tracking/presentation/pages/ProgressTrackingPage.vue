@@ -21,7 +21,7 @@ onMounted(async () => {
 <template>
   <section class="bt-progress-page">
     <header class="bt-patient-heading">
-      <div><h1>Mi progreso</h1><p class="text-muted">Resumen semanal sin grafico real por ahora.</p></div>
+      <div><h1>Mi progreso</h1><p class="text-muted">Resumen semanal</p></div>
     </header>
     <section v-if="!planStore.hasActivePlan" class="bt-lock-card">
       <div><p class="microcopy">Seguimiento bloqueado</p><h2>Aun no tienes un plan nutricional activo</h2><p class="text-muted">Cuando tu nutricionista active un plan, podras registrar actividad, peso y revisar tu adherencia.</p></div>

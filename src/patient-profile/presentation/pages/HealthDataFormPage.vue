@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Message from 'primevue/message'
@@ -8,6 +9,7 @@ import Select from 'primevue/select'
 import { usePatientProfileStore } from '../../application/patient-profile.store'
 
 const router = useRouter()
+const toast = useToast()
 const profileStore = usePatientProfileStore()
 const form = reactive({
   weightKg: null,
@@ -54,7 +56,22 @@ function validate() {
 async function submit() {
   validate()
   if (!canSave.value) return
-  await profileStore.saveHealthData(form)
+  try {
+    await profileStore.saveHealthData({ ...form })
+    toast.add({
+      severity: 'success',
+      summary: 'Datos actualizados',
+      detail: 'Datos de salud actualizados correctamente',
+      life: 3000,
+    })
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: 'Error al guardar',
+      detail: 'No se pudieron guardar los datos',
+      life: 3500,
+    })
+  }
 }
 
 onMounted(async () => {
@@ -78,7 +95,6 @@ onMounted(async () => {
   <section class="bt-profile-form-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">US09</p>
         <h1>Registrar datos de salud</h1>
         <p class="text-muted">Actualiza tus datos clinicos con validaciones claras.</p>
       </div>

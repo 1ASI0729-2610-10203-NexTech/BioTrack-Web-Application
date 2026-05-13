@@ -35,7 +35,7 @@ async function submit() {
 
 <template>
   <section class="bt-weight-page">
-    <header class="bt-patient-heading"><div><p class="microcopy">US29</p><h1>Actualizar peso semanal</h1><p class="text-muted">Controla tu evolucion con un registro simple.</p></div></header>
+    <header class="bt-patient-heading"><div><h1>Actualizar peso semanal</h1><p class="text-muted">Controla tu evolucion con un registro simple.</p></div></header>
     <section v-if="!planStore.hasActivePlan" class="bt-lock-card">
       <div><h2>Aun no tienes un plan nutricional activo</h2><p class="text-muted">Activa tu plan para registrar peso dentro del seguimiento.</p></div>
       <Button label="Ir a Plan Nutricional" @click="router.push('/nutritional-plan')" />

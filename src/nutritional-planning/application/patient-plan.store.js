@@ -22,34 +22,51 @@ export const usePatientPlanStore = defineStore('patient-plan', {
     hasProposedPlan(state) {
       return state.planStatus === PatientPlanStatus.PROPOSED
     },
+    hasRejectedPlan(state) {
+      return state.planStatus === PatientPlanStatus.REJECTED
+    },
   },
   actions: {
     async fetchPatientPlan() {
       this.loading = true
       this.error = ''
-      const identityStore = useIdentityAccessStore()
-      const response = await patientPlanApiService.fetchCurrentPlan(identityStore.currentUser?.id ?? 1)
-      this.currentPlan = response?.entity ?? null
-      this.currentPlanId = response?.raw?.id ?? null
-      this.planStatus = response?.raw?.status ?? PatientPlanStatus.NONE
-      this.nutritionist = response?.entity?.nutritionist ?? ''
-      this.weeklyDiet = this.currentPlanId
-        ? await patientPlanApiService.fetchWeeklyDiet(this.currentPlanId)
-        : null
-      this.loading = false
-      return this.currentPlan
+      try {
+        const identityStore = useIdentityAccessStore()
+        const response = await patientPlanApiService.fetchCurrentPlan(identityStore.currentUser?.id ?? 1)
+        this.currentPlan = response?.entity ?? null
+        this.currentPlanId = response?.raw?.id ?? null
+        this.planStatus = response?.raw?.status ?? PatientPlanStatus.NONE
+        this.nutritionist = response?.entity?.nutritionist ?? ''
+        this.weeklyDiet = this.currentPlanId
+          ? await patientPlanApiService.fetchWeeklyDiet(this.currentPlanId)
+          : null
+        return this.currentPlan
+      } catch (error) {
+        this.error = 'No se pudo cargar el plan nutricional.'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
     async acceptPlan() {
       this.loading = true
-      await this.fetchPatientPlan()
-      const updatedPlan = await patientPlanApiService.acceptPlan(this.currentPlanId)
-      this.planStatus = updatedPlan.status
-      this.currentPlan = new PatientPlan({
-        ...this.currentPlan,
-        status: updatedPlan.status,
-      })
-      this.acceptedRecently = true
-      this.loading = false
+      this.error = ''
+      try {
+        if (!this.currentPlanId) await this.fetchPatientPlan()
+        if (!this.currentPlanId) throw new Error('Patient plan not found')
+        const updatedPlan = await patientPlanApiService.acceptPlan(this.currentPlanId)
+        this.planStatus = updatedPlan.status
+        this.currentPlan = new PatientPlan({
+          ...this.currentPlan,
+          status: updatedPlan.status,
+        })
+        this.acceptedRecently = true
+      } catch (error) {
+        this.error = 'No se pudo aceptar el plan.'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
     async rejectPlan(reason = 'Rechazado por el paciente') {
       await this.fetchPatientPlan()

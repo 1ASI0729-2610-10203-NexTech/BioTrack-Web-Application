@@ -1,18 +1,24 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
+import Message from 'primevue/message'
 import Tag from 'primevue/tag'
+import { useIdentityAccessStore } from '../../../identity-access/application/identity-access.store'
 import { usePatientPlanStore } from '../../application/patient-plan.store'
 import { usePatientProgressStore } from '../../../progress-tracking/application/patient-progress.store'
 
 const router = useRouter()
+const toast = useToast()
+const identityAccessStore = useIdentityAccessStore()
 const patientPlanStore = usePatientPlanStore()
 const patientProgressStore = usePatientProgressStore()
 
 onMounted(async () => {
+  await identityAccessStore.refreshCurrentUser()
   const plan = await patientPlanStore.fetchPatientPlan()
-  patientProgressStore.setDailyTargetCalories(plan.targetCalories)
+  patientProgressStore.setDailyTargetCalories(plan?.targetCalories ?? 1850)
 })
 
 const planLabel = computed(() =>
@@ -22,6 +28,18 @@ const planLabel = computed(() =>
       ? 'Propuesto'
       : 'Sin plan',
 )
+const requiresEmailVerification = computed(() => !identityAccessStore.hasVerifiedAccount)
+
+async function verifyEmail() {
+  await identityAccessStore.verifyEmail()
+  toast.add({
+    severity: 'success',
+    summary: 'Correo verificado',
+    detail: 'Correo verificado correctamente',
+    life: 3000,
+  })
+  await patientPlanStore.fetchPatientPlan()
+}
 </script>
 
 <template>
@@ -34,6 +52,18 @@ const planLabel = computed(() =>
       </div>
       <Tag :value="`Plan: ${planLabel}`" severity="info" />
     </header>
+
+    <Message v-if="requiresEmailVerification" severity="warn" class="bt-verification-message">
+      <div class="bt-verification-content">
+        <span>Tu correo aún no ha sido verificado. Verifica tu cuenta para acceder a todas las funcionalidades.</span>
+        <Button
+          label="Verificar correo"
+          size="small"
+          :loading="identityAccessStore.loading"
+          @click="verifyEmail"
+        />
+      </div>
+    </Message>
 
     <section class="bt-patient-summary-grid">
       <article class="bt-patient-card">
@@ -66,7 +96,7 @@ const planLabel = computed(() =>
           Tu plan esta en revision. Cuando se active podras registrar alimentos y revisar tu dieta semanal.
         </p>
       </div>
-      <Button label="Ver estado de mi asignacion" @click="router.push('/nutritional-plan')" />
+      <Button label="Ver plan nutricional" @click="router.push('/nutritional-plan')" />
     </section>
 
     <section class="bt-quick-actions">

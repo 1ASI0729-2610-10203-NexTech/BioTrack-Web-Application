@@ -75,40 +75,75 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     async fetchPatientProfile() {
       this.loading = true
       this.error = ''
-      const identityStore = useIdentityAccessStore()
-      const fetchedProfile = await patientProfileApiService.fetchByUserId(
-        identityStore.currentUser?.id ?? 1,
-      )
-      this.profile = fetchedProfile
-      this.healthData = fetchedProfile?.healthData ?? null
-      this.nutritionalGoal = fetchedProfile?.nutritionalGoal ?? null
-      this.dietaryRestrictions = fetchedProfile?.dietaryRestrictions ?? []
-      this.restrictionsConfirmed = fetchedProfile?.restrictionsConfirmed ?? false
-      this.checkProfileCompletion()
-      this.loading = false
-      return this.profile
+      try {
+        const identityStore = useIdentityAccessStore()
+        const fetchedProfile = await patientProfileApiService.fetchByUserId(
+          identityStore.currentUser?.id ?? 1,
+        )
+        this.profile = fetchedProfile
+        this.healthData = fetchedProfile?.healthData ?? null
+        this.nutritionalGoal = fetchedProfile?.nutritionalGoal ?? null
+        this.dietaryRestrictions = fetchedProfile?.dietaryRestrictions ?? []
+        this.restrictionsConfirmed = fetchedProfile?.restrictionsConfirmed ?? false
+        this.checkProfileCompletion()
+        return this.profile
+      } catch (error) {
+        this.error = 'No se pudo cargar el perfil del paciente.'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
     async saveHealthData(data) {
       this.loading = true
       this.error = ''
-      const healthData = new HealthData(data)
-      const updatedProfile = await patientProfileApiService.update(this.profile.id, {
-        weightKg: healthData.weightKg,
-        heightCm: healthData.heightCm,
-        age: healthData.age,
-        biologicalSex: sexToApi[healthData.biologicalSex.value],
-        activityLevel: activityToApi[healthData.activityLevel.value],
-        systolicPressure: healthData.bloodPressure.systolic,
-        diastolicPressure: healthData.bloodPressure.diastolic,
-        basalGlucose: healthData.glucoseMgDl,
-        bmi: Number(healthData.bmi.value.toFixed(2)),
-      })
-      this.profile = updatedProfile
-      this.healthData = updatedProfile.healthData
-      this.savedRecently = true
-      this.loading = false
-      this.checkProfileCompletion()
-      return this.healthData
+      this.savedRecently = false
+      try {
+        const identityStore = useIdentityAccessStore()
+        if (!this.profile) {
+          await this.fetchPatientProfile()
+          this.loading = true
+        }
+
+        const healthData = new HealthData(data)
+        const willBeComplete = Boolean(this.nutritionalGoal && this.restrictionsConfirmed)
+        const healthPayload = {
+          weightKg: healthData.weightKg,
+          heightCm: healthData.heightCm,
+          age: healthData.age,
+          biologicalSex: sexToApi[healthData.biologicalSex.value],
+          activityLevel: activityToApi[healthData.activityLevel.value],
+          systolicPressure: healthData.bloodPressure.systolic,
+          diastolicPressure: healthData.bloodPressure.diastolic,
+          basalGlucose: healthData.glucoseMgDl,
+          bmi: Number(healthData.bmi.value.toFixed(2)),
+          isComplete: willBeComplete,
+        }
+        const updatedProfile = this.profile?.id
+          ? await patientProfileApiService.updateHealthData(this.profile.id, healthPayload)
+          : await patientProfileApiService.create({
+              userId: identityStore.currentUser?.id ?? 1,
+              ...healthPayload,
+              nutritionalGoal: this.nutritionalGoal ? goalToApi[this.nutritionalGoal.value] : null,
+              dietaryRestrictions: this.dietaryRestrictions.map((restriction) => restriction.label),
+              restrictionsConfirmed: this.restrictionsConfirmed,
+              assignedNutritionistId: null,
+            })
+
+        this.profile = updatedProfile
+        this.healthData = updatedProfile.healthData
+        this.nutritionalGoal = updatedProfile.nutritionalGoal
+        this.dietaryRestrictions = updatedProfile.dietaryRestrictions
+        this.restrictionsConfirmed = updatedProfile.restrictionsConfirmed
+        this.savedRecently = true
+        this.checkProfileCompletion()
+        return this.healthData
+      } catch (error) {
+        this.error = 'No se pudieron guardar los datos'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
     calculateBMI(weightKg = this.healthData?.weightKg, heightCm = this.healthData?.heightCm) {
       return calculateBMI(weightKg, heightCm)
@@ -116,6 +151,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     async saveNutritionalGoal(goal) {
       const updatedProfile = await patientProfileApiService.update(this.profile.id, {
         nutritionalGoal: goalToApi[goal],
+        isComplete: Boolean(this.healthData && this.restrictionsConfirmed),
       })
       this.profile = updatedProfile
       this.nutritionalGoal = updatedProfile.nutritionalGoal
@@ -127,6 +163,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       const updatedProfile = await patientProfileApiService.update(this.profile.id, {
         dietaryRestrictions: normalizedRestrictions,
         restrictionsConfirmed: true,
+        isComplete: Boolean(this.healthData && this.nutritionalGoal),
       })
       this.profile = updatedProfile
       this.dietaryRestrictions = updatedProfile.dietaryRestrictions
@@ -136,9 +173,9 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       this.checkProfileCompletion()
     },
     markProfileComplete() {
+      if (!this.profile) return
       this.isProfileComplete = true
       this.profileCompletionEvent = this.profile.markCompletedEvent()
-      patientProfileApiService.update(this.profile.id, { isComplete: true })
     },
     checkProfileCompletion() {
       this.isProfileComplete = Boolean(

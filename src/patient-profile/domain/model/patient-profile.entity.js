@@ -21,9 +21,15 @@ export class PatientProfile extends BaseEntity {
     this.patientId = patientId
     this.firstName = firstName
     this.lastName = lastName
-    this.healthData = healthData instanceof HealthData ? healthData : new HealthData(healthData)
+    this.healthData = healthData
+      ? healthData instanceof HealthData
+        ? healthData
+        : new HealthData(healthData)
+      : null
     this.nutritionalGoal =
-      nutritionalGoal instanceof NutritionalGoal
+      nutritionalGoal == null
+        ? null
+        : nutritionalGoal instanceof NutritionalGoal
         ? nutritionalGoal
         : new NutritionalGoal(nutritionalGoal)
     this.dietaryRestrictions = dietaryRestrictions.map((restriction) =>

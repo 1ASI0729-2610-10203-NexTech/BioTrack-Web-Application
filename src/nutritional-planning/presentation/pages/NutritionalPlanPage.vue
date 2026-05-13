@@ -34,7 +34,9 @@ async function acceptPlan() {
               ? 'Revisar plan propuesto'
               : patientPlanStore.hasActivePlan
                 ? 'Plan nutricional activo'
-                : 'Vista de Dieta Semanal'
+                : patientPlanStore.hasRejectedPlan
+                  ? 'Plan nutricional rechazado'
+                  : 'Plan nutricional'
           }}
         </h1>
         <p class="text-muted">
@@ -43,13 +45,16 @@ async function acceptPlan() {
               ? 'Tu nutricionista ha preparado un plan personalizado para ti.'
               : patientPlanStore.hasActivePlan
                 ? 'Tu plan ya esta disponible y listo para seguir.'
-                : 'Aun no tienes un plan nutricional activo.'
+                : patientPlanStore.hasRejectedPlan
+                  ? 'El plan fue rechazado y queda pendiente de actualización.'
+                  : 'Aún no tienes un plan nutricional activo.'
           }}
         </p>
       </div>
       <Tag
-        :value="patientPlanStore.hasActivePlan ? 'Plan activo' : 'Estado: Propuesto'"
-        :severity="patientPlanStore.hasActivePlan ? 'success' : 'warn'"
+        v-if="patientPlanStore.hasProposedPlan || patientPlanStore.hasActivePlan || patientPlanStore.hasRejectedPlan"
+        :value="patientPlanStore.hasActivePlan ? 'Plan activo' : patientPlanStore.hasRejectedPlan ? 'Estado: Rechazado' : 'Estado: Propuesto'"
+        :severity="patientPlanStore.hasActivePlan ? 'success' : patientPlanStore.hasRejectedPlan ? 'danger' : 'warn'"
       />
     </header>
 
@@ -60,7 +65,6 @@ async function acceptPlan() {
             <h3>{{ plan?.title }}</h3>
             <p class="text-muted">Elaborado por {{ plan?.nutritionist }} - {{ plan?.date }}</p>
           </div>
-          <Button label="Ver completo" outlined size="small" />
         </div>
 
         <div class="bt-plan-preview">
@@ -105,32 +109,21 @@ async function acceptPlan() {
       </aside>
     </section>
 
+    <section v-else-if="patientPlanStore.hasRejectedPlan" class="bt-empty-plan-layout">
+      <article class="bt-empty-plan-card">
+        <div class="bt-empty-icon">!</div>
+        <h2>Plan rechazado</h2>
+        <p>Tu plan nutricional fue rechazado. Cuando exista una nueva propuesta, aparecerá en esta sección.</p>
+      </article>
+    </section>
+
     <section v-else class="bt-empty-plan-layout">
       <article class="bt-empty-plan-card">
         <div class="bt-empty-icon">✓</div>
         <h2>Sin plan nutricional</h2>
-        <p>
-          Aun no tienes un plan nutricional activo. Tu nutricionista asignado preparara una una vez que completes tu perfil de salud.
-        </p>
+        <p>Aún no tienes un plan nutricional activo.</p>
         <Button label="Completar mi perfil de salud" @click="router.push('/patient-profile')" />
-        <Button label="Ver estado de mi asignacion" outlined />
       </article>
-
-      <aside class="bt-empty-plan-side">
-        <article class="bt-dashboard-panel">
-          <h3>Proximos pasos</h3>
-          <ul class="bt-steps-list">
-            <li><strong>Perfil de salud completado</strong><span>Datos biometricos registrados</span></li>
-            <li><strong>Nutricionista asignado</strong><span>Dra. Ana Torres</span></li>
-            <li><strong>Revision del nutricionista</strong><span>En espera</span></li>
-            <li><strong>Plan nutricional propuesto</strong><span>Pendiente de creacion</span></li>
-          </ul>
-        </article>
-        <Message severity="info">
-          <strong>Tu nutricionista ya fue notificada</strong>
-          <span>Dra. Ana Torres preparara tu plan en los proximos dias.</span>
-        </Message>
-      </aside>
     </section>
   </section>
 </template>

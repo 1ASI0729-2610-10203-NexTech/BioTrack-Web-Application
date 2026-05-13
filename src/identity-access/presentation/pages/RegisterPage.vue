@@ -78,7 +78,6 @@ async function submitRegister() {
       :class="{ 'bt-auth-error': hasErrorState, 'bt-auth-success': hasSuccessState }"
     >
       <header>
-        <p class="bt-auth-kicker">USR1 - Escenario 1 - Registro exitoso</p>
         <h1 class="bt-auth-title">
           {{ hasSuccessState ? '¡Cuenta creada con exito!' : 'Crear cuenta' }}
         </h1>
