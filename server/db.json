@@ -51,6 +51,7 @@
       "basalGlucose": 90,
       "bmi": 25.5,
       "nutritionalGoal": "LOSE_WEIGHT",
+      "targetWeightKg": 72,
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "isComplete": true,
@@ -69,10 +70,12 @@
       "bmi": 26.99,
       "isComplete": true,
       "nutritionalGoal": "LOSE_WEIGHT",
+      "targetWeightKg": 72,
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "assignedNutritionistId": null,
-      "id": 2
+      "id": 2,
+      "updatedAt": "2026-05-13T21:34:38.884Z"
     }
   ],
   "nutritionists": [
@@ -566,6 +569,33 @@
       "description": "guiso",
       "calories": 500,
       "id": 2
+    },
+    {
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "desayuno",
+      "description": "desayuno",
+      "calories": 500,
+      "id": 3
+    },
+    {
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "almuerzo",
+      "description": "hola",
+      "calories": 400,
+      "id": 4
+    },
+    {
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "merienda",
+      "description": "bueno",
+      "calories": 500,
+      "id": 5
     }
   ],
   "activityLogs": [],
@@ -573,16 +603,38 @@
     {
       "id": 1,
       "patientId": 1,
-      "date": "2026-04-01",
-      "weightKg": 80,
-      "comment": "Peso inicial"
+      "date": "2026-04-24",
+      "weightKg": 78,
+      "type": "INITIAL",
+      "source": "HEALTH_PROFILE",
+      "comment": "Peso inicial registrado desde perfil de salud"
     },
     {
       "id": 2,
       "patientId": 1,
-      "date": "2026-04-24",
+      "date": "2026-05-01",
       "weightKg": 78,
+      "type": "PROGRESS",
+      "source": "WEEKLY_UPDATE",
       "comment": "Actualización semanal"
+    },
+    {
+      "patientId": 2,
+      "date": "2026-05-12",
+      "weightKg": 78,
+      "type": "INITIAL",
+      "source": "HEALTH_PROFILE",
+      "comment": "Peso inicial registrado desde perfil de salud",
+      "id": 3
+    },
+    {
+      "patientId": 2,
+      "date": "2026-05-13",
+      "weightKg": 77,
+      "type": "PROGRESS",
+      "source": "WEEKLY_UPDATE",
+      "comment": "",
+      "id": 4
     }
   ],
   "subscriptionPlans": [

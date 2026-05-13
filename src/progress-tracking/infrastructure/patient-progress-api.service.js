@@ -28,8 +28,12 @@ function mapActivityLog(payload) {
 
 function mapWeightRecord(payload) {
   return new WeightRecord({
+    id: payload.id,
+    patientId: payload.patientId,
     weightKg: payload.weightKg,
     date: payload.date,
+    type: payload.type,
+    source: payload.source,
     comment: payload.comment,
   })
 }
@@ -60,8 +64,18 @@ export const patientProgressApiService = {
     return records.filter((record) => record.patientId === patientId).map(mapWeightRecord)
   },
 
+  async fetchRawWeightRecords(patientId) {
+    const records = await apiService.get(`${jsonServerBaseUrl}/weightRecords`)
+    return records.filter((record) => record.patientId === patientId)
+  },
+
   async createWeightRecord(payload) {
     const created = await apiService.post(`${jsonServerBaseUrl}/weightRecords`, payload)
     return mapWeightRecord(created)
+  },
+
+  async updateWeightRecord(recordId, payload) {
+    const updated = await apiService.patch(`${jsonServerBaseUrl}/weightRecords/${recordId}`, payload)
+    return mapWeightRecord(updated)
   },
 }
