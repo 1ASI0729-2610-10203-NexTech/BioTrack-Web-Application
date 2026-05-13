@@ -26,57 +26,26 @@
       "role": "ADMIN_CORPORATIVO",
       "status": "ACTIVE",
       "emailVerified": true
-    },
-    {
-      "name": "Test testapelido",
-      "email": "test1234@biotrack.com",
-      "password": "12345678",
-      "role": "PACIENTE",
-      "status": "ACTIVE",
-      "emailVerified": true,
-      "id": 4
     }
   ],
   "patientProfiles": [
     {
+      "id": 1,
       "userId": 1,
       "weightKg": 78,
-      "heightCm": 170,
-      "age": 25,
+      "heightCm": 175,
+      "age": 32,
       "biologicalSex": "MALE",
       "activityLevel": "MODERATE",
-      "systolicPressure": 100,
-      "diastolicPressure": 60,
-      "basalGlucose": 70,
-      "bmi": 26.99,
-      "nutritionalGoal": "LOSE_WEIGHT",
-      "targetWeightKg": 72,
-      "dietaryRestrictions": [],
-      "restrictionsConfirmed": true,
-      "isComplete": true,
-      "assignedNutritionistId": null,
-      "id": 1,
-      "updatedAt": "2026-05-13T23:04:56.937Z"
-    },
-    {
-      "userId": 4,
-      "weightKg": 78,
-      "heightCm": 170,
-      "age": 25,
-      "biologicalSex": "MALE",
-      "activityLevel": "MODERATE",
-      "systolicPressure": 80,
+      "systolicPressure": 120,
       "diastolicPressure": 80,
-      "basalGlucose": 60,
-      "bmi": 26.99,
-      "nutritionalGoal": "LOSE_WEIGHT",
-      "targetWeightKg": 72,
+      "basalGlucose": 90,
+      "bmi": 25.5,
+      "nutritionalGoal": "GAIN_MUSCLE",
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "isComplete": true,
-      "assignedNutritionistId": null,
-      "id": 2,
-      "updatedAt": "2026-05-13T23:09:41.530Z"
+      "assignedNutritionistId": 2
     }
   ],
   "nutritionists": [
@@ -86,23 +55,31 @@
       "fullName": "Dra. Ana Torres",
       "specialty": "Nutrición clínica",
       "status": "AVAILABLE",
-      "assignedPatientsCount": 0
+      "assignedPatientsCount": 1
     }
   ],
-  "nutritionistAssignments": [],
+  "nutritionistAssignments": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "assignedAt": "2026-04-23",
+      "status": "ACTIVE"
+    }
+  ],
   "patientPlans": [
     {
       "id": 1,
-      "patientId": 2,
+      "patientId": 1,
       "nutritionistId": 1,
       "name": "Plan Nutricional — Semana 1",
       "objective": "bajar de peso",
-      "dailyCalories": 1950,
+      "dailyCalories": 1850,
       "proteinPercentage": 35,
       "carbohydratePercentage": 45,
       "fatPercentage": 20,
       "status": "ACTIVATED",
-      "createdAt": "2026-05-13",
+      "createdAt": "2026-04-23",
       "activatedAt": "2026-05-13",
       "rejectedReason": null
     }
@@ -319,26 +296,32 @@
       ]
     }
   ],
-  "foodLogs": [],
+  "foodLogs": [
+    {
+      "patientId": 1,
+      "planId": 1,
+      "date": "2026-05-13",
+      "mealType": "desayuno",
+      "description": "avena",
+      "calories": 400,
+      "id": 1
+    }
+  ],
   "activityLogs": [],
   "weightRecords": [
     {
+      "id": 1,
       "patientId": 1,
-      "date": "2026-05-13",
-      "weightKg": 78,
-      "type": "INITIAL",
-      "source": "HEALTH_PROFILE",
-      "comment": "Peso inicial registrado desde perfil de salud",
-      "id": 1
+      "date": "2026-04-01",
+      "weightKg": 80,
+      "comment": "Peso inicial"
     },
     {
-      "patientId": 2,
-      "date": "2026-05-13",
+      "id": 2,
+      "patientId": 1,
+      "date": "2026-04-24",
       "weightKg": 78,
-      "type": "INITIAL",
-      "source": "HEALTH_PROFILE",
-      "comment": "Peso inicial registrado desde perfil de salud",
-      "id": 2
+      "comment": "Actualización semanal"
     }
   ],
   "subscriptionPlans": [
@@ -370,8 +353,8 @@
   ],
   "subscriptions": [
     {
-      "userId": 4,
-      "planId": 3,
+      "userId": 1,
+      "planId": 2,
       "status": "ACTIVE",
       "startedAt": "2026-05-13",
       "nextRenewalAt": "2026-06-13",
@@ -381,14 +364,212 @@
   "payments": [
     {
       "subscriptionId": 1,
-      "userId": 4,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 1
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 2
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 3
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 4
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 5
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
       "planId": 3,
       "amount": 99,
       "currency": "PEN",
       "status": "PAID",
       "paidAt": "2026-05-13",
       "cardLastFourDigits": "4521",
-      "id": 1
+      "id": 6
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 7
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 8
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 9
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 10
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 11
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 12
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 13
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 14
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 1,
+      "amount": 29,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 15
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 16
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 17
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 3,
+      "amount": 99,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 18
+    },
+    {
+      "subscriptionId": 1,
+      "userId": 1,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 19
     }
   ],
   "invoices": [
@@ -398,12 +579,159 @@
       "issuedAt": "2026-05-13",
       "status": "PAID",
       "id": 1
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 2
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 3
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 4
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 5
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 6
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 7
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 8
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 9
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 10
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 11
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 12
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 13
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 14
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 15
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 16
+    },
+    {
+      "subscriptionId": 1,
+      "number": "INV-20260513-1",
+      "issuedAt": "2026-05-13",
+      "status": "PAID",
+      "id": 17
     }
   ],
-  "evaluations": [],
-  "consultations": [],
-  "adherenceAlerts": [],
-  "evolutionReports": [],
+  "evaluations": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "status": "COMPLETED",
+      "completedAt": "2026-04-23",
+      "notes": "Evaluación inicial completada."
+    }
+  ],
+  "consultations": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "nutritionistId": 1,
+      "date": "2026-05-20",
+      "status": "SCHEDULED",
+      "notes": ""
+    }
+  ],
+  "adherenceAlerts": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "period": "2026-W18",
+      "adherence": 54,
+      "status": "OPEN",
+      "reviewed": false
+    }
+  ],
+  "evolutionReports": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "period": "2026-04",
+      "status": "AVAILABLE",
+      "generatedAt": "2026-04-30"
+    }
+  ],
   "companies": [
     {
       "id": 1,
@@ -411,17 +739,54 @@
       "name": "NexTech Corporation",
       "ruc": "20123456789",
       "status": "VERIFIED"
+    },
+    {
+      "adminUserId": 3,
+      "name": "BioTech S.A.C.",
+      "ruc": "20601234568",
+      "status": "PENDING",
+      "id": 2
+    },
+    {
+      "adminUserId": 3,
+      "name": "BioTech S.A.C.",
+      "ruc": "20601234568",
+      "status": "PENDING",
+      "id": 3
     }
   ],
-  "collaborators": [],
+  "collaborators": [
+    {
+      "id": 1,
+      "companyId": 1,
+      "name": "María Salas",
+      "email": "maria.salas@nextech.com",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "companyId": 1,
+      "name": "Diego Paredes",
+      "email": "diego.paredes@nextech.com",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 3,
+      "companyId": 1,
+      "name": "Lucía Campos",
+      "email": "lucia.campos@nextech.com",
+      "status": "INVITED",
+      "sentAt": "2026-05-13T23:17:24.388Z"
+    }
+  ],
   "corporateMetrics": [
     {
       "id": 1,
       "companyId": 1,
-      "activeCollaborators": 0,
-      "averageAdherence": 0,
-      "averageBmi": 0,
-      "usedLicenses": 0,
+      "activeCollaborators": 247,
+      "averageAdherence": 72,
+      "averageBmi": 24.8,
+      "usedLicenses": 247,
       "totalLicenses": 300
     }
   ]

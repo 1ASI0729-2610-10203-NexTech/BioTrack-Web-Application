@@ -4,10 +4,13 @@ export const CorporateMetricAssembler = {
   fromApi(payload) {
     return new CorporateMetric({
       id: payload.id,
-      companyId: payload.company_id,
-      sampleSize: payload.sample_size,
-      threshold: payload.threshold,
-      averages: payload.averages,
+      companyId: payload.companyId,
+      sampleSize: payload.activeCollaborators,
+      threshold: 10,
+      averages: {
+        adherence: payload.averageAdherence,
+        bmi: payload.averageBmi,
+      },
     })
   },
 }
