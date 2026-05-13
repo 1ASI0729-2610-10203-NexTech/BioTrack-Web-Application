@@ -54,7 +54,6 @@ function isActive(routePath) {
       </RouterLink>
 
       <section class="bt-sidebar-menu">
-        <p class="microcopy bt-sidebar-caption">Menu</p>
 
         <ScrollPanel class="bt-sidebar-scroll">
           <nav class="bt-sidebar-nav" aria-label="Navegacion principal">

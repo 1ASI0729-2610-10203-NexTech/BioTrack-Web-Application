@@ -26,6 +26,15 @@
       "role": "ADMIN_CORPORATIVO",
       "status": "ACTIVE",
       "emailVerified": true
+    },
+    {
+      "name": "Enrique Villón Amez",
+      "email": "paciente2@biotrack.com",
+      "password": "password123",
+      "role": "PACIENTE",
+      "status": "ACTIVE",
+      "emailVerified": true,
+      "id": 4
     }
   ],
   "patientProfiles": [
@@ -41,11 +50,32 @@
       "diastolicPressure": 80,
       "basalGlucose": 90,
       "bmi": 25.5,
-      "nutritionalGoal": "GAIN_MUSCLE",
+      "nutritionalGoal": "LOSE_WEIGHT",
+      "targetWeightKg": 72,
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "isComplete": true,
       "assignedNutritionistId": 2
+    },
+    {
+      "userId": 4,
+      "weightKg": 78,
+      "heightCm": 170,
+      "age": 28,
+      "biologicalSex": "MALE",
+      "activityLevel": "MODERATE",
+      "systolicPressure": 100,
+      "diastolicPressure": 120,
+      "basalGlucose": 80,
+      "bmi": 26.99,
+      "isComplete": true,
+      "nutritionalGoal": "LOSE_WEIGHT",
+      "targetWeightKg": 72,
+      "dietaryRestrictions": [],
+      "restrictionsConfirmed": true,
+      "assignedNutritionistId": null,
+      "id": 2,
+      "updatedAt": "2026-05-13T21:34:38.884Z"
     }
   ],
   "nutritionists": [
@@ -82,6 +112,21 @@
       "createdAt": "2026-04-23",
       "activatedAt": "2026-05-13",
       "rejectedReason": null
+    },
+    {
+      "patientId": 2,
+      "nutritionistId": 1,
+      "name": "Plan Nutricional — Semana 1",
+      "objective": "bajar de peso",
+      "dailyCalories": 1850,
+      "proteinPercentage": 35,
+      "carbohydratePercentage": 45,
+      "fatPercentage": 20,
+      "status": "ACTIVATED",
+      "activatedAt": "2026-05-13",
+      "rejectedReason": null,
+      "createdAt": "2026-05-13",
+      "id": 2
     }
   ],
   "weeklyDiets": [
@@ -294,6 +339,216 @@
           ]
         }
       ]
+    },
+    {
+      "planId": 2,
+      "weekNumber": 1,
+      "days": [
+        {
+          "name": "Lunes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Martes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Miércoles",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Jueves",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Viernes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Sábado",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Domingo",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        }
+      ],
+      "id": 2
     }
   ],
   "foodLogs": [
@@ -305,6 +560,42 @@
       "description": "avena",
       "calories": 400,
       "id": 1
+    },
+    {
+      "patientId": 4,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "merienda",
+      "description": "guiso",
+      "calories": 500,
+      "id": 2
+    },
+    {
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "desayuno",
+      "description": "desayuno",
+      "calories": 500,
+      "id": 3
+    },
+    {
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "almuerzo",
+      "description": "hola",
+      "calories": 400,
+      "id": 4
+    },
+    {
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-13",
+      "mealType": "merienda",
+      "description": "bueno",
+      "calories": 500,
+      "id": 5
     }
   ],
   "activityLogs": [],
@@ -312,16 +603,38 @@
     {
       "id": 1,
       "patientId": 1,
-      "date": "2026-04-01",
-      "weightKg": 80,
-      "comment": "Peso inicial"
+      "date": "2026-04-24",
+      "weightKg": 78,
+      "type": "INITIAL",
+      "source": "HEALTH_PROFILE",
+      "comment": "Peso inicial registrado desde perfil de salud"
     },
     {
       "id": 2,
       "patientId": 1,
-      "date": "2026-04-24",
+      "date": "2026-05-01",
       "weightKg": 78,
+      "type": "PROGRESS",
+      "source": "WEEKLY_UPDATE",
       "comment": "Actualización semanal"
+    },
+    {
+      "patientId": 2,
+      "date": "2026-05-12",
+      "weightKg": 78,
+      "type": "INITIAL",
+      "source": "HEALTH_PROFILE",
+      "comment": "Peso inicial registrado desde perfil de salud",
+      "id": 3
+    },
+    {
+      "patientId": 2,
+      "date": "2026-05-13",
+      "weightKg": 77,
+      "type": "PROGRESS",
+      "source": "WEEKLY_UPDATE",
+      "comment": "",
+      "id": 4
     }
   ],
   "subscriptionPlans": [
@@ -359,6 +672,14 @@
       "startedAt": "2026-05-13",
       "nextRenewalAt": "2026-06-13",
       "id": 1
+    },
+    {
+      "userId": 4,
+      "planId": 2,
+      "status": "ACTIVE",
+      "startedAt": "2026-05-13",
+      "nextRenewalAt": "2026-06-13",
+      "id": 2
     }
   ],
   "payments": [
@@ -570,6 +891,28 @@
       "paidAt": "2026-05-13",
       "cardLastFourDigits": "4521",
       "id": 19
+    },
+    {
+      "subscriptionId": 2,
+      "userId": 4,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 20
+    },
+    {
+      "subscriptionId": 2,
+      "userId": 4,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-13",
+      "cardLastFourDigits": "4521",
+      "id": 21
     }
   ],
   "invoices": [
@@ -581,116 +924,18 @@
       "id": 1
     },
     {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
+      "subscriptionId": 2,
+      "number": "INV-20260513-2",
       "issuedAt": "2026-05-13",
       "status": "PAID",
       "id": 2
     },
     {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
+      "subscriptionId": 2,
+      "number": "INV-20260513-2",
       "issuedAt": "2026-05-13",
       "status": "PAID",
       "id": 3
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 4
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 5
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 6
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 7
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 8
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 9
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 10
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 11
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 12
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 13
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 14
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 15
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 16
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 17
     }
   ],
   "evaluations": [

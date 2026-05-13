@@ -35,7 +35,6 @@ onMounted(async () => {
   <section class="bt-goal-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">US10</p>
         <h1>Seleccionar objetivo nutricional</h1>
         <p class="text-muted">Elige el enfoque que guiara tu plan nutricional.</p>
       </div>

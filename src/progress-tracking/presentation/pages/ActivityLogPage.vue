@@ -42,7 +42,7 @@ async function submit() {
 
 <template>
   <section class="bt-activity-page">
-    <header class="bt-patient-heading"><div><p class="microcopy">US28</p><h1>Registrar actividad fisica</h1><p class="text-muted">Calculamos calorias quemadas con una regla mock simple.</p></div></header>
+    <header class="bt-patient-heading"><div><h1>Registrar actividad fisica</h1><p class="text-muted">Calculamos calorias quemadas con una regla mock simple.</p></div></header>
     <section v-if="!planStore.hasActivePlan" class="bt-lock-card">
       <div><h2>Aun no tienes un plan nutricional activo</h2><p class="text-muted">Activa tu plan para registrar actividad como seguimiento.</p></div>
       <Button label="Ir a Plan Nutricional" @click="router.push('/nutritional-plan')" />

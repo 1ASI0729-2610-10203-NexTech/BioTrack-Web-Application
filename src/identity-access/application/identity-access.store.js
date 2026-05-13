@@ -2,6 +2,26 @@ import { defineStore } from 'pinia'
 import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
 
 const SESSION_STORAGE_KEY = 'biotrack.mock-session'
+const LEGACY_SESSION_KEYS = ['currentUser', 'authSession', 'token', 'accessToken', 'mockToken']
+
+function persistSession(user) {
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user))
+}
+
+function mapSessionUser(user, currentUser = {}) {
+  const [firstName = user.name, ...lastNameParts] = String(user.name ?? '').split(' ')
+  return {
+    ...currentUser,
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    firstName,
+    lastName: lastNameParts.join(' '),
+    name: user.name,
+    status: user.status,
+    emailVerified: user.emailVerified,
+  }
+}
 
 function createIdleRegisterState() {
   return {
@@ -38,6 +58,9 @@ export const useIdentityAccessStore = defineStore('identity-access', {
     isLoginBlocked(state) {
       return state.loginAttempts >= 5
     },
+    hasVerifiedAccount(state) {
+      return Boolean(state.currentUser?.emailVerified) && state.currentUser?.status === 'ACTIVE'
+    },
   },
   actions: {
     async login(credentials) {
@@ -63,18 +86,10 @@ export const useIdentityAccessStore = defineStore('identity-access', {
         return false
       }
 
-      const [firstName = matchedUser.name, ...lastNameParts] = String(matchedUser.name ?? '').split(' ')
-      this.currentUser = {
-        id: matchedUser.id,
-        email: matchedUser.email,
-        role: matchedUser.role,
-        firstName,
-        lastName: lastNameParts.join(' '),
-        name: matchedUser.name,
-      }
+      this.currentUser = mapSessionUser(matchedUser)
       this.role = matchedUser.role
       this.isAuthenticated = true
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentUser))
+      persistSession(this.currentUser)
       this.loginAttempts = 0
       this.loading = false
       this.loginStatus = {
@@ -94,6 +109,41 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       }
       return createdUser
     },
+    async verifyEmail() {
+      if (!this.currentUser?.id) {
+        this.error = 'No hay un usuario autenticado para verificar.'
+        return false
+      }
+
+      this.loading = true
+      this.error = ''
+      try {
+        const updatedUser = await identityAccessApiService.verifyEmail(this.currentUser.id)
+        this.currentUser = mapSessionUser(updatedUser, this.currentUser)
+        this.role = updatedUser.role
+        this.isAuthenticated = true
+        persistSession(this.currentUser)
+        return true
+      } catch (error) {
+        this.error = 'No se pudo verificar el correo.'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    async refreshCurrentUser() {
+      if (!this.currentUser?.id) return null
+      try {
+        const updatedUser = await identityAccessApiService.fetchUserById(this.currentUser.id)
+        this.currentUser = mapSessionUser(updatedUser, this.currentUser)
+        this.role = updatedUser.role
+        this.isAuthenticated = true
+        persistSession(this.currentUser)
+        return this.currentUser
+      } catch {
+        return this.currentUser
+      }
+    },
     resetLoginFeedback() {
       this.error = ''
       this.loginStatus = createIdleLoginState()
@@ -112,6 +162,10 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.loading = false
       this.error = ''
       localStorage.removeItem(SESSION_STORAGE_KEY)
+      LEGACY_SESSION_KEYS.forEach((key) => {
+        localStorage.removeItem(key)
+        sessionStorage.removeItem(key)
+      })
     },
   },
 })
