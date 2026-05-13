@@ -6,19 +6,25 @@ import Button from "primevue/button";
 import Message from "primevue/message";
 import Tag from "primevue/tag";
 import { useIdentityAccessStore } from "../../../identity-access/application/identity-access.store";
+import { usePatientProfileStore } from "../../../patient-profile/application/patient-profile.store";
+import { useSubscriptionsBillingStore } from "../../../subscriptions-billing/application/subscriptions-billing.store";
 import { usePatientPlanStore } from "../../application/patient-plan.store";
 import { usePatientProgressStore } from "../../../progress-tracking/application/patient-progress.store";
 
 const router = useRouter();
 const toast = useToast();
 const identityAccessStore = useIdentityAccessStore();
+const patientProfileStore = usePatientProfileStore();
+const billingStore = useSubscriptionsBillingStore();
 const patientPlanStore = usePatientPlanStore();
 const patientProgressStore = usePatientProgressStore();
 
 onMounted(async () => {
   await identityAccessStore.refreshCurrentUser();
+  await patientProfileStore.fetchPatientProfile();
+  await billingStore.fetchPlans();
   const plan = await patientPlanStore.fetchPatientPlan();
-  patientProgressStore.setDailyTargetCalories(plan?.targetCalories ?? 1850);
+  patientProgressStore.setDailyCalories(plan?.dailyCalories ?? 0);
 });
 
 const planLabel = computed(() =>
@@ -31,6 +37,24 @@ const planLabel = computed(() =>
 const requiresEmailVerification = computed(
   () => !identityAccessStore.hasVerifiedAccount,
 );
+const profileIncomplete = computed(
+  () => !patientProfileStore.isProfileComplete,
+);
+const hasNutritionSubscription = computed(() =>
+  ["Profesional", "Premium"].includes(billingStore.activeSubscription?.planName),
+);
+const lockedPlanMessage = computed(() => {
+  if (!identityAccessStore.hasVerifiedAccount) {
+    return "Verifica tu correo para habilitar el flujo nutricional.";
+  }
+  if (!patientProfileStore.isProfileComplete) {
+    return "Completa tu perfil de salud, objetivo nutricional y restricciones.";
+  }
+  if (!hasNutritionSubscription.value) {
+    return "Contrata un plan Profesional o Premium para activar tu plan nutricional.";
+  }
+  return "Tu acceso nutricional está siendo sincronizado. Revisa nuevamente en unos segundos.";
+});
 
 async function verifyEmail() {
   await identityAccessStore.verifyEmail();
@@ -75,16 +99,27 @@ async function verifyEmail() {
         />
       </div>
     </Message>
+    <Message
+      v-if="!requiresEmailVerification && profileIncomplete"
+      severity="info"
+      class="bt-verification-message"
+    >
+      Completa tus datos de salud, objetivo nutricional y restricciones para
+      habilitar tu plan.
+    </Message>
 
     <section class="bt-patient-summary-grid">
-      <article class="bt-patient-card bt-patient-card--blue">
+      <article
+        class="bt-patient-card bt-patient-card--blue"
+        v-if="patientPlanStore.hasActivePlan"
+      >
         <span>Calorías restantes</span>
         <strong>{{
-          patientPlanStore.currentPlan?.targetCalories -
+          patientPlanStore.currentPlan?.dailyCalories -
           patientProgressStore.dailyConsumedCalories
         }}</strong>
-        <small
-          > de {{patientPlanStore.currentPlan?.targetCalories ?? 0 }} kcal</small
+        <small>
+          de {{ patientPlanStore.currentPlan?.dailyCalories ?? 0 }} kcal</small
         >
       </article>
       <article class="bt-patient-card">
@@ -101,8 +136,14 @@ async function verifyEmail() {
       </article>
       <article class="bt-patient-card">
         <span>Perfil de salud</span>
-        <strong>Completado</strong>
-        <small>Listo para plan nutricional</small>
+        <strong>{{
+          patientProfileStore.isProfileComplete ? "Completado" : "Pendiente"
+        }}</strong>
+        <small>{{
+          patientProfileStore.isProfileComplete
+            ? "Listo para plan nutricional"
+            : "Completa el perfil para continuar"
+        }}</small>
       </article>
     </section>
 
@@ -111,13 +152,18 @@ async function verifyEmail() {
         <p class="microcopy">Seguimiento bloqueado</p>
         <h2>Aun no tienes un plan nutricional activo.</h2>
         <p class="text-muted">
-          Tu plan esta en revision. Cuando se active podras registrar alimentos
-          y revisar tu dieta semanal.
+          {{ lockedPlanMessage }}
         </p>
       </div>
       <Button
         label="Ver plan nutricional"
         @click="router.push('/nutritional-plan')"
+      />
+      <Button
+        v-if="identityAccessStore.hasVerifiedAccount && patientProfileStore.isProfileComplete && !hasNutritionSubscription"
+        label="Ir a Facturación"
+        outlined
+        @click="router.push('/subscriptions-billing')"
       />
     </section>
 
@@ -125,6 +171,7 @@ async function verifyEmail() {
       <Button
         label="Registrar comida"
         icon="pi pi-plus"
+        :disabled="!patientPlanStore.hasActivePlan"
         @click="router.push('/food-log')"
       />
       <Button

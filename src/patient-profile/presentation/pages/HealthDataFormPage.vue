@@ -30,12 +30,18 @@ const bmiPreview = computed(() => {
   return profileStore.calculateBMI(form.weightKg, form.heightCm)
 })
 const bmiLabel = computed(() => {
-  const value = bmiPreview.value?.value ?? 0
-  if (!value) return 'Pendiente'
-  if (value < 18.5) return 'Bajo peso'
-  if (value < 25) return 'Normal'
-  if (value < 30) return 'Sobrepeso'
-  return 'Obesidad'
+  return profileStore.getBMIStatus(bmiPreview.value?.value)
+})
+const targetWeightPreview = computed(() => {
+  if (!form.weightKg || !profileStore.nutritionalGoal) return null
+  return profileStore.calculateTargetWeight(form.weightKg, profileStore.nutritionalGoal)
+})
+const targetWeightMessage = computed(() => {
+  return profileStore.getWeightGoalMessage(
+    targetWeightPreview.value,
+    form.weightKg,
+    profileStore.nutritionalGoal,
+  )
 })
 const errors = computed(() => Object.values(validation).filter(Boolean))
 const canSave = computed(() => errors.value.length === 0)
@@ -120,9 +126,11 @@ onMounted(async () => {
       </form>
       <aside class="bt-dashboard-panel bt-side-insight">
         <h3>IMC estimado</h3>
-        <strong>{{ bmiPreview?.value?.toFixed(2) ?? '--' }}</strong>
+        <strong>{{ bmiPreview?.value?.toFixed(1) ?? '--' }}</strong>
         <span>{{ bmiLabel }}</span>
-        <p>Calorias recomendadas: {{ profileStore.getRecommendedCalories() }} kcal</p>
+        <h3>Peso objetivo recomendado</h3>
+        <strong>{{ targetWeightPreview == null ? '--' : `${targetWeightPreview.toFixed(1)} kg` }}</strong>
+        <p>{{ targetWeightMessage }}</p>
         <ul v-if="errors.length" class="bt-error-list">
           <li v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
