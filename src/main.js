@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
 import PrimeVue from 'primevue/config'
+import Ripple from 'primevue/ripple'
 import App from './App.vue'
 import router from './router'
 import messages from './locales'
@@ -22,5 +23,6 @@ app.use(createPinia())
 app.use(router)
 app.use(i18n)
 app.use(PrimeVue, primeVueConfig)
+app.directive('ripple', Ripple)
 
 app.mount('#app')
