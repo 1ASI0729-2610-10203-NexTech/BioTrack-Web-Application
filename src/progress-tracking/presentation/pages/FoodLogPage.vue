@@ -68,7 +68,7 @@ async function submitFoodLog() {
           <span>Calorias consumidas</span><strong>{{ patientProgressStore.dailyConsumedCalories }} kcal</strong><small>Objetivo: {{ patientProgressStore.dailyTargetCalories }} kcal</small>
         </article>
         <article class="bt-patient-card">
-          <span>Adherencia del dia</span><strong>{{ patientProgressStore.dailyAdherence.value.toFixed(0) }}%</strong><ProgressBar :value="patientProgressStore.dailyAdherence.value" />
+          <span>Adherencia del dia</span><strong>{{ patientProgressStore.dailyAdherence.value.toFixed(0) }}%</strong><ProgressBar :value="patientProgressStore.dailyAdherence.value.toFixed(2)" />
         </article>
       </section>
       <section class="bt-food-grid">

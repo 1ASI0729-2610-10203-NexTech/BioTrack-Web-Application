@@ -63,7 +63,6 @@ onMounted(async () => {
   <section class="bt-restrictions-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">US11</p>
         <h1>Registrar restricciones alimentarias</h1>
         <p class="text-muted">Confirma alergias, condiciones o ausencia de restricciones.</p>
       </div>

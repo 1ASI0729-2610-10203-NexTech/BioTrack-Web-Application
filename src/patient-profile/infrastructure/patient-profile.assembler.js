@@ -8,9 +8,9 @@ export const PatientProfileAssembler = {
       OTHER: 'otro',
     }
     const activityLevelByApi = {
-      LOW: 'baja',
+      LOW: 'sedentaria',
       MODERATE: 'moderada',
-      HIGH: 'alta',
+      HIGH: 'activa',
     }
     const goalByApi = {
       LOSE_WEIGHT: 'bajar-peso',
@@ -39,6 +39,7 @@ export const PatientProfileAssembler = {
       nutritionalGoal: goalByApi[payload.nutritionalGoal] ?? payload.nutritionalGoal,
       restrictionsConfirmed: payload.restrictionsConfirmed,
       nutritionist: payload.nutritionist ?? 'Dra. Ana Torres',
+      targetWeightKg: payload.targetWeightKg,
       createdAt: payload.createdAt,
       updatedAt: payload.updatedAt,
     })
