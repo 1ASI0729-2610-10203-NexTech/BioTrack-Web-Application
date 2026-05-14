@@ -1,11 +1,45 @@
 import axios from 'axios'
+import { appEnvironment, getEnvironmentSummary } from '../../config/env'
 
 class ApiService {
   constructor() {
     this.client = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1',
-      timeout: 8000,
+      baseURL: appEnvironment.apiBaseUrl,
+      timeout: appEnvironment.apiTimeout,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
+    this.configureInterceptors()
+    this.logEnvironment()
+  }
+
+  configureInterceptors() {
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        const normalizedError = {
+          message: error.response?.data?.message || error.message || 'API request failed',
+          status: error.response?.status ?? null,
+          url: error.config?.url ?? '',
+          method: error.config?.method ?? '',
+          details: error.response?.data ?? null,
+        }
+
+        if (appEnvironment.enableApiDebug) {
+          console.error('[BioTrack API]', normalizedError)
+        }
+
+        return Promise.reject(normalizedError)
+      },
+    )
+  }
+
+  logEnvironment() {
+    if (appEnvironment.enableApiDebug) {
+      console.info('[BioTrack Environment]', getEnvironmentSummary())
+    }
   }
 
   setAccessToken(token) {
