@@ -1,6 +1,7 @@
 <script setup>
 import { computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
@@ -11,6 +12,7 @@ import { getDefaultRouteByRole } from '../../application/auth-redirects'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 const identityAccessStore = useIdentityAccessStore()
 
 const form = reactive({
@@ -26,12 +28,12 @@ const validation = reactive({
 const hasErrorState = computed(() => identityAccessStore.loginStatus.status === 'error')
 const hasSuccessState = computed(() => identityAccessStore.loginStatus.status === 'success')
 const buttonLabel = computed(() => {
-  if (identityAccessStore.loading) return 'Ingresando al dashboard...'
-  if (identityAccessStore.isLoginBlocked) return 'Cuenta bloqueada'
+  if (identityAccessStore.loading) return t('auth.enteringDashboard')
+  if (identityAccessStore.isLoginBlocked) return t('auth.accountBlocked')
   if (identityAccessStore.loginAttempts > 0) {
-    return `Reintentar (${identityAccessStore.loginAttempts}/5 intentos)`
+    return t('auth.retryAttempts', { count: identityAccessStore.loginAttempts })
   }
-  return 'Ingresar'
+  return t('auth.enter')
 })
 
 function validateForm() {
@@ -40,12 +42,12 @@ function validateForm() {
 
   const email = form.email.trim()
 
-  if (!email) validation.email = 'El correo electronico es obligatorio.'
+  if (!email) validation.email = t('auth.emailRequired')
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    validation.email = 'Ingresa un correo electronico valido.'
+    validation.email = t('auth.emailInvalid')
   }
 
-  if (!form.password) validation.password = 'La contrasena es obligatoria.'
+  if (!form.password) validation.password = t('auth.passwordRequired')
 
   return !validation.email && !validation.password
 }
@@ -76,28 +78,28 @@ async function submitLogin() {
       :class="{ 'bt-auth-error': hasErrorState, 'bt-auth-success': hasSuccessState }"
     >
       <header>
-        <h1 class="bt-auth-title">Iniciar sesion</h1>
-        <p class="bt-auth-subtitle">Ingresa tus credenciales para acceder.</p>
+        <h1 class="bt-auth-title">{{ t('auth.loginTitle') }}</h1>
+        <p class="bt-auth-subtitle">{{ t('auth.loginSubtitle') }}</p>
       </header>
 
       <Message v-if="hasErrorState" severity="error" class="bt-auth-message">
-        <strong>Credenciales incorrectas</strong>
+        <strong>{{ t('auth.invalidCredentialsTitle') }}</strong>
         <span>{{ identityAccessStore.loginStatus.message }}</span>
       </Message>
 
       <Message v-if="hasSuccessState" severity="success" class="bt-auth-message">
-        <strong>Inicio de sesion exitoso</strong>
+        <strong>{{ t('auth.loginSuccessTitle') }}</strong>
         <span>{{ identityAccessStore.loginStatus.message }}</span>
       </Message>
 
-      <form class="bt-auth-form" @submit.prevent="submitLogin">
+      <form class="bt-auth-form" :aria-label="t('auth.loginTitle')" @submit.prevent="submitLogin">
         <div class="bt-auth-field">
-          <label for="login-email">Correo electronico</label>
+          <label for="login-email">{{ t('auth.email') }}</label>
           <InputText
             id="login-email"
             v-model="form.email"
             autocomplete="email"
-            placeholder="juan.perez@gmail.com"
+            :placeholder="t('auth.emailPlaceholder')"
             :invalid="Boolean(validation.email) || hasErrorState"
             :aria-invalid="Boolean(validation.email) || hasErrorState"
           />
@@ -105,7 +107,7 @@ async function submitLogin() {
         </div>
 
         <div class="bt-auth-field bt-auth-password">
-          <label for="login-password">Contrasena</label>
+          <label for="login-password">{{ t('auth.password') }}</label>
           <Password
             input-id="login-password"
             v-model="form.password"
@@ -116,7 +118,7 @@ async function submitLogin() {
             :aria-invalid="Boolean(validation.password) || hasErrorState"
           />
           <p v-if="validation.password" class="bt-auth-helper">{{ validation.password }}</p>
-          <RouterLink class="bt-auth-inline-link" to="/login">¿Olvidaste tu contrasena?</RouterLink>
+          <RouterLink class="bt-auth-inline-link" to="/login">{{ t('auth.forgotPassword') }}</RouterLink>
         </div>
 
         <div class="bt-auth-actions">

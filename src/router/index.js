@@ -76,43 +76,99 @@ const router = createRouter({
     {
       path: '/nutritionist-dashboard',
       component: PlaceholderPage,
+<<<<<<< Updated upstream
       props: { title: 'Dashboard del nutricionista', eyebrow: 'Nutricionista' },
       meta: { requiresAuth: true, roles: ['NUTRICIONISTA'] },
+=======
+      props: { titleKey: "placeholders.collaborators", eyebrowKey: "placeholders.corporate" },
+      meta: { requiresAuth: true, roles: ["ADMIN_CORPORATIVO"] },
+>>>>>>> Stashed changes
     },
     {
       path: '/patients',
       component: PlaceholderPage,
+<<<<<<< Updated upstream
       props: { title: 'Mis pacientes', eyebrow: 'Nutricionista' },
       meta: { requiresAuth: true, roles: ['NUTRICIONISTA'] },
+=======
+      props: { titleKey: "placeholders.corporateMetrics", eyebrowKey: "placeholders.corporate" },
+      meta: { requiresAuth: true, roles: ["ADMIN_CORPORATIVO"] },
+>>>>>>> Stashed changes
     },
     {
       path: '/nutritionist-plans',
       component: PlaceholderPage,
+<<<<<<< Updated upstream
       props: { title: 'Planes nutricionales', eyebrow: 'Nutricionista' },
       meta: { requiresAuth: true, roles: ['NUTRICIONISTA'] },
+=======
+      props: { titleKey: "placeholders.nutritionistDashboard", eyebrowKey: "placeholders.nutritionist" },
+      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+>>>>>>> Stashed changes
     },
     {
       path: '/consultations',
       component: PlaceholderPage,
+<<<<<<< Updated upstream
       props: { title: 'Consultas', eyebrow: 'BioTrack' },
       meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA'] },
+=======
+      props: { titleKey: "placeholders.patients", eyebrowKey: "placeholders.nutritionist" },
+      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+>>>>>>> Stashed changes
     },
     {
       path: '/adherence-alerts',
       component: PlaceholderPage,
+<<<<<<< Updated upstream
       props: { title: 'Alertas de adherencia', eyebrow: 'Nutricionista' },
       meta: { requiresAuth: true, roles: ['NUTRICIONISTA'] },
+=======
+      props: { titleKey: "placeholders.nutritionistPlans", eyebrowKey: "placeholders.nutritionist" },
+      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+>>>>>>> Stashed changes
     },
     {
       path: '/reports',
       component: PlaceholderPage,
+<<<<<<< Updated upstream
       props: { title: 'Reportes', eyebrow: 'Nutricionista' },
       meta: { requiresAuth: true, roles: ['NUTRICIONISTA'] },
+=======
+      props: { titleKey: "placeholders.consultations", eyebrowKey: "placeholders.biotrack" },
+      meta: { requiresAuth: true, roles: ["PACIENTE", "NUTRICIONISTA"] },
+>>>>>>> Stashed changes
     },
     { path: '/nutritional-plan', component: NutritionalPlanPage, meta: { requiresAuth: true, roles: ['PACIENTE'] } },
     { path: '/weekly-diet', component: WeeklyDietPage, meta: { requiresAuth: true, roles: ['PACIENTE'] } },
     {
+<<<<<<< Updated upstream
       path: '/progress-tracking',
+=======
+      path: "/adherence-alerts",
+      component: PlaceholderPage,
+      props: { titleKey: "placeholders.adherenceAlerts", eyebrowKey: "placeholders.nutritionist" },
+      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+    },
+    {
+      path: "/reports",
+      component: PlaceholderPage,
+      props: { titleKey: "placeholders.reports", eyebrowKey: "placeholders.nutritionist" },
+      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+    },
+    {
+      path: "/nutritional-plan",
+      component: NutritionalPlanPage,
+      meta: { requiresAuth: true, roles: ["PACIENTE"] },
+    },
+    {
+      path: "/weekly-diet",
+      component: WeeklyDietPage,
+      meta: { requiresAuth: true, roles: ["PACIENTE"] },
+    },
+    {
+      path: "/progress-tracking",
+>>>>>>> Stashed changes
       component: ProgressTrackingPage,
       meta: { requiresAuth: true, roles: ['PACIENTE'] },
     },

@@ -9,7 +9,7 @@ const usesDashboardLayout = computed(() => route.meta.layout !== 'public')
 </script>
 
 <template>
-  <Toast position="top-right" />
+  <Toast position="top-right" aria-live="polite" />
   <AppLayout v-if="usesDashboardLayout" />
   <RouterView v-else />
 </template>
