@@ -12,6 +12,13 @@ import CorporateRegisterPage from '../corporate-management/presentation/pages/Co
 import PatientDashboardPage from '../nutritional-planning/presentation/pages/PatientDashboardPage.vue'
 import NutritionalPlanPage from '../nutritional-planning/presentation/pages/NutritionalPlanPage.vue'
 import WeeklyDietPage from '../nutritional-planning/presentation/pages/WeeklyDietPage.vue'
+import NutritionistDashboardPage from '../nutritional-planning/presentation/pages/NutritionistDashboardPage.vue'
+import NutritionistPatientsPage from '../nutritional-planning/presentation/pages/NutritionistPatientsPage.vue'
+import NutritionistPatientDetailPage from '../nutritional-planning/presentation/pages/NutritionistPatientDetailPage.vue'
+import NutritionistEvaluationPage from '../nutritional-planning/presentation/pages/NutritionistEvaluationPage.vue'
+import NutritionistPlansPage from '../nutritional-planning/presentation/pages/NutritionistPlansPage.vue'
+import NutritionistCreatePlanPage from '../nutritional-planning/presentation/pages/NutritionistCreatePlanPage.vue'
+import NutritionistFollowUpPage from '../nutritional-planning/presentation/pages/NutritionistFollowUpPage.vue'
 import ProgressTrackingPage from '../progress-tracking/presentation/pages/ProgressTrackingPage.vue'
 import FoodLogPage from '../progress-tracking/presentation/pages/FoodLogPage.vue'
 import ActivityLogPage from '../progress-tracking/presentation/pages/ActivityLogPage.vue'
@@ -59,20 +66,38 @@ const router = createRouter({
 
     {
       path: '/nutritionist-dashboard',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.nutritionistDashboard', eyebrowKey: 'placeholders.nutritionist' },
+      component: NutritionistDashboardPage,
       meta: nutritionistMeta,
     },
     {
-      path: '/patients',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.patients', eyebrowKey: 'placeholders.nutritionist' },
+      path: '/nutritionist-patients',
+      component: NutritionistPatientsPage,
+      meta: nutritionistMeta,
+    },
+    { path: '/patients', redirect: '/nutritionist-patients' },
+    {
+      path: '/nutritionist-patients/:id',
+      component: NutritionistPatientDetailPage,
+      meta: nutritionistMeta,
+    },
+    {
+      path: '/nutritionist-evaluations/:patientId',
+      component: NutritionistEvaluationPage,
       meta: nutritionistMeta,
     },
     {
       path: '/nutritionist-plans',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.nutritionistPlans', eyebrowKey: 'placeholders.nutritionist' },
+      component: NutritionistPlansPage,
+      meta: nutritionistMeta,
+    },
+    {
+      path: '/nutritionist-plans/create/:patientId',
+      component: NutritionistCreatePlanPage,
+      meta: nutritionistMeta,
+    },
+    {
+      path: '/nutritionist-follow-up/:patientId',
+      component: NutritionistFollowUpPage,
       meta: nutritionistMeta,
     },
     {

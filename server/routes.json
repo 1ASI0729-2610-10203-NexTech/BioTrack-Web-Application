@@ -28,6 +28,8 @@
   "/api/v1/nutritionist-assignments/:id": "/nutritionistAssignments/:id",
   "/api/v1/evaluations": "/evaluations",
   "/api/v1/evaluations/:id": "/evaluations/:id",
+  "/api/v1/follow-up-notes": "/followUpNotes",
+  "/api/v1/follow-up-notes/:id": "/followUpNotes/:id",
   "/api/v1/consultations": "/consultations",
   "/api/v1/consultations/:id": "/consultations/:id",
   "/api/v1/adherence-alerts": "/adherenceAlerts",

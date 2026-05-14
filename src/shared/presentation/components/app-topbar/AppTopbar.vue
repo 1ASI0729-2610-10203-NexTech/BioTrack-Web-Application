@@ -9,6 +9,7 @@ import Menu from 'primevue/menu'
 import { useIdentityAccessStore } from '../../../../identity-access/application/identity-access.store'
 import { usePatientProfileStore } from '../../../../patient-profile/application/patient-profile.store'
 import { usePatientPlanStore } from '../../../../nutritional-planning/application/patient-plan.store'
+import { useNutritionistStore } from '../../../../nutritional-planning/application/nutritionist.store'
 import { usePatientProgressStore } from '../../../../progress-tracking/application/patient-progress.store'
 import { useSubscriptionsBillingStore } from '../../../../subscriptions-billing/application/subscriptions-billing.store'
 import LanguageSwitcher from '../language-switcher/LanguageSwitcher.vue'
@@ -22,6 +23,7 @@ const userMenu = ref(null)
 const identityAccessStore = useIdentityAccessStore()
 const patientProfileStore = usePatientProfileStore()
 const patientPlanStore = usePatientPlanStore()
+const nutritionistStore = useNutritionistStore()
 const patientProgressStore = usePatientProgressStore()
 const subscriptionsBillingStore = useSubscriptionsBillingStore()
 
@@ -84,6 +86,7 @@ function toggleUserMenu(event) {
 function resetUiStores() {
   patientProfileStore.$reset()
   patientPlanStore.$reset()
+  nutritionistStore.$reset()
   patientProgressStore.$reset()
   subscriptionsBillingStore.$reset()
 }
