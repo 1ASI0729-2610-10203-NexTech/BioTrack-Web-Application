@@ -1,9 +1,15 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
+
 <template>
   <section class="context-panel">
-    <p class="microcopy">Acceso restringido</p>
-    <h1>No autorizado</h1>
+    <p class="microcopy">{{ t('pages.notAuthorizedEyebrow') }}</p>
+    <h1>{{ t('pages.notAuthorizedTitle') }}</h1>
     <p class="panel-copy">
-      Tu perfil no tiene permisos para ver esta seccion. Regresa a tu dashboard principal.
+      {{ t('pages.notAuthorizedCopy') }}
     </p>
   </section>
 </template>

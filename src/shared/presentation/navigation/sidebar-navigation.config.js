@@ -1,30 +1,37 @@
 export const sidebarNavigationByRole = {
   PACIENTE: [
-    { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard' },
-    { label: 'Mi Perfil', icon: 'pi pi-user', route: '/patient-profile' },
-    { label: 'Plan Nutricional', icon: 'pi pi-check-square', route: '/nutritional-plan' },
-    { label: 'Mi Progreso', icon: 'pi pi-chart-bar', route: '/progress-tracking' },
-    { label: 'Registrar Consumo', icon: 'pi pi-plus-circle', route: '/food-log' },
-    { label: 'Facturacion', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
+    { labelKey: 'navigation.dashboard', icon: 'pi pi-home', route: '/dashboard' },
+    { labelKey: 'navigation.myProfile', icon: 'pi pi-user', route: '/patient-profile' },
+    { labelKey: 'navigation.nutritionalPlan', icon: 'pi pi-check-square', route: '/nutritional-plan' },
+    { labelKey: 'navigation.myProgress', icon: 'pi pi-chart-bar', route: '/progress-tracking' },
+    { labelKey: 'navigation.foodLog', icon: 'pi pi-plus-circle', route: '/food-log' },
+    { labelKey: 'navigation.billing', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
   ],
   ADMIN_CORPORATIVO: [
+<<<<<<< Updated upstream
     { label: 'Dashboard', icon: 'pi pi-home', route: '/corporate-dashboard' },
     { label: 'Registrar Empresa', icon: 'pi pi-building', route: '/corporate-register' },
     { label: 'Colaboradores', icon: 'pi pi-users', route: '/collaborators' },
     { label: 'Metricas', icon: 'pi pi-chart-bar', route: '/corporate-metrics' },
     { label: 'Facturacion', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
+=======
+    { labelKey: 'navigation.dashboard', icon: 'pi pi-home', route: '/corporate-dashboard' },
+    { labelKey: 'navigation.collaborators', icon: 'pi pi-users', route: '/collaborators' },
+    { labelKey: 'navigation.metrics', icon: 'pi pi-chart-bar', route: '/corporate-metrics' },
+    { labelKey: 'navigation.billing', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
+>>>>>>> Stashed changes
   ],
   NUTRICIONISTA: [
-    { label: 'Dashboard', icon: 'pi pi-home', route: '/nutritionist-dashboard' },
-    { label: 'Mis Pacientes', icon: 'pi pi-users', route: '/patients' },
-    { label: 'Planes Nutricionales', icon: 'pi pi-clipboard', route: '/nutritionist-plans' },
-    { label: 'Consultas', icon: 'pi pi-calendar', route: '/consultations' },
+    { labelKey: 'navigation.dashboard', icon: 'pi pi-home', route: '/nutritionist-dashboard' },
+    { labelKey: 'navigation.myPatients', icon: 'pi pi-users', route: '/patients' },
+    { labelKey: 'navigation.nutritionPlans', icon: 'pi pi-clipboard', route: '/nutritionist-plans' },
+    { labelKey: 'navigation.consultations', icon: 'pi pi-calendar', route: '/consultations' },
     {
-      label: 'Alertas de Adherencia',
+      labelKey: 'navigation.adherenceAlerts',
       icon: 'pi pi-exclamation-triangle',
       route: '/adherence-alerts',
     },
-    { label: 'Reportes', icon: 'pi pi-file-pdf', route: '/reports' },
+    { labelKey: 'navigation.reports', icon: 'pi pi-file-pdf', route: '/reports' },
   ],
 }
 

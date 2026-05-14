@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
@@ -10,11 +11,13 @@ import { usePatientProfileStore } from '../../../../patient-profile/application/
 import { usePatientPlanStore } from '../../../../nutritional-planning/application/patient-plan.store'
 import { usePatientProgressStore } from '../../../../progress-tracking/application/patient-progress.store'
 import { useSubscriptionsBillingStore } from '../../../../subscriptions-billing/application/subscriptions-billing.store'
+import LanguageSwitcher from '../language-switcher/LanguageSwitcher.vue'
 
 defineEmits(['toggle-navigation'])
 
 const router = useRouter()
 const toast = useToast()
+const { t } = useI18n()
 const userMenu = ref(null)
 const identityAccessStore = useIdentityAccessStore()
 const patientProfileStore = usePatientProfileStore()
@@ -37,7 +40,7 @@ const userInitials = computed(() => {
     .toUpperCase()
 })
 const roleLabel = computed(() =>
-  (currentUser.value?.role ?? 'USUARIO').replaceAll('_', ' '),
+  t(`roles.${currentUser.value?.role ?? 'USUARIO'}`),
 )
 const profileRoute = computed(() => {
   const routeByRole = {
@@ -49,24 +52,24 @@ const profileRoute = computed(() => {
 })
 const menuItems = computed(() => [
   {
-    label: 'Mi perfil',
+    label: t('auth.profile'),
     icon: 'pi pi-user',
     command: () => router.push(profileRoute.value),
   },
   {
-    label: 'Configuracion',
+    label: t('auth.settings'),
     icon: 'pi pi-cog',
     command: () =>
       toast.add({
         severity: 'info',
-        summary: 'Configuracion',
-        detail: 'Configuracion de usuario proximamente.',
+        summary: t('auth.settings'),
+        detail: t('auth.settingsSoon'),
         life: 2500,
       }),
   },
   { separator: true },
   {
-    label: 'Cerrar sesion',
+    label: t('auth.logout'),
     icon: 'pi pi-sign-out',
     class: 'bt-user-menu-danger',
     styleClass: 'bt-user-menu-danger',
@@ -91,8 +94,8 @@ async function handleLogout() {
   resetUiStores()
   toast.add({
     severity: 'success',
-    summary: 'Sesion cerrada',
-    detail: 'Sesion cerrada correctamente',
+    summary: t('auth.logoutSuccessTitle'),
+    detail: t('auth.logoutSuccessDetail'),
     life: 3000,
   })
   await router.push('/login')
@@ -100,14 +103,14 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="bt-enterprise-topbar">
+  <header class="bt-enterprise-topbar" role="banner">
     <div class="bt-topbar-leading">
       <Button
         icon="pi pi-bars"
         text
         rounded
         class="bt-topbar-menu-button"
-        aria-label="Abrir navegacion"
+        :aria-label="t('app.openNavigation')"
         @click="$emit('toggle-navigation')"
       />
     </div>
@@ -118,12 +121,13 @@ async function handleLogout() {
         text
         rounded
         class="bt-topbar-icon-button"
-        aria-label="Notificaciones"
+        :aria-label="t('app.notifications')"
       />
+      <LanguageSwitcher />
       <button
         type="button"
         class="bt-topbar-user-button"
-        :aria-label="`Abrir menu de usuario de ${userName || 'BioTrack'}`"
+        :aria-label="t('auth.userMenu', { name: userName || 'BioTrack' })"
         aria-haspopup="menu"
         @click="toggleUserMenu"
       >

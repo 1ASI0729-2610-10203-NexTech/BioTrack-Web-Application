@@ -443,6 +443,48 @@ label {
   gap: 12px;
 }
 
+.bt-language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bt-language-switcher__label {
+  color: var(--bt-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.bt-language-switcher__control.p-selectbutton {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--bt-border);
+  border-radius: 999px;
+  background: var(--bt-white);
+}
+
+.bt-language-switcher__control .p-togglebutton {
+  min-width: 38px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--bt-text-muted);
+  background: transparent;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.bt-language-switcher__control .p-togglebutton.p-togglebutton-checked {
+  color: var(--bt-primary);
+  background: var(--bt-primary-soft);
+}
+
+.bt-language-switcher__control .p-togglebutton:focus-visible {
+  outline: 3px solid var(--bt-primary);
+  outline-offset: 2px;
+}
+
 .bt-topbar-icon-button.p-button,
 .bt-topbar-menu-button.p-button {
   width: 40px;

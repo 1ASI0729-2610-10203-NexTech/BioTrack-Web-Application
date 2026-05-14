@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Avatar from 'primevue/avatar'
 import ScrollPanel from 'primevue/scrollpanel'
 import { useIdentityAccessStore } from '../../../../identity-access/application/identity-access.store'
@@ -16,6 +17,7 @@ defineProps({
 defineEmits(['navigate'])
 
 const route = useRoute()
+const { t } = useI18n()
 const identityAccessStore = useIdentityAccessStore()
 
 const navigationItems = computed(() =>
@@ -29,6 +31,9 @@ const currentUserName = computed(() => {
   return fullName || identityAccessStore.currentUser?.email || 'Usuario'
 })
 const currentUserRole = computed(() => identityAccessStore.currentUser?.role ?? '')
+const currentUserRoleLabel = computed(() =>
+  t(`roles.${currentUserRole.value || 'USUARIO'}`),
+)
 const currentUserInitials = computed(() => {
   const firstName = identityAccessStore.currentUser?.firstName ?? ''
   const lastName = identityAccessStore.currentUser?.lastName ?? ''
@@ -44,10 +49,18 @@ const currentUserInitials = computed(() => {
 function isActive(routePath) {
   return route.path === routePath
 }
+
+function getItemLabel(item) {
+  return item.labelKey ? t(item.labelKey) : item.label
+}
 </script>
 
 <template>
-  <aside class="bt-enterprise-sidebar" :class="{ 'bt-enterprise-sidebar--drawer': drawer }">
+  <aside
+    class="bt-enterprise-sidebar"
+    :class="{ 'bt-enterprise-sidebar--drawer': drawer }"
+    :aria-label="t('app.mainNavigation')"
+  >
     <div class="bt-sidebar-top">
       <RouterLink class="bt-brand-mark" to="/corporate-dashboard" @click="$emit('navigate')">
         <span class="bt-brand-symbol" aria-hidden="true">Bio</span>
@@ -56,23 +69,23 @@ function isActive(routePath) {
       <section class="bt-sidebar-menu">
 
         <ScrollPanel class="bt-sidebar-scroll">
-          <nav class="bt-sidebar-nav" aria-label="Navegacion principal">
+          <nav class="bt-sidebar-nav" :aria-label="t('app.mainNavigation')">
             <RouterLink
               v-for="item in navigationItems"
-              :key="item.label"
+              :key="item.route"
               v-ripple
               class="bt-sidebar-link"
               :class="{ 'bt-sidebar-link--active': isActive(item.route) }"
               :to="item.route"
-              :aria-label="item.label"
+              :aria-label="getItemLabel(item)"
               :aria-current="isActive(item.route) ? 'page' : undefined"
               @click="$emit('navigate')"
             >
               <i :class="item.icon" aria-hidden="true" />
-              <span>{{ item.label }}</span>
+              <span>{{ getItemLabel(item) }}</span>
             </RouterLink>
             <p v-if="!navigationItems.length" class="bt-sidebar-empty">
-              Sin accesos disponibles.
+              {{ t('app.noNavigation') }}
             </p>
           </nav>
         </ScrollPanel>
@@ -83,7 +96,7 @@ function isActive(routePath) {
       <Avatar :label="currentUserInitials" shape="circle" class="bt-sidebar-avatar" />
       <div class="bt-sidebar-profile-copy">
         <strong>{{ currentUserName }}</strong>
-        <span>{{ currentUserRole || 'Sin rol' }}</span>
+        <span>{{ currentUserRoleLabel }}</span>
       </div>
     </footer>
   </aside>

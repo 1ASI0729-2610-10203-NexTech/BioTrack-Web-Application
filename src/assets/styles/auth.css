@@ -26,6 +26,12 @@
   font-size: 0.88rem;
 }
 
+.bt-auth-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .bt-auth-switch a {
   color: var(--bt-primary);
   font-weight: 600;
@@ -208,6 +214,16 @@
     flex-direction: column;
     justify-content: center;
     padding: 16px 20px;
+  }
+
+  .bt-auth-header-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .bt-auth-switch {
+    font-size: 0.78rem;
   }
 
   .bt-auth-main {
