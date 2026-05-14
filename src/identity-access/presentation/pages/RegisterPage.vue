@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
@@ -8,12 +9,13 @@ import AuthLayout from '../../../shared/presentation/layouts/auth-layout/AuthLay
 import { useIdentityAccessStore } from '../../application/identity-access.store'
 
 const identityAccessStore = useIdentityAccessStore()
+const { t } = useI18n()
 
-const accountOptions = [
-  { label: 'Paciente', value: 'PACIENTE' },
-  { label: 'Nutricionista', value: 'NUTRICIONISTA' },
-  { label: 'Corporativo', value: 'ADMIN_CORPORATIVO' },
-]
+const accountOptions = computed(() => [
+  { label: t('auth.patient'), value: 'PACIENTE' },
+  { label: t('auth.nutritionist'), value: 'NUTRICIONISTA' },
+  { label: t('auth.corporate'), value: 'ADMIN_CORPORATIVO' },
+])
 
 const form = reactive({
   role: 'PACIENTE',
@@ -43,22 +45,22 @@ function selectRole(role) {
 }
 
 function validateForm() {
-  validation.role = !form.role ? 'Debes seleccionar un tipo de cuenta.' : ''
-  validation.firstName = !form.firstName.trim() ? 'El nombre es obligatorio.' : ''
-  validation.lastName = !form.lastName.trim() ? 'El apellido es obligatorio.' : ''
+  validation.role = !form.role ? t('auth.accountTypeRequired') : ''
+  validation.firstName = !form.firstName.trim() ? t('auth.firstNameRequired') : ''
+  validation.lastName = !form.lastName.trim() ? t('auth.lastNameRequired') : ''
 
-  if (!form.email.trim()) validation.email = 'El correo electronico es obligatorio.'
+  if (!form.email.trim()) validation.email = t('auth.emailRequired')
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-    validation.email = 'Ingresa un correo electronico valido.'
+    validation.email = t('auth.emailInvalid')
   } else validation.email = ''
 
-  if (!form.password) validation.password = 'La contrasena es obligatoria.'
-  else if (form.password.length < 8) validation.password = 'Minimo 8 caracteres.'
+  if (!form.password) validation.password = t('auth.passwordRequired')
+  else if (form.password.length < 8) validation.password = t('auth.passwordMinLength')
   else validation.password = ''
 
-  if (!form.confirmPassword) validation.confirmPassword = 'Debe confirmar la contrasena.'
+  if (!form.confirmPassword) validation.confirmPassword = t('auth.confirmPasswordRequired')
   else if (form.confirmPassword !== form.password) {
-    validation.confirmPassword = 'Las contrasenas no coinciden.'
+    validation.confirmPassword = t('auth.passwordsDoNotMatch')
   } else validation.confirmPassword = ''
 
   return !Object.values(validation).some(Boolean)
@@ -79,29 +81,29 @@ async function submitRegister() {
     >
       <header>
         <h1 class="bt-auth-title">
-          {{ hasSuccessState ? '¡Cuenta creada con exito!' : 'Crear cuenta' }}
+          {{ hasSuccessState ? t('auth.registerSuccessTitle') : t('auth.registerTitle') }}
         </h1>
         <p class="bt-auth-subtitle">
           {{
             hasSuccessState
-              ? 'Tu registro fue procesado correctamente.'
-              : 'Completa todos los campos obligatorios para continuar.'
+              ? t('auth.registerSuccessSubtitle')
+              : t('auth.registerSubtitle')
           }}
         </p>
       </header>
 
       <Message v-if="hasErrorState && !hasSuccessState" severity="error" class="bt-auth-message">
-        <strong>No se pudo registrar tu cuenta</strong>
-        <span>Revisa los campos marcados antes de continuar.</span>
+        <strong>{{ t('auth.registerErrorTitle') }}</strong>
+        <span>{{ t('auth.registerErrorDetail') }}</span>
       </Message>
 
       <Message v-if="hasSuccessState" severity="success" class="bt-auth-message">
-        <strong>Registro completado</strong>
+        <strong>{{ t('auth.registerCompleted') }}</strong>
         <span>{{ identityAccessStore.registerStatus.message }}</span>
       </Message>
 
-      <form class="bt-auth-form" @submit.prevent="submitRegister">
-        <div class="bt-auth-segmented" role="group" aria-label="Tipo de cuenta">
+      <form class="bt-auth-form" :aria-label="t('auth.registerTitle')" @submit.prevent="submitRegister">
+        <div class="bt-auth-segmented" role="group" :aria-label="t('auth.accountType')">
           <Button
             v-for="option in accountOptions"
             :key="option.value"
@@ -115,22 +117,22 @@ async function submitRegister() {
 
         <div class="bt-auth-grid">
           <div class="bt-auth-grid-field">
-            <label for="register-first-name">Nombre</label>
+            <label for="register-first-name">{{ t('auth.firstName') }}</label>
             <InputText
               id="register-first-name"
               v-model="form.firstName"
-              placeholder="Juan"
+              :placeholder="t('auth.firstNamePlaceholder')"
               :invalid="Boolean(validation.firstName)"
             />
             <p v-if="validation.firstName" class="bt-auth-helper">{{ validation.firstName }}</p>
           </div>
 
           <div class="bt-auth-grid-field">
-            <label for="register-last-name">Apellido</label>
+            <label for="register-last-name">{{ t('auth.lastName') }}</label>
             <InputText
               id="register-last-name"
               v-model="form.lastName"
-              placeholder="Perez"
+              :placeholder="t('auth.lastNamePlaceholder')"
               :invalid="Boolean(validation.lastName)"
             />
             <p v-if="validation.lastName" class="bt-auth-helper">{{ validation.lastName }}</p>
@@ -138,12 +140,12 @@ async function submitRegister() {
         </div>
 
         <div class="bt-auth-field">
-          <label for="register-email">Correo electronico</label>
+          <label for="register-email">{{ t('auth.email') }}</label>
           <InputText
             id="register-email"
             v-model="form.email"
             autocomplete="email"
-            placeholder="juan.perez@gmail.com"
+            :placeholder="t('auth.emailPlaceholder')"
             :invalid="Boolean(validation.email)"
           />
           <p v-if="validation.email" class="bt-auth-helper">{{ validation.email }}</p>
@@ -151,26 +153,26 @@ async function submitRegister() {
 
         <div class="bt-auth-grid">
           <div class="bt-auth-grid-field bt-auth-password">
-            <label for="register-password">Contrasena</label>
+            <label for="register-password">{{ t('auth.password') }}</label>
             <Password
               input-id="register-password"
               v-model="form.password"
               toggle-mask
               :feedback="false"
-              placeholder="Minimo 8 caracteres"
+              :placeholder="t('auth.passwordPlaceholder')"
               :invalid="Boolean(validation.password)"
             />
             <p v-if="validation.password" class="bt-auth-helper">{{ validation.password }}</p>
           </div>
 
           <div class="bt-auth-grid-field bt-auth-password">
-            <label for="register-confirm-password">Confirmar contrasena</label>
+            <label for="register-confirm-password">{{ t('auth.confirmPassword') }}</label>
             <Password
               input-id="register-confirm-password"
               v-model="form.confirmPassword"
               toggle-mask
               :feedback="false"
-              placeholder="Repite la contrasena"
+              :placeholder="t('auth.confirmPasswordPlaceholder')"
               :invalid="Boolean(validation.confirmPassword)"
             />
             <p v-if="validation.confirmPassword" class="bt-auth-helper">
@@ -184,18 +186,18 @@ async function submitRegister() {
             v-if="hasSuccessState"
             class="bt-auth-button"
             icon="pi pi-envelope"
-            label="Ir a verificar correo electronico"
+            :label="t('auth.verifyEmailButton')"
             type="button"
           />
           <Button
             v-else
             class="bt-auth-button"
-            label="Completa los campos requeridos para crear la cuenta"
+            :label="t('auth.requiredFieldsButton')"
             :disabled="identityAccessStore.loading"
             :loading="identityAccessStore.loading"
             type="submit"
           />
-          <RouterLink class="bt-auth-footer-link" to="/login">Ir al inicio de sesion</RouterLink>
+          <RouterLink class="bt-auth-footer-link" to="/login">{{ t('auth.goToLogin') }}</RouterLink>
         </div>
       </form>
     </section>
