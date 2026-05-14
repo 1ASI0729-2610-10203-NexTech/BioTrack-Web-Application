@@ -8,18 +8,10 @@ export const sidebarNavigationByRole = {
     { labelKey: 'navigation.billing', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
   ],
   ADMIN_CORPORATIVO: [
-<<<<<<< Updated upstream
-    { label: 'Dashboard', icon: 'pi pi-home', route: '/corporate-dashboard' },
-    { label: 'Registrar Empresa', icon: 'pi pi-building', route: '/corporate-register' },
-    { label: 'Colaboradores', icon: 'pi pi-users', route: '/collaborators' },
-    { label: 'Metricas', icon: 'pi pi-chart-bar', route: '/corporate-metrics' },
-    { label: 'Facturacion', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
-=======
     { labelKey: 'navigation.dashboard', icon: 'pi pi-home', route: '/corporate-dashboard' },
     { labelKey: 'navigation.collaborators', icon: 'pi pi-users', route: '/collaborators' },
     { labelKey: 'navigation.metrics', icon: 'pi pi-chart-bar', route: '/corporate-metrics' },
     { labelKey: 'navigation.billing', icon: 'pi pi-credit-card', route: '/subscriptions-billing' },
->>>>>>> Stashed changes
   ],
   NUTRICIONISTA: [
     { labelKey: 'navigation.dashboard', icon: 'pi pi-home', route: '/nutritionist-dashboard' },
