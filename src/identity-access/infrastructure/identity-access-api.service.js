@@ -22,12 +22,16 @@ export const identityAccessApiService = {
       nutricionista: 'NUTRICIONISTA',
       corporativo: 'ADMIN_CORPORATIVO',
     }
+    const validRoles = ['PACIENTE', 'NUTRICIONISTA', 'ADMIN_CORPORATIVO']
+    const requestedRole = validRoles.includes(command.role)
+      ? command.role
+      : roleByAccountType[command.accountType]
 
     return apiService.post(`${jsonServerBaseUrl}/users`, {
       name: `${command.firstName} ${command.lastName}`.trim(),
       email: String(command.email ?? '').trim().toLowerCase(),
       password: command.password,
-      role: roleByAccountType[command.accountType] ?? 'PACIENTE',
+      role: requestedRole ?? 'PACIENTE',
       status: 'PENDING_VERIFICATION',
       emailVerified: false,
     })
