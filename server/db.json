@@ -63,7 +63,7 @@
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "isComplete": true,
-      "assignedNutritionistId": 2
+      "assignedNutritionistId": 1
     },
     {
       "userId": 5,
@@ -81,7 +81,7 @@
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "isComplete": true,
-      "assignedNutritionistId": null,
+      "assignedNutritionistId": 1,
       "id": 2,
       "updatedAt": "2026-05-14T01:27:50.559Z"
     }
@@ -93,7 +93,7 @@
       "fullName": "Dra. Ana Torres",
       "specialty": "Nutrición clínica",
       "status": "AVAILABLE",
-      "assignedPatientsCount": 1
+      "assignedPatientsCount": 2
     }
   ],
   "nutritionistAssignments": [
@@ -102,6 +102,13 @@
       "patientId": 1,
       "nutritionistId": 1,
       "assignedAt": "2026-04-23",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "patientId": 2,
+      "nutritionistId": 1,
+      "assignedAt": "2026-05-14",
       "status": "ACTIVE"
     }
   ],
@@ -1001,6 +1008,7 @@
       "notes": "Evaluación inicial completada."
     }
   ],
+  "followUpNotes": [],
   "consultations": [
     {
       "id": 1,

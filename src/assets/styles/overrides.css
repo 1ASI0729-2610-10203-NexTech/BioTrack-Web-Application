@@ -485,6 +485,84 @@ label {
   outline-offset: 2px;
 }
 
+.bt-nutritionist-patient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.bt-nutritionist-patient-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.bt-nutritionist-patient-card h3 {
+  margin: 0;
+}
+
+.bt-nutritionist-card-meta,
+.bt-table-actions,
+.bt-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.bt-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.bt-detail-grid span {
+  display: grid;
+  gap: 4px;
+  color: var(--bt-text-muted);
+  font-size: 0.86rem;
+}
+
+.bt-detail-grid strong {
+  color: var(--bt-text);
+  font-size: 1rem;
+}
+
+.bt-form-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.bt-form-grid label {
+  display: grid;
+  gap: 8px;
+  color: var(--bt-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.bt-list-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.bt-note-item {
+  padding: 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-background);
+}
+
+.bt-note-item p {
+  margin: 6px 0 0;
+  color: var(--bt-text-muted);
+}
+
 .bt-topbar-icon-button.p-button,
 .bt-topbar-menu-button.p-button {
   width: 40px;

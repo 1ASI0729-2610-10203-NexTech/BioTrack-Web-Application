@@ -15,7 +15,7 @@ export const sidebarNavigationByRole = {
   ],
   NUTRICIONISTA: [
     { labelKey: 'navigation.dashboard', icon: 'pi pi-home', route: '/nutritionist-dashboard' },
-    { labelKey: 'navigation.myPatients', icon: 'pi pi-users', route: '/patients' },
+    { labelKey: 'navigation.myPatients', icon: 'pi pi-users', route: '/nutritionist-patients' },
     { labelKey: 'navigation.nutritionPlans', icon: 'pi pi-clipboard', route: '/nutritionist-plans' },
     { labelKey: 'navigation.consultations', icon: 'pi pi-calendar', route: '/consultations' },
     {
