@@ -22,150 +22,85 @@ import NotAuthorizedPage from '../shared/presentation/pages/NotAuthorizedPage.vu
 import { useIdentityAccessStore } from '../identity-access/application/identity-access.store'
 import { getDefaultRouteByRole } from '../identity-access/application/auth-redirects'
 
+function resolveHomeRoute() {
+  const identityAccessStore = useIdentityAccessStore()
+  return identityAccessStore.isAuthenticated
+    ? getDefaultRouteByRole(identityAccessStore.role)
+    : '/login'
+}
+
+const patientMeta = { requiresAuth: true, roles: ['PACIENTE'] }
+const nutritionistMeta = { requiresAuth: true, roles: ['NUTRICIONISTA'] }
+const corporateMeta = { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] }
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', redirect: '/dashboard' },
+    { path: '/', redirect: resolveHomeRoute },
     { path: '/login', component: LoginPage, meta: { layout: 'public', guestOnly: true } },
     { path: '/register', component: RegisterPage, meta: { layout: 'public', guestOnly: true } },
-    {
-      path: '/dashboard',
-      component: PatientDashboardPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/patient-profile',
-      component: PatientProfilePage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/patient-profile/health-data',
-      component: HealthDataFormPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/patient-profile/nutritional-goal',
-      component: NutritionalGoalPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/patient-profile/restrictions',
-      component: DietaryRestrictionsPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/corporate-dashboard',
-      component: CorporateDashboardPage,
-      meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
-    },
-    {
-      path: '/corporate-register',
-      component: CorporateRegisterPage,
-      meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
-    },
-    {
-      path: '/collaborators',
-      component: CorporateCollaboratorsPage,
-      meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
-    },
-    {
-      path: '/corporate-metrics',
-      component: CorporateMetricsPage,
-      meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
-    },
+
+    { path: '/dashboard', component: PatientDashboardPage, meta: patientMeta },
+    { path: '/patient-profile', component: PatientProfilePage, meta: patientMeta },
+    { path: '/patient-profile/health-data', component: HealthDataFormPage, meta: patientMeta },
+    { path: '/patient-profile/nutritional-goal', component: NutritionalGoalPage, meta: patientMeta },
+    { path: '/patient-profile/restrictions', component: DietaryRestrictionsPage, meta: patientMeta },
+    { path: '/nutritional-plan', component: NutritionalPlanPage, meta: patientMeta },
+    { path: '/weekly-diet', component: WeeklyDietPage, meta: patientMeta },
+    { path: '/progress-tracking', component: ProgressTrackingPage, meta: patientMeta },
+    { path: '/progress-tracking/activity', component: ActivityLogPage, meta: patientMeta },
+    { path: '/progress-tracking/weight', component: WeightUpdatePage, meta: patientMeta },
+    { path: '/food-log', component: FoodLogPage, meta: patientMeta },
+
+    { path: '/corporate-dashboard', component: CorporateDashboardPage, meta: corporateMeta },
+    { path: '/corporate-register', component: CorporateRegisterPage, meta: corporateMeta },
+    { path: '/collaborators', component: CorporateCollaboratorsPage, meta: corporateMeta },
+    { path: '/corporate-metrics', component: CorporateMetricsPage, meta: corporateMeta },
+
     {
       path: '/nutritionist-dashboard',
       component: PlaceholderPage,
-      props: { titleKey: "placeholders.collaborators", eyebrowKey: "placeholders.corporate" },
-      meta: { requiresAuth: true, roles: ["ADMIN_CORPORATIVO"] },
+      props: { titleKey: 'placeholders.nutritionistDashboard', eyebrowKey: 'placeholders.nutritionist' },
+      meta: nutritionistMeta,
     },
     {
       path: '/patients',
       component: PlaceholderPage,
-      props: { titleKey: "placeholders.corporateMetrics", eyebrowKey: "placeholders.corporate" },
-      meta: { requiresAuth: true, roles: ["ADMIN_CORPORATIVO"] },
+      props: { titleKey: 'placeholders.patients', eyebrowKey: 'placeholders.nutritionist' },
+      meta: nutritionistMeta,
     },
     {
       path: '/nutritionist-plans',
       component: PlaceholderPage,
-      props: { titleKey: "placeholders.nutritionistDashboard", eyebrowKey: "placeholders.nutritionist" },
-      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+      props: { titleKey: 'placeholders.nutritionistPlans', eyebrowKey: 'placeholders.nutritionist' },
+      meta: nutritionistMeta,
     },
     {
       path: '/consultations',
       component: PlaceholderPage,
-      props: { titleKey: "placeholders.patients", eyebrowKey: "placeholders.nutritionist" },
-      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+      props: { titleKey: 'placeholders.consultations', eyebrowKey: 'placeholders.biotrack' },
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA'] },
     },
     {
       path: '/adherence-alerts',
       component: PlaceholderPage,
-      props: { titleKey: "placeholders.nutritionistPlans", eyebrowKey: "placeholders.nutritionist" },
-      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
+      props: { titleKey: 'placeholders.adherenceAlerts', eyebrowKey: 'placeholders.nutritionist' },
+      meta: nutritionistMeta,
     },
     {
       path: '/reports',
       component: PlaceholderPage,
-      props: { titleKey: "placeholders.consultations", eyebrowKey: "placeholders.biotrack" },
-      meta: { requiresAuth: true, roles: ["PACIENTE", "NUTRICIONISTA"] },
+      props: { titleKey: 'placeholders.reports', eyebrowKey: 'placeholders.nutritionist' },
+      meta: nutritionistMeta,
     },
-    { path: '/nutritional-plan', component: NutritionalPlanPage, meta: { requiresAuth: true, roles: ['PACIENTE'] } },
-    { path: '/weekly-diet', component: WeeklyDietPage, meta: { requiresAuth: true, roles: ['PACIENTE'] } },
-    {
-      path: "/adherence-alerts",
-      component: PlaceholderPage,
-      props: { titleKey: "placeholders.adherenceAlerts", eyebrowKey: "placeholders.nutritionist" },
-      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
-    },
-    {
-      path: "/reports",
-      component: PlaceholderPage,
-      props: { titleKey: "placeholders.reports", eyebrowKey: "placeholders.nutritionist" },
-      meta: { requiresAuth: true, roles: ["NUTRICIONISTA"] },
-    },
-    {
-      path: "/nutritional-plan",
-      component: NutritionalPlanPage,
-      meta: { requiresAuth: true, roles: ["PACIENTE"] },
-    },
-    {
-      path: "/weekly-diet",
-      component: WeeklyDietPage,
-      meta: { requiresAuth: true, roles: ["PACIENTE"] },
-    },
-    {
-      path: "/progress-tracking",
-      component: ProgressTrackingPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/progress-tracking/activity',
-      component: ActivityLogPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/progress-tracking/weight',
-      component: WeightUpdatePage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
-    {
-      path: '/food-log',
-      component: FoodLogPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE'] },
-    },
+
     {
       path: '/subscriptions-billing',
       component: SubscriptionsBillingPage,
-      meta: {
-        requiresAuth: true,
-        roles: ['PACIENTE', 'ADMIN_CORPORATIVO'],
-      },
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'ADMIN_CORPORATIVO'] },
     },
-    {
-      path: '/not-authorized',
-      component: NotAuthorizedPage,
-      meta: { requiresAuth: true },
-    },
+    { path: '/not-authorized', component: NotAuthorizedPage, meta: { requiresAuth: true } },
+    { path: '/:pathMatch(.*)*', redirect: resolveHomeRoute },
   ],
 })
 
@@ -177,7 +112,7 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth && !hasAuthenticatedUser) {
     return {
       path: '/login',
-      query: { redirect: to.fullPath },
+      query: to.fullPath !== '/login' ? { redirect: to.fullPath } : undefined,
     }
   }
 
@@ -186,7 +121,7 @@ router.beforeEach((to) => {
   }
 
   if (to.path !== '/not-authorized' && to.meta.roles?.length && !to.meta.roles.includes(userRole)) {
-    return '/not-authorized'
+    return getDefaultRouteByRole(userRole)
   }
 
   return true
