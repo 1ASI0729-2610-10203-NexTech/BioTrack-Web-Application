@@ -30,10 +30,29 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Validate production environment
+        run: |
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "VITE_API_BASE_URL is required for GitHub Pages production builds."
+            echo "Configure it as a GitHub repository variable or secret with your public backend/ngrok URL."
+            exit 1
+          fi
+          if echo "$VITE_API_BASE_URL" | grep -E "localhost|127\.0\.0\.1|TU_BACKEND_PUBLICO" > /dev/null; then
+            echo "VITE_API_BASE_URL must be a public backend URL in production, not localhost or a placeholder."
+            exit 1
+          fi
+          echo "Using production API base URL: $VITE_API_BASE_URL"
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || secrets.VITE_API_BASE_URL || 'https://biotrack-frontend-blkn.onrender.com' }}
+
       - name: Build
         run: npm run build
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_APP_ENV: production
+          VITE_APP_BASE_PATH: /biotrack-frontend/
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || secrets.VITE_API_BASE_URL || 'https://biotrack-frontend-blkn.onrender.com' }}
+          VITE_API_TIMEOUT: 10000
+          VITE_ENABLE_API_DEBUG: false
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
