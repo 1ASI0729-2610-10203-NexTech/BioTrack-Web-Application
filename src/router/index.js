@@ -6,6 +6,9 @@ import HealthDataFormPage from '../patient-profile/presentation/pages/HealthData
 import NutritionalGoalPage from '../patient-profile/presentation/pages/NutritionalGoalPage.vue'
 import DietaryRestrictionsPage from '../patient-profile/presentation/pages/DietaryRestrictionsPage.vue'
 import CorporateDashboardPage from '../corporate-management/presentation/pages/CorporateDashboardPage.vue'
+import CorporateCollaboratorsPage from '../corporate-management/presentation/pages/CorporateCollaboratorsPage.vue'
+import CorporateMetricsPage from '../corporate-management/presentation/pages/CorporateMetricsPage.vue'
+import CorporateRegisterPage from '../corporate-management/presentation/pages/CorporateRegisterPage.vue'
 import PatientDashboardPage from '../nutritional-planning/presentation/pages/PatientDashboardPage.vue'
 import NutritionalPlanPage from '../nutritional-planning/presentation/pages/NutritionalPlanPage.vue'
 import WeeklyDietPage from '../nutritional-planning/presentation/pages/WeeklyDietPage.vue'
@@ -56,15 +59,18 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
     },
     {
+      path: '/corporate-register',
+      component: CorporateRegisterPage,
+      meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
+    },
+    {
       path: '/collaborators',
-      component: PlaceholderPage,
-      props: { title: 'Colaboradores', eyebrow: 'Admin corporativo' },
+      component: CorporateCollaboratorsPage,
       meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
     },
     {
       path: '/corporate-metrics',
-      component: PlaceholderPage,
-      props: { title: 'Metricas corporativas', eyebrow: 'Admin corporativo' },
+      component: CorporateMetricsPage,
       meta: { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] },
     },
     {
