@@ -62,7 +62,7 @@ src/shared/infrastructure/api.service.js
 | --- | --- | --- | --- |
 | `VITE_APP_ENV` | Human-readable application environment label. | `development` | `production` |
 | `VITE_APP_BASE_PATH` | Public base path used by Vite and GitHub Pages. | `/biotrack-frontend/` | `/biotrack-frontend/` |
-| `VITE_API_BASE_URL` | Backend root URL used by Axios. | `http://localhost:3001` | `https://TU_BACKEND_PUBLICO.com` |
+| `VITE_API_BASE_URL` | Backend root URL used by Axios. | `http://localhost:3001` | `https://biotrack-frontend-blkn.onrender.com` |
 | `VITE_API_TIMEOUT` | HTTP request timeout in milliseconds. | `8000` | `10000` |
 | `VITE_ENABLE_API_DEBUG` | Enables environment and API error logs for debugging. | `true` | `false` |
 
@@ -103,11 +103,11 @@ Vite automatically loads `.env.production` during production builds:
 
 ```env
 VITE_APP_ENV=production
-VITE_API_BASE_URL=https://TU_BACKEND_PUBLICO.com
+VITE_API_BASE_URL=https://biotrack-frontend-blkn.onrender.com
 VITE_ENABLE_API_DEBUG=false
 ```
 
-Before deploying to GitHub Pages, replace `https://TU_BACKEND_PUBLICO.com` with:
+Before deploying to GitHub Pages, configure `VITE_API_BASE_URL` as a GitHub repository variable or secret and replace `https://TU_BACKEND_PUBLICO.com` with:
 
 - A deployed REST API URL, or
 - A public ngrok URL that exposes JSON Server, for example `https://example.ngrok-free.app`.
@@ -171,6 +171,20 @@ After changing `.env.production`, rebuild the frontend:
 ```bash
 npm run build
 ```
+
+For GitHub Actions deployments, configure one of these repository settings:
+
+```text
+Settings > Secrets and variables > Actions > Variables > VITE_API_BASE_URL
+```
+
+or:
+
+```text
+Settings > Secrets and variables > Actions > Secrets > VITE_API_BASE_URL
+```
+
+The deploy workflow validates that this value is not empty, not `localhost` and not a placeholder before building the GitHub Pages artifact.
 
 ## Centralized Runtime Configuration
 
