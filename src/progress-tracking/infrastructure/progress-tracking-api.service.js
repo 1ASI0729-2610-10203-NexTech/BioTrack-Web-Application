@@ -4,8 +4,8 @@ import { ProgressTrackingAssembler } from './progress-tracking.assembler'
 export const progressTrackingApiService = {
   async fetchSummary(patientId = 1) {
     const [foodLogs, reports] = await Promise.all([
-      apiService.get('/food-logs'),
-      apiService.get('/evolution-reports'),
+      apiService.get('/foodLogs'),
+      apiService.get('/evolutionReports'),
     ])
     const patientLogs = foodLogs.filter((log) => log.patientId === patientId)
     const recordedDays = new Set(patientLogs.map((log) => log.date)).size

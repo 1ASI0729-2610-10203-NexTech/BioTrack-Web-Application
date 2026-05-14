@@ -145,7 +145,7 @@ async function submitRegister() {
             id="register-email"
             v-model="form.email"
             autocomplete="email"
-            :placeholder="t('auth.emailPlaceholder')"
+            :placeholder="'auth.emailPlaceholder'"
             :invalid="Boolean(validation.email)"
           />
           <p v-if="validation.email" class="bt-auth-helper">{{ validation.email }}</p>
@@ -182,21 +182,7 @@ async function submitRegister() {
         </div>
 
         <div class="bt-auth-actions">
-          <Button
-            v-if="hasSuccessState"
-            class="bt-auth-button"
-            icon="pi pi-envelope"
-            :label="t('auth.verifyEmailButton')"
-            type="button"
-          />
-          <Button
-            v-else
-            class="bt-auth-button"
-            :label="t('auth.requiredFieldsButton')"
-            :disabled="identityAccessStore.loading"
-            :loading="identityAccessStore.loading"
-            type="submit"
-          />
+       
           <RouterLink class="bt-auth-footer-link" to="/login">{{ t('auth.goToLogin') }}</RouterLink>
         </div>
       </form>

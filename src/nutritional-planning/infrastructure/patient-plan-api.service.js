@@ -2,10 +2,6 @@ import { apiService } from '../../shared/infrastructure/api.service'
 import { PatientPlan } from '../domain/model/patient-plan.entity'
 import { WeeklyDiet } from '../domain/model/weekly-diet.entity'
 
-const jsonServerBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1')
-  .replace(/\/api\/v1\/?$/, '')
-  .replace(/\/$/, '')
-
 function formatDate(value) {
   if (!value) return ''
   return new Date(value).toLocaleDateString('es-PE', {
@@ -34,14 +30,14 @@ function mapPlan(payload, nutritionistName = 'Dra. Ana Torres') {
 
 export const patientPlanApiService = {
   async fetchCurrentPlan(userId) {
-    const patientProfiles = await apiService.get(`${jsonServerBaseUrl}/patientProfiles`)
+    const patientProfiles = await apiService.get('/patientProfiles')
     const patientProfile = patientProfiles.find((profile) => profile.userId === userId)
     if (!patientProfile) return null
 
-    const plans = await apiService.get(`${jsonServerBaseUrl}/patientPlans`)
+    const plans = await apiService.get('/patientPlans')
     const plan = plans.find((candidate) => candidate.patientId === patientProfile.id)
     if (!plan) return null
-    const nutritionists = await apiService.get(`${jsonServerBaseUrl}/nutritionists`)
+    const nutritionists = await apiService.get('/nutritionists')
     return {
       raw: plan,
       patientProfile,
@@ -53,7 +49,7 @@ export const patientPlanApiService = {
   },
 
   async fetchWeeklyDiet(planId) {
-    const diets = await apiService.get(`${jsonServerBaseUrl}/weeklyDiets`)
+    const diets = await apiService.get('/weeklyDiets')
     const diet = diets.find((candidate) => candidate.planId === planId)
     const iconByMealType = {
       desayuno: '☀️',
@@ -75,7 +71,7 @@ export const patientPlanApiService = {
   },
 
   async acceptPlan(planId) {
-    return apiService.patch(`${jsonServerBaseUrl}/patientPlans/${planId}`, {
+    return apiService.patch(`/patientPlans/${planId}`, {
       status: 'ACTIVATED',
       activatedAt: new Date().toISOString().slice(0, 10),
       rejectedReason: null,
@@ -83,7 +79,7 @@ export const patientPlanApiService = {
   },
 
   async rejectPlan(planId, rejectedReason) {
-    return apiService.patch(`${jsonServerBaseUrl}/patientPlans/${planId}`, {
+    return apiService.patch(`/patientPlans/${planId}`, {
       status: 'REJECTED',
       rejectedReason,
     })
