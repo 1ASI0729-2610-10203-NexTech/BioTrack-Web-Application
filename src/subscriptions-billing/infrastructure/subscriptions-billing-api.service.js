@@ -4,10 +4,6 @@ import { IndividualSubscription } from '../domain/model/individual-subscription.
 import { Payment } from '../domain/model/payment.entity'
 import { Invoice } from '../domain/model/invoice.entity'
 
-const jsonServerBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1')
-  .replace(/\/api\/v1\/?$/, '')
-  .replace(/\/$/, '')
-
 const defaultMeals = [
   {
     type: 'desayuno',
@@ -50,7 +46,7 @@ function getRenewalDate() {
 
 export const subscriptionsBillingApiService = {
   async fetchPlans() {
-    const plans = await apiService.get(`${jsonServerBaseUrl}/subscriptionPlans`)
+    const plans = await apiService.get('/subscriptionPlans')
     return plans.map(
       (plan) =>
         new SubscriptionPlan({
@@ -64,17 +60,17 @@ export const subscriptionsBillingApiService = {
   },
 
   async fetchActiveSubscription(userId) {
-    const subscriptions = await apiService.get(`${jsonServerBaseUrl}/subscriptions`)
+    const subscriptions = await apiService.get('/subscriptions')
     const subscription = subscriptions.find(
       (candidate) => candidate.userId === userId && candidate.status === 'ACTIVE',
     )
     if (!subscription) return null
-    const plans = await apiService.get(`${jsonServerBaseUrl}/subscriptionPlans`)
+    const plans = await apiService.get('/subscriptionPlans')
     const plan = plans.find((candidate) => candidate.id === subscription.planId)
-    const payments = (await apiService.get(`${jsonServerBaseUrl}/payments`)).filter(
+    const payments = (await apiService.get('/payments')).filter(
       (payment) => payment.subscriptionId === subscription.id,
     )
-    const invoice = (await apiService.get(`${jsonServerBaseUrl}/invoices`)).find(
+    const invoice = (await apiService.get('/invoices')).find(
       (candidate) => candidate.subscriptionId === subscription.id,
     )
 
@@ -106,20 +102,20 @@ export const subscriptionsBillingApiService = {
   },
 
   async subscribeToPlan({ userId, plan }) {
-    const existing = (await apiService.get(`${jsonServerBaseUrl}/subscriptions`)).filter(
+    const existing = (await apiService.get('/subscriptions')).filter(
       (subscription) => subscription.userId === userId && subscription.status === 'ACTIVE',
     )
     const today = new Date().toISOString().slice(0, 10)
     const nextRenewalAt = getRenewalDate()
 
     const subscription = existing[0]
-      ? await apiService.patch(`${jsonServerBaseUrl}/subscriptions/${existing[0].id}`, {
+      ? await apiService.patch(`/subscriptions/${existing[0].id}`, {
           planId: plan.id,
           status: 'ACTIVE',
           startedAt: today,
           nextRenewalAt,
         })
-      : await apiService.post(`${jsonServerBaseUrl}/subscriptions`, {
+      : await apiService.post('/subscriptions', {
           userId,
           planId: plan.id,
           status: 'ACTIVE',
@@ -128,17 +124,17 @@ export const subscriptionsBillingApiService = {
         })
 
     const sameActivePlan = existing[0]?.planId === plan.id
-    const existingPayments = (await apiService.get(`${jsonServerBaseUrl}/payments`)).filter(
+    const existingPayments = (await apiService.get('/payments')).filter(
       (payment) => payment.subscriptionId === subscription.id,
     )
-    const existingInvoices = (await apiService.get(`${jsonServerBaseUrl}/invoices`)).filter(
+    const existingInvoices = (await apiService.get('/invoices')).filter(
       (invoice) => invoice.subscriptionId === subscription.id,
     )
 
     const payment =
       sameActivePlan && existingPayments.length
         ? existingPayments.at(-1)
-        : await apiService.post(`${jsonServerBaseUrl}/payments`, {
+        : await apiService.post('/payments', {
             subscriptionId: subscription.id,
             userId,
             planId: plan.id,
@@ -152,7 +148,7 @@ export const subscriptionsBillingApiService = {
     const invoice =
       sameActivePlan && existingInvoices.length
         ? existingInvoices.at(-1)
-        : await apiService.post(`${jsonServerBaseUrl}/invoices`, {
+        : await apiService.post('/invoices', {
             subscriptionId: subscription.id,
             number: `INV-${today.replaceAll('-', '')}-${subscription.id}`,
             issuedAt: today,
@@ -164,7 +160,7 @@ export const subscriptionsBillingApiService = {
   },
 
   async ensureNutritionAccessForEligibleUser(userId) {
-    const subscriptions = await apiService.get(`${jsonServerBaseUrl}/subscriptions`)
+    const subscriptions = await apiService.get('/subscriptions')
     const activeSubscription = subscriptions.find(
       (subscription) => subscription.userId === userId && subscription.status === 'ACTIVE',
     )
@@ -172,14 +168,14 @@ export const subscriptionsBillingApiService = {
       return { eligible: false, eligibilityReason: 'NO_ACTIVE_SUBSCRIPTION' }
     }
 
-    const plans = await apiService.get(`${jsonServerBaseUrl}/subscriptionPlans`)
+    const plans = await apiService.get('/subscriptionPlans')
     const subscriptionPlan = plans.find((plan) => plan.id === activeSubscription.planId)
     const hasNutritionAccess = ['Profesional', 'Premium'].includes(subscriptionPlan?.name)
     if (!hasNutritionAccess) {
       return { eligible: false, eligibilityReason: 'SUBSCRIPTION_WITHOUT_NUTRITION_ACCESS' }
     }
 
-    const users = await apiService.get(`${jsonServerBaseUrl}/users`)
+    const users = await apiService.get('/users')
     const currentUser = users.find((user) => user.id === userId)
     if (!currentUser?.emailVerified || currentUser.status !== 'ACTIVE') {
       return { eligible: false, eligibilityReason: 'EMAIL_NOT_VERIFIED' }
@@ -208,11 +204,11 @@ export const subscriptionsBillingApiService = {
   },
 
   async ensurePatientProfile(userId) {
-    const patientProfiles = await apiService.get(`${jsonServerBaseUrl}/patientProfiles`)
+    const patientProfiles = await apiService.get('/patientProfiles')
     const existingProfile = patientProfiles.find((profile) => profile.userId === userId)
     if (existingProfile) return existingProfile
 
-    return apiService.post(`${jsonServerBaseUrl}/patientProfiles`, {
+    return apiService.post('/patientProfiles', {
       userId,
       weightKg: null,
       heightCm: null,
@@ -233,7 +229,7 @@ export const subscriptionsBillingApiService = {
   },
 
   async ensureActivatedPatientPlan({ patientProfileId, planName, today }) {
-    const patientPlans = await apiService.get(`${jsonServerBaseUrl}/patientPlans`)
+    const patientPlans = await apiService.get('/patientPlans')
     const existingPlan = patientPlans.find((candidate) => candidate.patientId === patientProfileId)
     const planPayload = {
       patientId: patientProfileId,
@@ -250,21 +246,21 @@ export const subscriptionsBillingApiService = {
     }
 
     if (existingPlan) {
-      return apiService.patch(`${jsonServerBaseUrl}/patientPlans/${existingPlan.id}`, planPayload)
+      return apiService.patch(`/patientPlans/${existingPlan.id}`, planPayload)
     }
 
-    return apiService.post(`${jsonServerBaseUrl}/patientPlans`, {
+    return apiService.post('/patientPlans', {
       ...planPayload,
       createdAt: today,
     })
   },
 
   async ensureWeeklyDiet(patientPlanId) {
-    const weeklyDiets = await apiService.get(`${jsonServerBaseUrl}/weeklyDiets`)
+    const weeklyDiets = await apiService.get('/weeklyDiets')
     const existingDiet = weeklyDiets.find((diet) => diet.planId === patientPlanId)
     if (existingDiet) return existingDiet
 
-    return apiService.post(`${jsonServerBaseUrl}/weeklyDiets`, {
+    return apiService.post('/weeklyDiets', {
       planId: patientPlanId,
       weekNumber: 1,
       days: createDefaultWeeklyDietDays(),

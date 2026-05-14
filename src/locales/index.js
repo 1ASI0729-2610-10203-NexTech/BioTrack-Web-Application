@@ -95,7 +95,7 @@ export const messages = {
       lastNameRequired: 'Last name is required.',
       firstNamePlaceholder: 'John',
       lastNamePlaceholder: 'Perez',
-      emailPlaceholder: 'john.perez@email.com',
+      emailPlaceholder: 'john.perez@gmail.com',
       passwordPlaceholder: 'Minimum 8 characters',
       confirmPassword: 'Confirm password',
       confirmPasswordPlaceholder: 'Repeat your password',

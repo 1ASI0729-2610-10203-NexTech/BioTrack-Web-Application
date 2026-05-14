@@ -58,7 +58,34 @@ Cada bounded context contiene:
 
 ## Servicios HTTP
 
-La entrada comun es `src/shared/infrastructure/api.service.js`. Cada contexto posee su servicio especializado y sus assemblers. Los endpoints quedan preparados con Axios y rutas simuladas bajo `/api/...`, listos para conectar con backend real.
+La entrada comun es `src/shared/infrastructure/api.service.js`. La configuracion de entorno se centraliza en `src/config/env.js`, usando variables `VITE_*` para resolver `baseURL`, timeout y modo de ejecucion sin hardcodear URLs en componentes.
+
+## Environment Configuration
+
+BioTrack usa archivos `.env` de Vite para separar desarrollo y produccion:
+
+- `.env`: valores base seguros para desarrollo.
+- `.env.development`: backend local con JSON Server.
+- `.env.production`: backend publico o URL ngrok para GitHub Pages.
+- `.env.example`: plantilla documentada para el equipo.
+
+Desarrollo local:
+
+```bash
+npm run dev:full
+```
+
+Produccion:
+
+```bash
+npm run build
+```
+
+Antes de desplegar en GitHub Pages, actualiza `VITE_API_BASE_URL` en `.env.production` con el backend publico real.
+
+La documentacion formal de Software Configuration Management esta en:
+
+- `docs/software-configuration-management.md`
 
 ## Comandos
 
