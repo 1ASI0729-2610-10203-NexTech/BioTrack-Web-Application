@@ -17,6 +17,7 @@ import 'primeicons/primeicons.css'
 import './assets/styles/main.css'
 
 const app = createApp(App)
+const SPA_REDIRECT_KEY = 'biotrack.spa.redirect'
 const initialLocale = resolveInitialLocale()
 const i18n = createI18n({
   legacy: false,
@@ -34,7 +35,17 @@ app.use(PrimeVue, primeVueConfig)
 app.use(ToastService)
 app.directive('ripple', Ripple)
 
-app.mount('#app')
-
 i18n.global.locale.value = initialLocale
 localStorage.setItem(localeStorageKey, initialLocale)
+
+const pendingSpaRedirect = sessionStorage.getItem(SPA_REDIRECT_KEY)
+if (pendingSpaRedirect) {
+  sessionStorage.removeItem(SPA_REDIRECT_KEY)
+}
+
+router.isReady().then(async () => {
+  if (pendingSpaRedirect && router.currentRoute.value.fullPath !== pendingSpaRedirect) {
+    await router.replace(pendingSpaRedirect)
+  }
+  app.mount('#app')
+})

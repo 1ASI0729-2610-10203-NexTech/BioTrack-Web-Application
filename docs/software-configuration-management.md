@@ -61,7 +61,7 @@ src/shared/infrastructure/api.service.js
 | Variable | Purpose | Development Example | Production Example |
 | --- | --- | --- | --- |
 | `VITE_APP_ENV` | Human-readable application environment label. | `development` | `production` |
-| `VITE_APP_BASE_PATH` | Public base path used by Vite and GitHub Pages. | `/biotrack-frontend/` | `/biotrack-frontend/` |
+| `VITE_APP_BASE_PATH` | Public base path used by Vite and GitHub Pages. | `/` | `/biotrack-frontend/` |
 | `VITE_API_BASE_URL` | Backend root URL used by Axios. | `http://localhost:3001` | `https://biotrack-frontend-blkn.onrender.com` |
 | `VITE_API_TIMEOUT` | HTTP request timeout in milliseconds. | `8000` | `10000` |
 | `VITE_ENABLE_API_DEBUG` | Enables environment and API error logs for debugging. | `true` | `false` |
