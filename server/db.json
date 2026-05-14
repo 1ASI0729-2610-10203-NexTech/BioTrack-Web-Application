@@ -28,22 +28,13 @@
       "emailVerified": true
     },
     {
-      "name": "test1 test22",
-      "email": "test1234@biotrack.com",
-      "password": "12345678",
-      "role": "PACIENTE",
-      "status": "PENDING_VERIFICATION",
-      "emailVerified": false,
-      "id": 4
-    },
-    {
-      "name": "fafsasfsa safsaf",
-      "email": "asfasfsa@gmail.com",
-      "password": "12345678",
+      "id": 4,
+      "name": "Lucía Ramírez",
+      "email": "lucia.ramirez@biotrack.com",
+      "password": "password123",
       "role": "PACIENTE",
       "status": "ACTIVE",
-      "emailVerified": true,
-      "id": 5
+      "emailVerified": true
     }
   ],
   "patientProfiles": [
@@ -59,31 +50,37 @@
       "diastolicPressure": 80,
       "basalGlucose": 90,
       "bmi": 25.5,
-      "nutritionalGoal": "GAIN_MUSCLE",
-      "dietaryRestrictions": [],
-      "restrictionsConfirmed": true,
-      "isComplete": true,
-      "assignedNutritionistId": 1
-    },
-    {
-      "userId": 5,
-      "weightKg": 78,
-      "heightCm": 170,
-      "age": 28,
-      "biologicalSex": "MALE",
-      "activityLevel": "LOW",
-      "systolicPressure": 80,
-      "diastolicPressure": 80,
-      "basalGlucose": 60,
-      "bmi": 26.99,
       "nutritionalGoal": "LOSE_WEIGHT",
       "targetWeightKg": 72,
       "dietaryRestrictions": [],
       "restrictionsConfirmed": true,
       "isComplete": true,
       "assignedNutritionistId": 1,
+      "createdAt": "2026-04-23T00:00:00.000Z",
+      "updatedAt": "2026-05-13T00:00:00.000Z"
+    },
+    {
       "id": 2,
-      "updatedAt": "2026-05-14T01:27:50.559Z"
+      "userId": 4,
+      "weightKg": 64,
+      "heightCm": 162,
+      "age": 29,
+      "biologicalSex": "FEMALE",
+      "activityLevel": "LIGHT",
+      "systolicPressure": 118,
+      "diastolicPressure": 76,
+      "basalGlucose": 88,
+      "bmi": 24.4,
+      "nutritionalGoal": "MAINTAIN_WEIGHT",
+      "targetWeightKg": 64,
+      "dietaryRestrictions": [
+        "LACTOSE"
+      ],
+      "restrictionsConfirmed": true,
+      "isComplete": true,
+      "assignedNutritionistId": 1,
+      "createdAt": "2026-05-01T00:00:00.000Z",
+      "updatedAt": "2026-05-14T00:00:00.000Z"
     }
   ],
   "nutritionists": [
@@ -108,7 +105,7 @@
       "id": 2,
       "patientId": 2,
       "nutritionistId": 1,
-      "assignedAt": "2026-05-14",
+      "assignedAt": "2026-05-01",
       "status": "ACTIVE"
     }
   ],
@@ -129,19 +126,19 @@
       "rejectedReason": null
     },
     {
+      "id": 2,
       "patientId": 2,
       "nutritionistId": 1,
-      "name": "Plan Nutricional — Semana 1",
-      "objective": "bajar de peso",
-      "dailyCalories": 1850,
-      "proteinPercentage": 35,
+      "name": "Plan Nutricional — Mantenimiento",
+      "objective": "mantener peso",
+      "dailyCalories": 2100,
+      "proteinPercentage": 30,
       "carbohydratePercentage": 45,
-      "fatPercentage": 20,
-      "status": "ACTIVATED",
-      "activatedAt": "2026-05-14",
-      "rejectedReason": null,
-      "createdAt": "2026-05-14",
-      "id": 2
+      "fatPercentage": 25,
+      "status": "PROPOSED",
+      "createdAt": "2026-05-02",
+      "activatedAt": null,
+      "rejectedReason": null
     }
   ],
   "weeklyDiets": [
@@ -356,6 +353,7 @@
       ]
     },
     {
+      "id": 2,
       "planId": 2,
       "weekNumber": 1,
       "days": [
@@ -562,19 +560,36 @@
             }
           ]
         }
-      ],
-      "id": 2
+      ]
     }
   ],
   "foodLogs": [
     {
+      "id": 1,
       "patientId": 1,
       "planId": 1,
       "date": "2026-05-13",
       "mealType": "desayuno",
-      "description": "avena",
-      "calories": 400,
-      "id": 1
+      "description": "Avena con leche + plátano",
+      "calories": 380
+    },
+    {
+      "id": 2,
+      "patientId": 1,
+      "planId": 1,
+      "date": "2026-05-13",
+      "mealType": "almuerzo",
+      "description": "Arroz integral con pollo y ensalada",
+      "calories": 620
+    },
+    {
+      "id": 3,
+      "patientId": 2,
+      "planId": 2,
+      "date": "2026-05-14",
+      "mealType": "desayuno",
+      "description": "Pan integral con palta y huevo",
+      "calories": 420
     }
   ],
   "activityLogs": [],
@@ -584,23 +599,27 @@
       "patientId": 1,
       "date": "2026-04-01",
       "weightKg": 80,
-      "comment": "Peso inicial"
+      "type": "INITIAL",
+      "source": "HEALTH_PROFILE",
+      "comment": "Peso inicial registrado desde perfil de salud"
     },
     {
       "id": 2,
       "patientId": 1,
       "date": "2026-04-24",
       "weightKg": 78,
+      "type": "PROGRESS",
+      "source": "WEEKLY_UPDATE",
       "comment": "Actualización semanal"
     },
     {
+      "id": 3,
       "patientId": 2,
-      "date": "2026-05-14",
-      "weightKg": 78,
+      "date": "2026-05-01",
+      "weightKg": 64,
       "type": "INITIAL",
       "source": "HEALTH_PROFILE",
-      "comment": "Peso inicial registrado desde perfil de salud",
-      "id": 3
+      "comment": "Peso inicial registrado desde perfil de salud"
     }
   ],
   "subscriptionPlans": [
@@ -632,24 +651,25 @@
   ],
   "subscriptions": [
     {
+      "id": 1,
       "userId": 1,
       "planId": 2,
       "status": "ACTIVE",
       "startedAt": "2026-05-13",
-      "nextRenewalAt": "2026-06-13",
-      "id": 1
+      "nextRenewalAt": "2026-06-13"
     },
     {
-      "userId": 5,
+      "id": 2,
+      "userId": 4,
       "planId": 2,
       "status": "ACTIVE",
       "startedAt": "2026-05-14",
-      "nextRenewalAt": "2026-06-14",
-      "id": 2
+      "nextRenewalAt": "2026-06-14"
     }
   ],
   "payments": [
     {
+      "id": 1,
       "subscriptionId": 1,
       "userId": 1,
       "planId": 2,
@@ -657,345 +677,34 @@
       "currency": "PEN",
       "status": "PAID",
       "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 1
+      "cardLastFourDigits": "4521"
     },
     {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 2
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 3
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 1,
-      "amount": 29,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 4
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 5
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 3,
-      "amount": 99,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 6
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 3,
-      "amount": 99,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 7
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 8
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 1,
-      "amount": 29,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 9
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 10
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 11
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 1,
-      "amount": 29,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 12
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 3,
-      "amount": 99,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 13
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 3,
-      "amount": 99,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 14
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 1,
-      "amount": 29,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 15
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 3,
-      "amount": 99,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 16
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 17
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 3,
-      "amount": 99,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 18
-    },
-    {
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521",
-      "id": 19
-    },
-    {
+      "id": 2,
       "subscriptionId": 2,
-      "userId": 5,
+      "userId": 4,
       "planId": 2,
       "amount": 59,
       "currency": "PEN",
       "status": "PAID",
       "paidAt": "2026-05-14",
-      "cardLastFourDigits": "4521",
-      "id": 20
+      "cardLastFourDigits": "4521"
     }
   ],
   "invoices": [
     {
+      "id": 1,
       "subscriptionId": 1,
       "number": "INV-20260513-1",
       "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 1
+      "status": "PAID"
     },
     {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 2
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 3
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 4
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 5
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 6
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 7
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 8
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 9
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 10
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 11
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 12
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 13
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 14
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 15
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 16
-    },
-    {
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID",
-      "id": 17
-    },
-    {
+      "id": 2,
       "subscriptionId": 2,
       "number": "INV-20260514-2",
       "issuedAt": "2026-05-14",
-      "status": "PAID",
-      "id": 18
+      "status": "PAID"
     }
   ],
   "evaluations": [
@@ -1005,16 +714,55 @@
       "nutritionistId": 1,
       "status": "COMPLETED",
       "completedAt": "2026-04-23",
-      "notes": "Evaluación inicial completada."
+      "observations": "Paciente con objetivo de reducción de peso. Se recomienda control semanal.",
+      "targetCalories": 1850,
+      "proteinPercentage": 35,
+      "carbohydratePercentage": 45,
+      "fatPercentage": 20
+    },
+    {
+      "id": 2,
+      "patientId": 2,
+      "nutritionistId": 1,
+      "status": "COMPLETED",
+      "completedAt": "2026-05-02",
+      "observations": "Paciente en rango normal. Mantener distribución balanceada y control mensual.",
+      "targetCalories": 2100,
+      "proteinPercentage": 30,
+      "carbohydratePercentage": 45,
+      "fatPercentage": 25
     }
   ],
-  "followUpNotes": [],
+  "followUpNotes": [
+    {
+      "id": 1,
+      "nutritionistId": 1,
+      "patientId": 1,
+      "note": "Juan reporta buena adaptación al plan. Revisar cenas ligeras en próxima consulta.",
+      "createdAt": "2026-05-13T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nutritionistId": 1,
+      "patientId": 2,
+      "note": "Lucía prefiere opciones sin lactosa. Considerar sustitutos en merienda.",
+      "createdAt": "2026-05-14T10:00:00.000Z"
+    }
+  ],
   "consultations": [
     {
       "id": 1,
       "patientId": 1,
       "nutritionistId": 1,
       "date": "2026-05-20",
+      "status": "SCHEDULED",
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "patientId": 2,
+      "nutritionistId": 1,
+      "date": "2026-05-22",
       "status": "SCHEDULED",
       "notes": ""
     }
@@ -1036,6 +784,13 @@
       "period": "2026-04",
       "status": "AVAILABLE",
       "generatedAt": "2026-04-30"
+    },
+    {
+      "id": 2,
+      "patientId": 2,
+      "period": "2026-05",
+      "status": "PENDING",
+      "generatedAt": null
     }
   ],
   "companies": [
