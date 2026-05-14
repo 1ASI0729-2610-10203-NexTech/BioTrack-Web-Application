@@ -3,6 +3,12 @@ import { appEnvironment, getEnvironmentSummary } from '../../config/env'
 
 class ApiService {
   constructor() {
+    if (!appEnvironment.apiBaseUrl) {
+      console.error(
+        '[BioTrack Environment] Missing VITE_API_BASE_URL. Configure a public backend URL before deploying to production.',
+      )
+    }
+
     this.client = axios.create({
       baseURL: appEnvironment.apiBaseUrl,
       timeout: appEnvironment.apiTimeout,
