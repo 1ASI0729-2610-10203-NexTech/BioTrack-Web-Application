@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>BioTrack</title>
+    <script>
+      const repoBasePath = '/biotrack-frontend/'
+      const currentPath = window.location.pathname
+      const routePath = currentPath.startsWith(repoBasePath)
+        ? '/' + currentPath.slice(repoBasePath.length)
+        : currentPath
+      sessionStorage.setItem(
+        'biotrack.spa.redirect',
+        routePath + window.location.search + window.location.hash,
+      )
+      window.location.replace(repoBasePath)
+    </script>
+  </head>
+  <body>
+    Redirecting to BioTrack...
+  </body>
+</html>
