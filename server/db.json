@@ -26,6 +26,24 @@
       "role": "ADMIN_CORPORATIVO",
       "status": "ACTIVE",
       "emailVerified": true
+    },
+    {
+      "name": "test1 test22",
+      "email": "test1234@biotrack.com",
+      "password": "12345678",
+      "role": "PACIENTE",
+      "status": "PENDING_VERIFICATION",
+      "emailVerified": false,
+      "id": 4
+    },
+    {
+      "name": "fafsasfsa safsaf",
+      "email": "asfasfsa@gmail.com",
+      "password": "12345678",
+      "role": "PACIENTE",
+      "status": "ACTIVE",
+      "emailVerified": true,
+      "id": 5
     }
   ],
   "patientProfiles": [
@@ -46,6 +64,26 @@
       "restrictionsConfirmed": true,
       "isComplete": true,
       "assignedNutritionistId": 2
+    },
+    {
+      "userId": 5,
+      "weightKg": 78,
+      "heightCm": 170,
+      "age": 28,
+      "biologicalSex": "MALE",
+      "activityLevel": "LOW",
+      "systolicPressure": 80,
+      "diastolicPressure": 80,
+      "basalGlucose": 60,
+      "bmi": 26.99,
+      "nutritionalGoal": "LOSE_WEIGHT",
+      "targetWeightKg": 72,
+      "dietaryRestrictions": [],
+      "restrictionsConfirmed": true,
+      "isComplete": true,
+      "assignedNutritionistId": null,
+      "id": 2,
+      "updatedAt": "2026-05-14T01:27:50.559Z"
     }
   ],
   "nutritionists": [
@@ -82,6 +120,21 @@
       "createdAt": "2026-04-23",
       "activatedAt": "2026-05-13",
       "rejectedReason": null
+    },
+    {
+      "patientId": 2,
+      "nutritionistId": 1,
+      "name": "Plan Nutricional — Semana 1",
+      "objective": "bajar de peso",
+      "dailyCalories": 1850,
+      "proteinPercentage": 35,
+      "carbohydratePercentage": 45,
+      "fatPercentage": 20,
+      "status": "ACTIVATED",
+      "activatedAt": "2026-05-14",
+      "rejectedReason": null,
+      "createdAt": "2026-05-14",
+      "id": 2
     }
   ],
   "weeklyDiets": [
@@ -294,6 +347,216 @@
           ]
         }
       ]
+    },
+    {
+      "planId": 2,
+      "weekNumber": 1,
+      "days": [
+        {
+          "name": "Lunes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Martes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Miércoles",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Jueves",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Viernes",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Sábado",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        },
+        {
+          "name": "Domingo",
+          "meals": [
+            {
+              "type": "desayuno",
+              "name": "Avena con leche + plátano",
+              "description": "Fibra y energía sostenida.",
+              "calories": 380
+            },
+            {
+              "type": "almuerzo",
+              "name": "Arroz integral + pollo a la plancha + ensalada",
+              "description": "Proteína magra y vegetales.",
+              "calories": 620
+            },
+            {
+              "type": "merienda",
+              "name": "Yogur griego + almendras",
+              "description": "Snack alto en proteína.",
+              "calories": 230
+            },
+            {
+              "type": "cena",
+              "name": "Crema de verduras + pan integral",
+              "description": "Cena ligera.",
+              "calories": 380
+            }
+          ]
+        }
+      ],
+      "id": 2
     }
   ],
   "foodLogs": [
@@ -322,6 +585,15 @@
       "date": "2026-04-24",
       "weightKg": 78,
       "comment": "Actualización semanal"
+    },
+    {
+      "patientId": 2,
+      "date": "2026-05-14",
+      "weightKg": 78,
+      "type": "INITIAL",
+      "source": "HEALTH_PROFILE",
+      "comment": "Peso inicial registrado desde perfil de salud",
+      "id": 3
     }
   ],
   "subscriptionPlans": [
@@ -359,6 +631,14 @@
       "startedAt": "2026-05-13",
       "nextRenewalAt": "2026-06-13",
       "id": 1
+    },
+    {
+      "userId": 5,
+      "planId": 2,
+      "status": "ACTIVE",
+      "startedAt": "2026-05-14",
+      "nextRenewalAt": "2026-06-14",
+      "id": 2
     }
   ],
   "payments": [
@@ -570,6 +850,17 @@
       "paidAt": "2026-05-13",
       "cardLastFourDigits": "4521",
       "id": 19
+    },
+    {
+      "subscriptionId": 2,
+      "userId": 5,
+      "planId": 2,
+      "amount": 59,
+      "currency": "PEN",
+      "status": "PAID",
+      "paidAt": "2026-05-14",
+      "cardLastFourDigits": "4521",
+      "id": 20
     }
   ],
   "invoices": [
@@ -691,6 +982,13 @@
       "issuedAt": "2026-05-13",
       "status": "PAID",
       "id": 17
+    },
+    {
+      "subscriptionId": 2,
+      "number": "INV-20260514-2",
+      "issuedAt": "2026-05-14",
+      "status": "PAID",
+      "id": 18
     }
   ],
   "evaluations": [

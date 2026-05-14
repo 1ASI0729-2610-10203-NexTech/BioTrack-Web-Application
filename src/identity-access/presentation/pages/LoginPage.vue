@@ -99,7 +99,7 @@ async function submitLogin() {
             id="login-email"
             v-model="form.email"
             autocomplete="email"
-            :placeholder="'auth.emailPlaceholder'"
+            :placeholder="'email@.com'"
             :invalid="Boolean(validation.email) || hasErrorState"
             :aria-invalid="Boolean(validation.email) || hasErrorState"
           />
