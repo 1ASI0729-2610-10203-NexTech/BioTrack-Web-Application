@@ -36,7 +36,7 @@ async function resolvePatientContext() {
   const userId = identityStore.currentUser?.id
   if (!userId) throw new Error('No existe un usuario autenticado.')
   const planResponse = await patientPlanApiService.fetchCurrentPlan(userId)
-  const profile = planResponse?.patientProfile ?? (await patientProfileApiService.fetchByUserId(userId))
+  const profile = await patientProfileApiService.fetchByUserId(userId)
   if (!profile?.id) throw new Error('No existe un perfil de paciente asociado al usuario.')
   return {
     userId,
@@ -168,8 +168,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
 
       this.loading = true
       const { patientProfileId, planResponse } = await resolvePatientContext()
-      const created = await patientProgressApiService.createFoodLog({
-        patientId: patientProfileId,
+      const created = await patientProgressApiService.createFoodLog(patientProfileId, {
         planId: planResponse?.raw?.id,
         date: today,
         mealType: foodLog.mealType,
@@ -222,8 +221,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       this.loading = true
       const burnedCalories = this.calculateActivityCalories(activity)
       const { patientProfileId } = await resolvePatientContext()
-      const created = await patientProgressApiService.createActivityLog({
-        patientId: patientProfileId,
+      const created = await patientProgressApiService.createActivityLog(patientProfileId, {
         date: getTodayIsoDate(),
         activityType: activity.type,
         durationMinutes: Number(activity.durationMinutes),
@@ -246,8 +244,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       this.loading = true
       try {
         const { patientProfileId, profile } = await resolvePatientContext()
-        const created = await patientProgressApiService.createWeightRecord({
-          patientId: patientProfileId,
+        const created = await patientProgressApiService.createWeightRecord(patientProfileId, {
           date: weightRecord.date,
           weightKg: Number(weightRecord.weightKg),
           type: 'PROGRESS',
@@ -307,8 +304,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
             .toISOString()
             .slice(0, 10)
         : profile.createdAt?.toISOString?.().slice(0, 10) ?? getTodayIsoDate()
-      return patientProgressApiService.createWeightRecord({
-        patientId: profile.id,
+      return patientProgressApiService.createWeightRecord(profile.id, {
         date: initialDate,
         weightKg: profile.healthData.weightKg,
         type: 'INITIAL',
