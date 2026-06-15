@@ -11,11 +11,11 @@ function formatDate(value) {
   })
 }
 
-function mapPlan(payload, nutritionistName = 'Dra. Ana Torres') {
+function mapPlan(payload) {
   return new PatientPlan({
     id: payload.id,
     title: payload.name,
-    nutritionist: nutritionistName,
+    nutritionist: payload.nutritionistName ?? 'Nutricionista',
     date: formatDate(payload.createdAt),
     dailyCalories: payload.dailyCalories,
     goal: payload.objective,
@@ -29,28 +29,18 @@ function mapPlan(payload, nutritionistName = 'Dra. Ana Torres') {
 }
 
 export const patientPlanApiService = {
-  async fetchCurrentPlan(userId) {
-    const patientProfiles = await apiService.get('/patientProfiles')
-    const patientProfile = patientProfiles.find((profile) => profile.userId === userId)
-    if (!patientProfile) return null
-
-    const plans = await apiService.get('/patientPlans')
-    const plan = plans.find((candidate) => candidate.patientId === patientProfile.id)
+  async fetchCurrentPlan(patientId) {
+    const plans = await apiService.get('/nutritional-plans', { params: { patientId } })
+    const plan = Array.isArray(plans) ? plans.at(-1) : plans
     if (!plan) return null
-    const nutritionists = await apiService.get('/nutritionists')
     return {
       raw: plan,
-      patientProfile,
-      entity: mapPlan(
-        plan,
-        nutritionists.find((nutritionist) => nutritionist.id === plan.nutritionistId)?.fullName,
-      ),
+      entity: mapPlan(plan),
     }
   },
 
   async fetchWeeklyDiet(planId) {
-    const diets = await apiService.get('/weeklyDiets')
-    const diet = diets.find((candidate) => candidate.planId === planId)
+    const diet = await apiService.get(`/nutritional-plans/${planId}/weekly-diet`)
     const iconByMealType = {
       desayuno: '☀️',
       almuerzo: '🍽️',
@@ -70,18 +60,13 @@ export const patientPlanApiService = {
       : null
   },
 
+  // TS05 — PATCH /api/v1/nutritional-plans/{planId}/accept
   async acceptPlan(planId) {
-    return apiService.patch(`/patientPlans/${planId}`, {
-      status: 'ACTIVATED',
-      activatedAt: new Date().toISOString().slice(0, 10),
-      rejectedReason: null,
-    })
+    return apiService.patch(`/nutritional-plans/${planId}/accept`)
   },
 
+  // TS05 — PATCH /api/v1/nutritional-plans/{planId}/reject
   async rejectPlan(planId, rejectedReason) {
-    return apiService.patch(`/patientPlans/${planId}`, {
-      status: 'REJECTED',
-      rejectedReason,
-    })
+    return apiService.patch(`/nutritional-plans/${planId}/reject`, { rejectedReason })
   },
 }
