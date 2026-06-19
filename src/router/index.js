@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '../identity-access/presentation/pages/LoginPage.vue'
 import RegisterPage from '../identity-access/presentation/pages/RegisterPage.vue'
 import NotAuthorizedPage from '../shared/presentation/pages/NotAuthorizedPage.vue'
+import PlaceholderPage from '../shared/presentation/pages/PlaceholderPage.vue'
 
 // Corporate Management imports
 import CorporateDashboardPage from '../corporate-management/presentation/pages/CorporateDashboardPage.vue'
@@ -10,7 +11,6 @@ import CorporateCollaboratorsPage from '../corporate-management/presentation/pag
 import CorporateMetricsPage from '../corporate-management/presentation/pages/CorporateMetricsPage.vue'
 
 // Nutritional Planning imports
-import PlaceholderPage from '../shared/presentation/pages/PlaceholderPage.vue'
 import PatientDashboardPage from '../nutritional-planning/presentation/pages/PatientDashboardPage.vue'
 import NutritionalPlanPage from '../nutritional-planning/presentation/pages/NutritionalPlanPage.vue'
 import WeeklyDietPage from '../nutritional-planning/presentation/pages/WeeklyDietPage.vue'
@@ -21,6 +21,12 @@ import NutritionistEvaluationPage from '../nutritional-planning/presentation/pag
 import NutritionistPlansPage from '../nutritional-planning/presentation/pages/NutritionistPlansPage.vue'
 import NutritionistCreatePlanPage from '../nutritional-planning/presentation/pages/NutritionistCreatePlanPage.vue'
 import NutritionistFollowUpPage from '../nutritional-planning/presentation/pages/NutritionistFollowUpPage.vue'
+
+// Patient Profile imports
+import PatientProfilePage from '../patient-profile/presentation/pages/PatientProfilePage.vue'
+import HealthDataFormPage from '../patient-profile/presentation/pages/HealthDataFormPage.vue'
+import NutritionalGoalPage from '../patient-profile/presentation/pages/NutritionalGoalPage.vue'
+import DietaryRestrictionsPage from '../patient-profile/presentation/pages/DietaryRestrictionsPage.vue'
 
 import { useIdentityAccessStore } from '../identity-access/application/identity-access.store'
 import { getDefaultRouteByRole } from '../identity-access/application/auth-redirects'
@@ -79,6 +85,12 @@ const router = createRouter({
       props: { titleKey: 'placeholders.reports', eyebrowKey: 'placeholders.nutritionist' },
       meta: nutritionistMeta,
     },
+
+    // ── patient-profile BC ──────────────────────────────────────────────
+    { path: '/patient-profile', component: PatientProfilePage, meta: patientMeta },
+    { path: '/patient-profile/health-data', component: HealthDataFormPage, meta: patientMeta },
+    { path: '/patient-profile/nutritional-goal', component: NutritionalGoalPage, meta: patientMeta },
+    { path: '/patient-profile/restrictions', component: DietaryRestrictionsPage, meta: patientMeta },
 
     { path: '/not-authorized', component: NotAuthorizedPage, meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', redirect: resolveHomeRoute },
