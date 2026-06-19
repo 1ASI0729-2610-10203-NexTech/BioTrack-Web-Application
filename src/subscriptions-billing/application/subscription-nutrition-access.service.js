@@ -1,6 +1,4 @@
-import { subscriptionsBillingApiService } from '../infrastructure/subscriptions-billing-api.service'
-
-export async function syncNutritionAccessForUser(userId) {
-  if (!userId) return null
-  return subscriptionsBillingApiService.ensureNutritionAccessForEligibleUser(userId)
+// Nutrition access is managed server-side when POST /subscriptions/payments is called.
+export async function syncNutritionAccessForUser(_userId) {
+  return null
 }

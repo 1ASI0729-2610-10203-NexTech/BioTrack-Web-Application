@@ -5,8 +5,8 @@ export const CorporateMetricAssembler = {
     return new CorporateMetric({
       id: payload.id,
       companyId: payload.companyId,
-      sampleSize: payload.activeCollaborators,
-      threshold: 10,
+      sampleSize: payload.sampleSize,
+      threshold: payload.threshold,
       averages: {
         adherence: payload.averageAdherence,
         bmi: payload.averageBmi,

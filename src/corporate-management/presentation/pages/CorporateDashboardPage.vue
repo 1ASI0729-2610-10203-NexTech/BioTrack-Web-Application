@@ -1,86 +1,264 @@
 <script setup>
-import Button from 'primevue/button'
+import { onMounted, computed } from "vue";
+import {useCorporateManagementStore} from "../../application/corporate-management.store.js";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+import ProgressBar from "primevue/progressbar";
+import Message from "primevue/message";
+import { useIdentityAccessStore } from "../../../identity-access/application/identity-access.store";
+import {corporateManagementApiService} from "../../infrastructure/corporate-management-api.service.js";
+
+const corporateStore = useCorporateManagementStore();
+
+
+onMounted(async () => {
+  await corporateStore.loadMetrics();
+});
+
+const identityAccessStore = useIdentityAccessStore();
+
+const currentMetrics = computed(() => corporateStore.publishableMetrics[0] || null);
+
+const hasData = computed(() => currentMetrics.value && currentMetrics.value.averages);
 </script>
 
 <template>
-  <section class="bt-corporate-dashboard">
-    <header class="bt-dashboard-heading">
-      <div>
-        <p class="microcopy">Admin corporativo</p>
+  <div class="bt-corporate-layout">
+    <!-- Header principal -->
+    <header class="bt-dashboard-header">
+      <div class="header-info">
+        <p class="microcopy">ADMIN CORPORATIVO</p>
         <h1>Dashboard Corporativo</h1>
         <p class="text-muted">
-          Metricas grupales de bienestar. Datos anonimizados y una base visual lista para evolucionar.
+          Métricas grupales de bienestar — datos anonimizados · Actualizado {{ new Date().toLocaleDateString() }}
         </p>
       </div>
-
-      <Button label="Exportar informe" class="bt-dashboard-export" />
+      <Button label="Exportar informe" icon="pi pi-download" class="p-button-rounded p-button-sm" />
     </header>
-
-    <section class="bt-kpi-grid" aria-label="Resumen corporativo">
-      <article class="bt-kpi-card bt-kpi-card--primary">
-        <span>Colaboradores activos</span>
-        <strong>247</strong>
-        <small>12% vs. mes anterior</small>
+    <!-- Grid de métricas principales (image_dbc4f9.png) -->
+    <section class="bt-metrics-grid">
+      <article class="bt-metric-card bt-card-blue">
+        <span class="card-label">Colaboradores activos</span>
+        <strong class="card-value">{{ currentMetrics?.sampleSize ?? 0 }}</strong>
+        <small class="card-footer"><i class="pi pi-arrow-up"></i> 12% vs. mes anterior</small>
       </article>
 
-      <article class="bt-kpi-card">
-        <span>Adherencia promedio</span>
-        <strong>72%</strong>
-        <div class="bt-mini-track"><span /></div>
+      <article class="bt-metric-card">
+        <span class="card-label">Adherencia promedio</span>
+        <strong class="card-value">{{ currentMetrics?.averages?.adherence ?? 0 }}%</strong>
+        <ProgressBar :value="currentMetrics?.averages?.adherence ?? 0" :showValue="false" class="bt-progress-sm" />
       </article>
 
-      <article class="bt-kpi-card">
-        <span>IMC promedio grupal</span>
-        <strong>24.8</strong>
-        <small>Rango normal</small>
+      <article class="bt-metric-card">
+        <span class="card-label">IMC promedio grupal</span>
+        <strong class="card-value">{{ currentMetrics?.averages?.bmi ?? '--' }}</strong>
+        <small class="card-footer">Rango normal (18.5—24.9)</small>
       </article>
 
-      <article class="bt-kpi-card bt-kpi-card--success">
-        <span>Licencias utilizadas</span>
-        <strong>247/300</strong>
-        <small>82% de capacidad</small>
-      </article>
-    </section>
-
-    <section class="bt-dashboard-panels">
-      <article class="bt-dashboard-panel bt-dashboard-panel--wide">
-        <div class="bt-panel-header">
-          <h3>Evolucion de adherencia mensual</h3>
-          <span class="bt-panel-pill">Ultimos 6 meses</span>
-        </div>
-        <div class="bt-chart-placeholder">
-          <span>Nov</span>
-          <span>Dic</span>
-          <span>Ene</span>
-          <span>Feb</span>
-          <span>Mar</span>
-          <span>Abr</span>
-        </div>
-      </article>
-
-      <article class="bt-dashboard-panel">
-        <div class="bt-panel-header">
-          <h3>Distribucion de objetivos</h3>
-        </div>
-        <div class="bt-goal-list">
-          <div class="bt-goal-row">
-            <span>Bajar de peso</span>
-            <strong>42%</strong>
-          </div>
-          <div class="bt-goal-track bt-goal-track--blue"><span /></div>
-          <div class="bt-goal-row">
-            <span>Mantener peso</span>
-            <strong>35%</strong>
-          </div>
-          <div class="bt-goal-track bt-goal-track--green"><span /></div>
-          <div class="bt-goal-row">
-            <span>Ganar masa</span>
-            <strong>23%</strong>
-          </div>
-          <div class="bt-goal-track bt-goal-track--warning"><span /></div>
-        </div>
-        <p class="bt-panel-note">Datos anonimizados. No se exponen metricas individuales.</p>
+      <article class="bt-metric-card bt-card-green">
+        <span class="card-label">Licencias utilizadas</span>
+        <strong class="card-value">247/300</strong>
+        <small class="card-footer">82% de capacidad</small>
       </article>
     </section>
-  </section>
+
+    <!-- Sección inferior: Gráfico y Objetivos -->
+    <div class="bt-content-split">
+      <section class="bt-panel bt-evolution-chart">
+        <div class="panel-header">
+          <h3>Evolución de adherencia mensual</h3>
+        </div>
+        <div class="chart-mock">
+          <!-- Aquí integrarías tu librería de gráficos -->
+          <div class="mock-bars"></div>
+          <div class="mock-labels">
+             <span>En</span><span>Feb</span><span>Mar</span><span>Abr</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="bt-panel bt-goals-distribution">
+        <h3>Distribución de objetivos (anónimo)</h3>
+
+        <div class="goal-item">
+          <div class="goal-info"><span>Bajar de peso</span> <b>42%</b></div>
+          <ProgressBar :value="42" :showValue="false" class="goal-bar goal-blue" />
+        </div>
+
+        <div class="goal-item">
+          <div class="goal-info"><span>Mantener peso</span> <b>35%</b></div>
+          <ProgressBar :value="35" :showValue="false" class="goal-bar goal-green" />
+        </div>
+
+        <div class="goal-item">
+          <div class="goal-info"><span>Ganar masa</span> <b>23%</b></div>
+          <ProgressBar :value="23" :showValue="false" class="goal-bar goal-orange" />
+        </div>
+
+        <p class="disclaimer">
+          <i class="pi pi-exclamation-triangle"></i> Datos anonimizados — no se exponen métricas individuales
+        </p>
+      </section>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+/* Contenedor Principal */
+.bt-corporate-layout {
+  background-color: #f8fafc;
+  padding: 1rem; /* Reducido para móviles */
+  font-size: 1rem;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  color: #334155;
+  min-height: 100vh;
+}
+
+/* Header Responsivo */
+.bt-dashboard-header {
+  display: flex;
+  flex-direction: column; /* Apilado por defecto en móvil */
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1.5rem;
+}
+
+.bt-dashboard-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0.25rem 0;
+}
+
+/* Grid de Tarjetas - Adaptable */
+.bt-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 columna en móvil */
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.bt-metric-card {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+}
+
+/* Variantes de Color */
+.bt-card-blue { background-color: #0f4c81; color: white; border: none; }
+.bt-card-green { background-color: #10b981; color: white; border: none; }
+
+.card-label { font-size: 0.8rem; font-weight: 500; opacity: 0.9; }
+.card-value { font-size: 1.8rem; font-weight: 600; margin: 0.4rem 0; }
+.card-footer { font-size: 0.75rem; opacity: 0.8; }
+
+/* Contenido inferior (Gráfico y Objetivos) */
+.bt-content-split {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 1.5rem;
+}
+
+.bt-panel {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.bt-panel h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+/* Gráfico Mock */
+.chart-mock {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.mock-labels {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* --- MEDIA QUERIES PARA PANTALLAS GRANDES --- */
+
+@media (min-width: 768px) {
+  .bt-corporate-layout {
+    padding: 2rem;
+  }
+
+  .bt-dashboard-header {
+    flex-direction: row; /* Horizontal en desktop */
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bt-dashboard-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .bt-metrics-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+  }
+}
+
+@media (min-width: 1100px) {
+  .bt-metrics-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas en desktop */
+  }
+
+  .bt-content-split {
+    grid-template-columns: 1.8fr 1.2fr; /* Layout dividido original */
+  }
+}
+
+/* Ajustes de PrimeVue */
+:deep(.p-button.p-button-sm) {
+  background-color: #0f4c81;
+  border: none;
+  width: fit-content;
+}
+
+.bt-progress-sm {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+
+:deep(.bt-card-blue .p-progressbar-value) { background: #38bdf8; }
+
+.goal-item { margin-bottom: 1.5rem; }
+.goal-info { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 500; }
+.goal-blue :deep(.p-progressbar-value) { background: #0f4c81; }
+.goal-green :deep(.p-progressbar-value) { background: #10b981; }
+.goal-orange :deep(.p-progressbar-value) { background: #f59e0b; }
+
+.disclaimer {
+  margin-top: 1.5rem;
+  font-size: 0.7rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1rem;
+}
+</style>

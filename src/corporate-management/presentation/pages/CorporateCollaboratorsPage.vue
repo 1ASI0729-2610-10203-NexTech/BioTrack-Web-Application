@@ -1,33 +1,52 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import Button from 'primevue/button'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Tag from 'primevue/tag'
 import { corporateCollaboratorApiService } from '../../infrastructure/corporate-collaborator-api.service'
+
+const COMPANY_ID = 1
 
 const collaborators = ref([])
 const loading = ref(true)
-const sending = ref(false)
-const sent = ref(false)
+const uploading = ref(false)
+const uploadDone = ref(false)
+const uploadError = ref('')
+const fileInput = ref(null)
+const selectedFile = ref(null)
 
-const sentCount = computed(() => collaborators.value.filter((c) => c.status === 'INVITED').length)
-const errorCount = computed(() => 0)
-const remainingLicenses = computed(() => 50 - collaborators.value.length)
+const activeCount = computed(() => collaborators.value.filter((c) => c.status === 'ACTIVE').length)
+const pendingCount = computed(() => collaborators.value.filter((c) => c.status === 'INVITED').length)
 
-async function loadCollaborators() {
+async function loadData() {
   loading.value = true
   try {
-    collaborators.value = await corporateCollaboratorApiService.fetchCollaborators()
+    collaborators.value = await corporateCollaboratorApiService.fetchCollaborators(COMPANY_ID)
   } finally {
     loading.value = false
   }
 }
 
-async function handleSendInvitations() {
-  sending.value = true
+function handleFileChange(event) {
+  selectedFile.value = event.target.files[0] ?? null
+  uploadError.value = ''
+}
+
+async function handleUpload() {
+  if (!selectedFile.value) return
+  uploading.value = true
+  uploadError.value = ''
   try {
-    collaborators.value = await corporateCollaboratorApiService.sendInvitations()
-    sent.value = true
+    await corporateCollaboratorApiService.uploadCollaborators(COMPANY_ID, selectedFile.value)
+    uploadDone.value = true
+    selectedFile.value = null
+    if (fileInput.value) fileInput.value.value = ''
+    await loadData()
+  } catch {
+    uploadError.value = 'Error al cargar el archivo. Verifique el formato e intente nuevamente.'
   } finally {
-    sending.value = false
+    uploading.value = false
   }
 }
 
@@ -36,7 +55,10 @@ function formatTime(isoString) {
   return new Date(isoString).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
 }
 
-onMounted(loadCollaborators)
+const getSeverity = (status) => (status === 'ACTIVE' ? 'success' : 'warning')
+const getStatusLabel = (status) => (status === 'ACTIVE' ? 'Activo' : 'Pendiente aceptar')
+
+onMounted(loadData)
 </script>
 
 <template>
@@ -44,13 +66,13 @@ onMounted(loadCollaborators)
 
     <header class="bt-dashboard-heading">
       <div>
-        <p class="microcopy">US15 · ESCENARIO 1</p>
-        <h1>Envío de invitaciones</h1>
-        <p class="text-muted">Correos enviados a todos los colaboradores</p>
+        <p class="microcopy">ADMIN CORPORATIVO</p>
+        <h1>Colaboradores</h1>
+        <p class="text-muted">Carga el listado de colaboradores en formato CSV o Excel</p>
       </div>
-      <div class="bt-progress-badge" :class="{ 'bt-progress-badge--done': sent }">
-        <span>{{ sentCount }}/{{ collaborators.length }}</span>
-        <span v-if="sent">✓</span>
+      <div class="bt-progress-badge" :class="{ 'bt-progress-badge--done': uploadDone }">
+        <span>{{ activeCount }}/{{ collaborators.length }}</span>
+        <span v-if="uploadDone">✓</span>
       </div>
     </header>
 
@@ -58,68 +80,66 @@ onMounted(loadCollaborators)
 
     <template v-else>
 
-      <div v-if="sent" class="bt-panel-note" style="border-radius: 8px; padding: 12px 16px; background: var(--bt-success-soft); border-color: var(--bt-success);">
-        ✓ <strong>{{ sentCount }} invitaciones enviadas</strong> — Cada colaborador recibirá sus credenciales de acceso.
+      <div v-if="uploadDone" class="bt-panel-note" style="border-radius: 8px; padding: 12px 16px; background: var(--bt-success-soft); border-color: var(--bt-success); margin-bottom: 20px;">
+        ✓ <strong>Archivo cargado correctamente</strong> — Los colaboradores serán procesados e invitados.
       </div>
 
-      <section class="bt-kpi-grid">
+      <div v-if="uploadError" class="bt-panel-note" style="border-radius: 8px; padding: 12px 16px; background: #fee2e2; border-color: #ef4444; margin-bottom: 20px;">
+        {{ uploadError }}
+      </div>
+
+      <section class="bt-kpi-grid mb-4">
         <article class="bt-kpi-card bt-kpi-card--primary">
-          <span>Enviadas OK</span>
-          <strong>{{ sentCount }}</strong>
+          <span>Activos</span>
+          <strong>{{ activeCount }}</strong>
         </article>
         <article class="bt-kpi-card">
           <span>Pendientes de aceptar</span>
-          <strong>{{ sentCount }}</strong>
+          <strong>{{ pendingCount }}</strong>
         </article>
         <article class="bt-kpi-card">
-          <span>Con error</span>
-          <strong style="color: var(--bt-danger)">{{ errorCount }}</strong>
-        </article>
-        <article class="bt-kpi-card">
-          <span>Licencias restantes</span>
-          <strong>{{ remainingLicenses }}</strong>
+          <span>Total cargados</span>
+          <strong>{{ collaborators.length }}</strong>
         </article>
       </section>
 
-      <div v-if="!sent">
-        <Button
-            :label="sending ? 'Enviando...' : `Enviar invitaciones a todos (${collaborators.length})`"
-            :disabled="sending"
-            class="bt-dashboard-export"
-            @click="handleSendInvitations"
-        />
-      </div>
+      <article class="bt-dashboard-panel" style="margin-bottom: 24px;">
+        <h3 style="margin: 0 0 16px; font-size: 1rem;">Cargar colaboradores</h3>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <input
+            ref="fileInput"
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            style="flex: 1; min-width: 200px;"
+            @change="handleFileChange"
+          />
+          <Button
+            :label="uploading ? 'Subiendo...' : 'Cargar archivo'"
+            :disabled="uploading || !selectedFile"
+            class="p-button-primary"
+            @click="handleUpload"
+          />
+        </div>
+        <p class="text-muted" style="margin: 8px 0 0; font-size: 0.8rem;">
+          Formatos aceptados: CSV, Excel (.xlsx). Columnas requeridas: nombre, email.
+        </p>
+      </article>
 
-      <div class="bt-dashboard-panel" style="padding: 0; overflow: hidden;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
-          <thead>
-          <tr style="background: var(--bt-surface);">
-            <th style="padding: 12px 20px; text-align: left; font-size: 0.75rem; color: var(--bt-text-muted); font-weight: 600; letter-spacing: 0.05em;">COLABORADOR</th>
-            <th style="padding: 12px 20px; text-align: left; font-size: 0.75rem; color: var(--bt-text-muted); font-weight: 600; letter-spacing: 0.05em;">EMAIL</th>
-            <th style="padding: 12px 20px; text-align: left; font-size: 0.75rem; color: var(--bt-text-muted); font-weight: 600; letter-spacing: 0.05em;">ESTADO</th>
-            <th style="padding: 12px 20px; text-align: left; font-size: 0.75rem; color: var(--bt-text-muted); font-weight: 600; letter-spacing: 0.05em;">ENVIADO</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="collaborator in collaborators" :key="collaborator.id" style="border-top: 1px solid var(--bt-border);">
-            <td style="padding: 12px 20px; font-weight: 600; color: var(--bt-text);">{{ collaborator.name }}</td>
-            <td style="padding: 12px 20px; color: var(--bt-text-muted);">{{ collaborator.email }}</td>
-            <td style="padding: 12px 20px;">
-                <span
-                    style="display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 500;"
-                    :style="collaborator.status === 'INVITED'
-                    ? 'background: #fef9c3; color: #92400e;'
-                    : 'background: var(--bt-success-soft); color: var(--bt-success-dark);'"
-                >
-                  {{ collaborator.status === 'INVITED' ? 'Pendiente aceptar' : 'Activo' }}
-                </span>
-            </td>
-            <td style="padding: 12px 20px; color: var(--bt-text-muted); font-size: 0.8rem;">
-              {{ collaborator.sentAt ? 'Hoy ' + formatTime(collaborator.sentAt) : '—' }}
-            </td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="card mt-4">
+        <DataTable :value="collaborators" responsiveLayout="scroll" :paginator="true" :rows="5" class="p-datatable-sm shadow-2 border-round">
+          <Column field="name" header="COLABORADOR" :sortable="true"></Column>
+          <Column field="email" header="EMAIL"></Column>
+          <Column field="status" header="ESTADO">
+            <template #body="slotProps">
+              <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getSeverity(slotProps.data.status)" />
+            </template>
+          </Column>
+          <Column field="sentAt" header="ENVIADO">
+            <template #body="slotProps">
+              {{ slotProps.data.sentAt ? 'Hoy ' + formatTime(slotProps.data.sentAt) : '—' }}
+            </template>
+          </Column>
+        </DataTable>
       </div>
 
     </template>

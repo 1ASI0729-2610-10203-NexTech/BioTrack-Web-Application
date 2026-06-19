@@ -9,42 +9,8 @@ import {
 } from '../../progress-tracking/domain/model/weight-progress.helpers'
 import { calculateBMI, getBMIStatus } from '../../patient-profile/domain/model/bmi.value-object'
 
-const defaultMeals = [
-  {
-    type: 'desayuno',
-    name: 'Avena con leche + plátano',
-    description: 'Fibra y energía sostenida.',
-    calories: 380,
-  },
-  {
-    type: 'almuerzo',
-    name: 'Arroz integral + pollo a la plancha + ensalada',
-    description: 'Proteína magra y vegetales.',
-    calories: 620,
-  },
-  {
-    type: 'merienda',
-    name: 'Yogur griego + almendras',
-    description: 'Snack alto en proteína.',
-    calories: 230,
-  },
-  {
-    type: 'cena',
-    name: 'Crema de verduras + pan integral',
-    description: 'Cena ligera.',
-    calories: 380,
-  },
-]
-
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
-}
-
-function createDefaultWeeklyDietDays() {
-  return ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((name) => ({
-    name,
-    meals: defaultMeals,
-  }))
 }
 
 function goalLabel(goal) {
@@ -145,16 +111,16 @@ function buildPatientSummary({
 
 async function resolveNutritionistByUserId(userId) {
   const nutritionists = await apiService.get('/nutritionists', { params: { userId } })
-  const nutritionist = nutritionists[0]
+  const nutritionist = Array.isArray(nutritionists) ? nutritionists[0] : nutritionists
   if (!nutritionist) throw new Error('No existe un perfil de nutricionista asociado al usuario.')
   return nutritionist
 }
 
 async function fetchAssignedPatientIds(nutritionistId) {
-  const assignments = await apiService.get('/nutritionistAssignments', {
+  const assignments = await apiService.get('/nutritionist-assignments', {
     params: { nutritionistId },
   })
-  return assignments
+  return (Array.isArray(assignments) ? assignments : [])
     .filter((assignment) => assignment.status === 'ACTIVE')
     .map((assignment) => Number(assignment.patientId))
 }
@@ -167,25 +133,27 @@ async function ensureAssignedPatient(nutritionistId, patientId) {
 }
 
 async function fetchPatientBundle(patientId) {
-  const [profile, users, patientPlans, foodLogs, weightRecords, evaluations, followUpNotes] =
+  const [profile, user, nutritionalPlans, foodLogs, weightRecords, evaluations, followUpNotes] =
     await Promise.all([
-      apiService.get(`/patientProfiles/${patientId}`),
-      apiService.get('/users'),
-      apiService.get('/patientPlans', { params: { patientId } }),
-      apiService.get('/foodLogs', { params: { patientId } }),
-      apiService.get('/weightRecords', { params: { patientId } }),
+      apiService.get(`/patients/${patientId}/health-profile`),
+      apiService.get(`/users/${patientId}`),
+      apiService.get('/nutritional-plans', { params: { patientId } }),
+      apiService.get(`/patients/${patientId}/food-log`),
+      apiService.get(`/patients/${patientId}/weight`),
       apiService.get('/evaluations', { params: { patientId } }),
-      apiService.get('/followUpNotes', { params: { patientId } }),
+      apiService.get('/follow-up-notes', { params: { patientId } }),
     ])
+
+  const plans = Array.isArray(nutritionalPlans) ? nutritionalPlans : []
 
   return buildPatientSummary({
     profile,
-    user: users.find((user) => user.id === profile.userId),
-    plan: patientPlans.at(-1) ?? null,
-    foodLogs,
-    weightRecords,
-    evaluations,
-    followUpNotes,
+    user,
+    plan: plans.at(-1) ?? null,
+    foodLogs: Array.isArray(foodLogs) ? foodLogs : [],
+    weightRecords: Array.isArray(weightRecords) ? weightRecords : [],
+    evaluations: Array.isArray(evaluations) ? evaluations : [],
+    followUpNotes: Array.isArray(followUpNotes) ? followUpNotes : [],
   })
 }
 
@@ -225,55 +193,41 @@ export const nutritionalPlanningApiService = {
     })
   },
 
+  // TS05 — POST /api/v1/nutritional-plans
   async createPlan(userId, patientId, payload) {
     const { nutritionist } = await this.resolveNutritionistContext(userId)
     await ensureAssignedPatient(nutritionist.id, patientId)
-    const profile = await apiService.get(`/patientProfiles/${patientId}`)
+    const profile = await apiService.get(`/patients/${patientId}/health-profile`)
     if (!profile.isComplete) throw new Error('No se puede crear un plan para un perfil incompleto.')
 
-    const createdPlan = await apiService.post('/patientPlans', {
+    return apiService.post('/nutritional-plans', {
       patientId: Number(patientId),
       nutritionistId: nutritionist.id,
       name: payload.name,
       description: payload.description,
-      objective: goalLabel(profile.nutritionalGoal).toLowerCase(),
+      objective: goalLabel(profile.nutritionalGoal),
       dailyCalories: Number(payload.dailyCalories),
       proteinPercentage: Number(payload.proteinPercentage),
       carbohydratePercentage: Number(payload.carbohydratePercentage),
       fatPercentage: Number(payload.fatPercentage),
       status: 'PROPOSED',
       createdAt: todayIso(),
-      activatedAt: null,
-      rejectedReason: null,
     })
-
-    const weeklyDiet = await apiService.post('/weeklyDiets', {
-      planId: createdPlan.id,
-      weekNumber: 1,
-      days: createDefaultWeeklyDietDays(),
-    })
-
-    return { plan: createdPlan, weeklyDiet }
   },
 
   async updatePlanStatus(userId, patientId, planId, status) {
     const { nutritionist } = await this.resolveNutritionistContext(userId)
     await ensureAssignedPatient(nutritionist.id, patientId)
-    const plan = await apiService.get(`/patientPlans/${planId}`)
-    if (Number(plan.patientId) !== Number(patientId) || Number(plan.nutritionistId) !== Number(nutritionist.id)) {
-      throw new Error('No puedes editar planes de pacientes no asignados.')
-    }
-    return apiService.patch(`/patientPlans/${planId}`, {
-      status,
-      activatedAt: status === 'ACTIVATED' ? todayIso() : plan.activatedAt ?? null,
-      rejectedReason: status === 'REJECTED' ? 'Rechazado por seguimiento nutricional' : null,
+    const endpoint = status === 'ACTIVATED' ? 'accept' : 'reject'
+    return apiService.patch(`/nutritional-plans/${planId}/${endpoint}`, {
+      rejectedReason: status === 'REJECTED' ? 'Rechazado por seguimiento nutricional' : undefined,
     })
   },
 
   async saveFollowUpNote(userId, patientId, note) {
     const { nutritionist } = await this.resolveNutritionistContext(userId)
     await ensureAssignedPatient(nutritionist.id, patientId)
-    return apiService.post('/followUpNotes', {
+    return apiService.post('/follow-up-notes', {
       nutritionistId: nutritionist.id,
       patientId: Number(patientId),
       note,
