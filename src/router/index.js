@@ -8,7 +8,6 @@ import CorporateCollaboratorsPage from '../corporate-management/presentation/pag
 import CorporateMetricsPage from '../corporate-management/presentation/pages/CorporateMetricsPage.vue'
 import { useIdentityAccessStore } from '../identity-access/application/identity-access.store'
 import { getDefaultRouteByRole } from '../identity-access/application/auth-redirects'
-
 function resolveHomeRoute() {
   const identityAccessStore = useIdentityAccessStore()
   return identityAccessStore.isAuthenticated
