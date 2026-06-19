@@ -3,6 +3,7 @@ import LoginPage from '../identity-access/presentation/pages/LoginPage.vue'
 import RegisterPage from '../identity-access/presentation/pages/RegisterPage.vue'
 import NotAuthorizedPage from '../shared/presentation/pages/NotAuthorizedPage.vue'
 import PlaceholderPage from '../shared/presentation/pages/PlaceholderPage.vue'
+import SubscriptionsBillingPage from '../subscriptions-billing/presentation/pages/SubscriptionsBillingPage.vue'
 
 // Corporate Management
 import CorporateDashboardPage from '../corporate-management/presentation/pages/CorporateDashboardPage.vue'
@@ -103,6 +104,13 @@ const router = createRouter({
     { path: '/progress-tracking/activity', component: ActivityLogPage, meta: patientMeta },
     { path: '/progress-tracking/weight', component: WeightUpdatePage, meta: patientMeta },
     { path: '/food-log', component: FoodLogPage, meta: patientMeta },
+
+    // ── subscriptions-billing BC ────────────────────────────────────────
+    {
+      path: '/subscriptions-billing',
+      component: SubscriptionsBillingPage,
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'ADMIN_CORPORATIVO'] },
+    },
 
     { path: '/not-authorized', component: NotAuthorizedPage, meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', redirect: resolveHomeRoute },
