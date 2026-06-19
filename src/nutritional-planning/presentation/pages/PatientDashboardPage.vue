@@ -20,10 +20,12 @@ const patientPlanStore = usePatientPlanStore();
 const patientProgressStore = usePatientProgressStore();
 
 onMounted(async () => {
-  await identityAccessStore.refreshCurrentUser();
-  await patientProfileStore.fetchPatientProfile();
-  await billingStore.fetchPlans();
-  const plan = await patientPlanStore.fetchPatientPlan();
+  const [, , , plan] = await Promise.all([
+    identityAccessStore.refreshCurrentUser(),
+    patientProfileStore.fetchPatientProfile(),
+    billingStore.fetchPlans(),
+    patientPlanStore.fetchPatientPlan(),
+  ]);
   patientProgressStore.setDailyCalories(plan?.dailyCalories ?? 0);
 });
 
