@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { syncNutritionAccessForUser } from '../../subscriptions-billing/application/subscription-nutrition-access.service'
+import { apiService } from '../../shared/infrastructure/api.service'
 import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
 
 const SESSION_STORAGE_KEY = 'biotrack.mock-session'
@@ -9,33 +9,27 @@ function persistSession(user) {
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user))
 }
 
-function mapSessionUser(user, currentUser = {}) {
-  const [firstName = user.name, ...lastNameParts] = String(user.name ?? '').split(' ')
+function mapSessionUser(user) {
+  const nameParts = String(user.name ?? user.email ?? '').split(' ')
   return {
-    ...currentUser,
     id: user.id,
     email: user.email,
     role: user.role,
-    firstName,
-    lastName: lastNameParts.join(' '),
-    name: user.name,
-    status: user.status,
-    emailVerified: user.emailVerified,
+    firstName: nameParts[0] ?? '',
+    lastName: nameParts.slice(1).join(' '),
+    name: user.name ?? user.email,
+    status: 'ACTIVE',
+    emailVerified: true,
+    token: user.token ?? null,
   }
 }
 
 function createIdleRegisterState() {
-  return {
-    status: 'idle',
-    message: '',
-  }
+  return { status: 'idle', message: '' }
 }
 
 function createIdleLoginState() {
-  return {
-    status: 'idle',
-    message: '',
-  }
+  return { status: 'idle', message: '' }
 }
 
 export const useIdentityAccessStore = defineStore('identity-access', {
@@ -60,7 +54,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       return state.loginAttempts >= 5
     },
     hasVerifiedAccount(state) {
-      return Boolean(state.currentUser?.emailVerified) && state.currentUser?.status === 'ACTIVE'
+      return state.isAuthenticated
     },
   },
   actions: {
@@ -68,92 +62,69 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.loading = true
       this.error = ''
       this.loginStatus = createIdleLoginState()
-      const matchedUser = await identityAccessApiService.login(credentials)
 
-      if (!matchedUser) {
+      try {
+        const response = await identityAccessApiService.login(credentials)
+
+        const sessionUser = mapSessionUser(response)
+        this.currentUser = sessionUser
+        this.role = response.role
+        this.isAuthenticated = true
+        this.loginAttempts = 0
+
+        persistSession(sessionUser)
+        apiService.setAccessToken(response.token)
+
+        this.loginStatus = {
+          status: 'success',
+          message: 'Redirigiendo al Dashboard Principal...',
+        }
+        return true
+      } catch {
         this.loginAttempts += 1
-        this.loading = false
         this.isAuthenticated = false
         this.currentUser = null
         this.role = null
         this.error =
           this.loginAttempts >= 5
             ? 'Cuenta bloqueada temporalmente por demasiados intentos.'
-            : `Email o contrasena invalidos. Intento ${this.loginAttempts} de 5.`
-        this.loginStatus = {
-          status: 'error',
-          message: this.error,
-        }
+            : `Email o contraseña inválidos. Intento ${this.loginAttempts} de 5.`
+        this.loginStatus = { status: 'error', message: this.error }
         return false
-      }
-
-      this.currentUser = mapSessionUser(matchedUser)
-      this.role = matchedUser.role
-      this.isAuthenticated = true
-      persistSession(this.currentUser)
-      this.loginAttempts = 0
-      this.loading = false
-      this.loginStatus = {
-        status: 'success',
-        message: 'Redirigiendo al Dashboard Principal...',
-      }
-      return true
-    },
-    async register(command) {
-      this.loading = true
-      this.error = ''
-      const createdUser = await identityAccessApiService.register(command)
-      this.loading = false
-      this.registerStatus = {
-        status: 'success',
-        message: 'Tu cuenta fue creada. Hemos enviado un correo de verificacion.',
-      }
-      return createdUser
-    },
-    async verifyEmail() {
-      if (!this.currentUser?.id) {
-        this.error = 'No hay un usuario autenticado para verificar.'
-        return false
-      }
-
-      this.loading = true
-      this.error = ''
-      try {
-        const updatedUser = await identityAccessApiService.verifyEmail(this.currentUser.id)
-        this.currentUser = mapSessionUser(updatedUser, this.currentUser)
-        this.role = updatedUser.role
-        this.isAuthenticated = true
-        persistSession(this.currentUser)
-        await syncNutritionAccessForUser(updatedUser.id)
-        return true
-      } catch (error) {
-        this.error = 'No se pudo verificar el correo.'
-        throw error
       } finally {
         this.loading = false
       }
     },
-    async refreshCurrentUser() {
-      if (!this.currentUser?.id) return null
+
+    async register(command) {
+      this.loading = true
+      this.error = ''
       try {
-        const updatedUser = await identityAccessApiService.fetchUserById(this.currentUser.id)
-        this.currentUser = mapSessionUser(updatedUser, this.currentUser)
-        this.role = updatedUser.role
-        this.isAuthenticated = true
-        persistSession(this.currentUser)
-        return this.currentUser
-      } catch {
-        return this.currentUser
+        const result = await identityAccessApiService.register(command)
+        this.registerStatus = {
+          status: 'success',
+          message: 'Tu cuenta fue creada. Ya puedes iniciar sesión.',
+        }
+        return result
+      } catch (err) {
+        this.error = err?.message ?? 'Error al registrar la cuenta.'
+        this.registerStatus = { status: 'error', message: this.error }
+        throw err
+      } finally {
+        this.loading = false
       }
     },
+
     resetLoginFeedback() {
       this.error = ''
       this.loginStatus = createIdleLoginState()
     },
+
     resetRegisterFeedback() {
       this.error = ''
       this.registerStatus = createIdleRegisterState()
     },
+
     logout() {
       this.currentUser = null
       this.isAuthenticated = false
@@ -163,6 +134,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.loginAttempts = 0
       this.loading = false
       this.error = ''
+      apiService.setAccessToken(null)
       localStorage.removeItem(SESSION_STORAGE_KEY)
       LEGACY_SESSION_KEYS.forEach((key) => {
         localStorage.removeItem(key)
