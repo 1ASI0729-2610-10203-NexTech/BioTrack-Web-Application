@@ -45,9 +45,9 @@ function resolveHomeRoute() {
     : '/login'
 }
 
-const corporateMeta = { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] }
-const patientMeta = { requiresAuth: true, roles: ['PACIENTE'] }
-const nutritionistMeta = { requiresAuth: true, roles: ['NUTRICIONISTA'] }
+const corporateMeta = { requiresAuth: true, roles: ['ADMIN_CORPORATIVO', 'ADMIN'] }
+const patientMeta = { requiresAuth: true, roles: ['PACIENTE', 'PATIENT'] }
+const nutritionistMeta = { requiresAuth: true, roles: ['NUTRICIONISTA', 'NUTRITIONIST'] }
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,7 +78,7 @@ const router = createRouter({
       path: '/consultations',
       component: PlaceholderPage,
       props: { titleKey: 'placeholders.consultations', eyebrowKey: 'placeholders.biotrack' },
-      meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA'] },
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA', 'PATIENT', 'NUTRITIONIST'] },
     },
     {
       path: '/adherence-alerts',
@@ -109,7 +109,7 @@ const router = createRouter({
     {
       path: '/subscriptions-billing',
       component: SubscriptionsBillingPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE', 'ADMIN_CORPORATIVO'] },
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'ADMIN_CORPORATIVO', 'PATIENT', 'ADMIN'] },
     },
 
     { path: '/not-authorized', component: NotAuthorizedPage, meta: { requiresAuth: true } },
