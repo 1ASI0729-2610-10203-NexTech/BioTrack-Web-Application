@@ -74,6 +74,10 @@ class ApiService {
     return this.client.post(url, payload, config).then(({ data }) => data)
   }
 
+  put(url, payload, config) {
+    return this.client.put(url, payload, config).then(({ data }) => data)
+  }
+
   patch(url, payload, config) {
     return this.client.patch(url, payload, config).then(({ data }) => data)
   }
