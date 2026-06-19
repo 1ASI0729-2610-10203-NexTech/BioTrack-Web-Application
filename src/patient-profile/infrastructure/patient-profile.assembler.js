@@ -2,11 +2,6 @@ import { PatientProfile } from '../domain/model/patient-profile.entity'
 
 export const PatientProfileAssembler = {
   fromApi(payload) {
-    const biologicalSexByApi = {
-      MALE: 'masculino',
-      FEMALE: 'femenino',
-      OTHER: 'otro',
-    }
     const activityLevelByApi = {
       LOW: 'sedentaria',
       MODERATE: 'moderada',
@@ -17,42 +12,22 @@ export const PatientProfileAssembler = {
       MAINTAIN_WEIGHT: 'mantener-peso',
       GAIN_MUSCLE: 'ganar-masa',
     }
-    const hasHealthData = [
-      payload.weightKg,
-      payload.heightCm,
-      payload.age,
-      payload.biologicalSex,
-      payload.activityLevel,
-      payload.systolicPressure,
-      payload.diastolicPressure,
-      payload.basalGlucose,
-    ].every((value) => value !== null && value !== undefined && value !== '')
 
     return new PatientProfile({
       id: payload.id,
       patientId: payload.userId,
-      firstName: payload.firstName ?? 'Juan',
-      lastName: payload.lastName ?? 'Pérez',
-      healthData: hasHealthData
-        ? {
-            weightKg: payload.weightKg,
-            heightCm: payload.heightCm,
-            age: payload.age,
-            biologicalSex: biologicalSexByApi[payload.biologicalSex] ?? payload.biologicalSex,
-            activityLevel: activityLevelByApi[payload.activityLevel] ?? payload.activityLevel,
-            systolic: payload.systolicPressure,
-            diastolic: payload.diastolicPressure,
-            glucoseMgDl: payload.basalGlucose,
-          }
-        : null,
-      dietaryRestrictions: payload.dietaryRestrictions?.length
-        ? payload.dietaryRestrictions
+      healthData: {
+        weightKg: payload.weightKg,
+        heightCm: payload.heightCm,
+        activityLevel: activityLevelByApi[payload.activityLevel] ?? payload.activityLevel,
+      },
+      bmi: payload.bmi,
+      goalWeightKg: payload.goalWeightKg,
+      targetWeightKg: payload.goalWeightKg,
+      dietaryRestrictions: payload.dietaryRestrictions
+        ? payload.dietaryRestrictions.split(',').map((r) => r.trim()).filter(Boolean)
         : ['Sin restricciones'],
-      nutritionalGoal: goalByApi[payload.nutritionalGoal] ?? payload.nutritionalGoal,
-      restrictionsConfirmed: payload.restrictionsConfirmed,
-      nutritionist: payload.nutritionist ?? 'Dra. Ana Torres',
-      targetWeightKg: payload.targetWeightKg,
-      createdAt: payload.createdAt,
+      nutritionalGoal: goalByApi[payload.nutritionalObjective] ?? payload.nutritionalObjective,
       updatedAt: payload.updatedAt,
     })
   },
