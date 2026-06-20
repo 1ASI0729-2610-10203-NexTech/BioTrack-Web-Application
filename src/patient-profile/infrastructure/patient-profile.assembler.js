@@ -32,6 +32,7 @@ export const PatientProfileAssembler = {
       dietaryRestrictions: payload.dietaryRestrictions
         ? payload.dietaryRestrictions.split(',').map((r) => r.trim()).filter(Boolean)
         : ['Sin restricciones'],
+      restrictionsConfirmed: payload.restrictionsConfirmed ?? Boolean(payload.dietaryRestrictions),
       nutritionalGoal: goalByApi[payload.nutritionalObjective] ?? payload.nutritionalObjective,
       updatedAt: payload.updatedAt,
     })
