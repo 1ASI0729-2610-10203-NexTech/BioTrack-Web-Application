@@ -23,6 +23,7 @@ import NutritionistPlansPage from '../nutritional-planning/presentation/pages/Nu
 import NutritionistCreatePlanPage from '../nutritional-planning/presentation/pages/NutritionistCreatePlanPage.vue'
 import NutritionistFollowUpPage from '../nutritional-planning/presentation/pages/NutritionistFollowUpPage.vue'
 import ConsultationsPage from '../nutritional-planning/presentation/pages/ConsultationsPage.vue'
+import AdherenceAlertsPage from '../nutritional-planning/presentation/pages/AdherenceAlertsPage.vue'
 
 // Patient Profile
 import PatientProfilePage from '../patient-profile/presentation/pages/PatientProfilePage.vue'
@@ -80,12 +81,7 @@ const router = createRouter({
       component: ConsultationsPage,
       meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA', 'PATIENT', 'NUTRITIONIST'] },
     },
-    {
-      path: '/adherence-alerts',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.adherenceAlerts', eyebrowKey: 'placeholders.nutritionist' },
-      meta: nutritionistMeta,
-    },
+    { path: '/adherence-alerts', component: AdherenceAlertsPage, meta: nutritionistMeta },
     {
       path: '/reports',
       component: PlaceholderPage,
