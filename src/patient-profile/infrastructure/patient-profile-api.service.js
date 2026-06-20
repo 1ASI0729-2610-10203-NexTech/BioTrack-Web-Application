@@ -13,7 +13,7 @@ export const patientProfileApiService = {
       weightKg: payload.weightKg,
       goalWeightKg: payload.goalWeightKg ?? payload.targetWeightKg ?? payload.weightKg,
       activityLevel: payload.activityLevel,
-      nutritionalObjective: payload.nutritionalObjective ?? payload.nutritionalGoal,
+      nutritionalObjective: payload.nutritionalObjective ?? payload.nutritionalGoal ?? 'MAINTAIN_WEIGHT',
       age: payload.age ?? null,
       biologicalSex: payload.biologicalSex ?? null,
       systolicPressure: payload.systolicPressure ?? null,
