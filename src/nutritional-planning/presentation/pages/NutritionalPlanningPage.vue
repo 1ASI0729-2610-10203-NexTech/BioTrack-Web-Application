@@ -1,19 +1,22 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import ContextPanel from '../../../shared/presentation/components/context-panel.vue'
 import PlanRulesSummary from '../components/plan-rules-summary.vue'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <ContextPanel
-    eyebrow="BC04 nutritional-planning"
-    title="Planificacion nutricional"
-    description="Planes, dias, comidas, controles y estados de aprobacion encapsulados en el dominio."
+    :eyebrow="t('nutritionalPlanning.eyebrow')"
+    :title="t('nutritionalPlanning.title')"
+    :description="t('nutritionalPlanning.description')"
   >
     <PlanRulesSummary />
     <ul class="rule-list">
-      <li>No hay plan si la evaluacion inicial no esta completada.</li>
-      <li>Los planes rechazados requieren observacion.</li>
-      <li>Estados soportados: propuesto, activo, rechazado, finalizado y suspendido.</li>
+      <li>{{ t('nutritionalPlanning.rule1') }}</li>
+      <li>{{ t('nutritionalPlanning.rule2') }}</li>
+      <li>{{ t('nutritionalPlanning.rule3') }}</li>
     </ul>
   </ContextPanel>
 </template>

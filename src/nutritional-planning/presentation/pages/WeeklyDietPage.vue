@@ -2,8 +2,10 @@
 import { onMounted } from 'vue'
 import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePatientPlanStore } from '../../application/patient-plan.store'
 
+const { t } = useI18n()
 const router = useRouter()
 const patientPlanStore = usePatientPlanStore()
 
@@ -16,9 +18,9 @@ onMounted(() => {
   <section class="bt-weekly-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">Dieta semanal</p>
-        <h1>Vista de Dieta Semanal</h1>
-        <p class="text-muted">Organiza tu semana nutricional con un plan claro y ligero.</p>
+        <p class="microcopy">{{ t('weeklyDiet.eyebrow') }}</p>
+        <h1>{{ t('weeklyDiet.title') }}</h1>
+        <p class="text-muted">{{ t('weeklyDiet.subtitle') }}</p>
       </div>
     </header>
 
@@ -40,11 +42,11 @@ onMounted(() => {
 
     <section v-else class="bt-lock-card">
       <div>
-        <p class="microcopy">Seguimiento bloqueado</p>
-        <h2>Aun no tienes un plan nutricional activo.</h2>
-        <p class="text-muted">La dieta semanal aparece únicamente cuando tu cuenta está lista y tu plan nutricional ya fue activado.</p>
+        <p class="microcopy">{{ t('weeklyDiet.trackingBlocked') }}</p>
+        <h2>{{ t('weeklyDiet.noActivePlan') }}</h2>
+        <p class="text-muted">{{ t('weeklyDiet.noActivePlanDetail') }}</p>
       </div>
-      <Button label="Revisar plan nutricional" @click="router.push('/nutritional-plan')" />
+      <Button :label="t('weeklyDiet.reviewPlan')" @click="router.push('/nutritional-plan')" />
     </section>
   </section>
 </template>

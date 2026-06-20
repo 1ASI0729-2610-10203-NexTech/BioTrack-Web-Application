@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import { corporateCollaboratorApiService } from '../../infrastructure/corporate-collaborator-api.service'
 
+const { t } = useI18n()
 const COMPANY_ID = 1
 
 const collaborators = ref([])
@@ -44,7 +46,7 @@ async function handleUpload() {
     if (fileInput.value) fileInput.value.value = ''
     await loadData()
   } catch {
-    uploadError.value = 'Error al cargar el archivo. Verifique el formato e intente nuevamente.'
+    uploadError.value = t('corporate.collaborators.uploadError') || 'Error al cargar el archivo. Verifique el formato e intente nuevamente.'
   } finally {
     uploading.value = false
   }
@@ -56,7 +58,7 @@ function formatTime(isoString) {
 }
 
 const getSeverity = (status) => (status === 'ACTIVE' ? 'success' : 'warning')
-const getStatusLabel = (status) => (status === 'ACTIVE' ? 'Activo' : 'Pendiente aceptar')
+const getStatusLabel = (status) => (status === 'ACTIVE' ? t('corporate.collaborators.statusActive') : t('corporate.collaborators.statusPending'))
 
 onMounted(loadData)
 </script>
@@ -66,9 +68,9 @@ onMounted(loadData)
 
     <header class="bt-dashboard-heading">
       <div>
-        <p class="microcopy">ADMIN CORPORATIVO</p>
-        <h1>Colaboradores</h1>
-        <p class="text-muted">Carga el listado de colaboradores en formato CSV o Excel</p>
+        <p class="microcopy">{{ t('corporate.collaborators.eyebrow') }}</p>
+        <h1>{{ t('corporate.collaborators.title') }}</h1>
+        <p class="text-muted">{{ t('corporate.collaborators.subtitle') }}</p>
       </div>
       <div class="bt-progress-badge" :class="{ 'bt-progress-badge--done': uploadDone }">
         <span>{{ activeCount }}/{{ collaborators.length }}</span>
@@ -76,12 +78,12 @@ onMounted(loadData)
       </div>
     </header>
 
-    <p v-if="loading" class="text-muted">Cargando colaboradores...</p>
+    <p v-if="loading" class="text-muted">{{ t('corporate.collaborators.loading') }}</p>
 
     <template v-else>
 
       <div v-if="uploadDone" class="bt-panel-note" style="border-radius: 8px; padding: 12px 16px; background: var(--bt-success-soft); border-color: var(--bt-success); margin-bottom: 20px;">
-        ✓ <strong>Archivo cargado correctamente</strong> — Los colaboradores serán procesados e invitados.
+        ✓ <strong>{{ t('corporate.collaborators.uploadSuccess') }}</strong>
       </div>
 
       <div v-if="uploadError" class="bt-panel-note" style="border-radius: 8px; padding: 12px 16px; background: #fee2e2; border-color: #ef4444; margin-bottom: 20px;">
@@ -90,21 +92,21 @@ onMounted(loadData)
 
       <section class="bt-kpi-grid mb-4">
         <article class="bt-kpi-card bt-kpi-card--primary">
-          <span>Activos</span>
+          <span>{{ t('corporate.collaborators.active') }}</span>
           <strong>{{ activeCount }}</strong>
         </article>
         <article class="bt-kpi-card">
-          <span>Pendientes de aceptar</span>
+          <span>{{ t('corporate.collaborators.pendingAccept') }}</span>
           <strong>{{ pendingCount }}</strong>
         </article>
         <article class="bt-kpi-card">
-          <span>Total cargados</span>
+          <span>{{ t('corporate.collaborators.totalLoaded') }}</span>
           <strong>{{ collaborators.length }}</strong>
         </article>
       </section>
 
       <article class="bt-dashboard-panel" style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 16px; font-size: 1rem;">Cargar colaboradores</h3>
+        <h3 style="margin: 0 0 16px; font-size: 1rem;">{{ t('corporate.collaborators.uploadSection') }}</h3>
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
           <input
             ref="fileInput"
@@ -114,29 +116,29 @@ onMounted(loadData)
             @change="handleFileChange"
           />
           <Button
-            :label="uploading ? 'Subiendo...' : 'Cargar archivo'"
+            :label="uploading ? t('corporate.collaborators.uploading') : t('corporate.collaborators.uploadFile')"
             :disabled="uploading || !selectedFile"
             class="p-button-primary"
             @click="handleUpload"
           />
         </div>
         <p class="text-muted" style="margin: 8px 0 0; font-size: 0.8rem;">
-          Formatos aceptados: CSV, Excel (.xlsx). Columnas requeridas: nombre, email.
+          {{ t('corporate.collaborators.acceptedFormats') }}
         </p>
       </article>
 
       <div class="card mt-4">
         <DataTable :value="collaborators" responsiveLayout="scroll" :paginator="true" :rows="5" class="p-datatable-sm shadow-2 border-round">
-          <Column field="name" header="COLABORADOR" :sortable="true"></Column>
-          <Column field="email" header="EMAIL"></Column>
-          <Column field="status" header="ESTADO">
+          <Column field="name" :header="t('corporate.collaborators.colCollaborator')" :sortable="true"></Column>
+          <Column field="email" :header="t('corporate.collaborators.colEmail')"></Column>
+          <Column field="status" :header="t('corporate.collaborators.colStatus')">
             <template #body="slotProps">
               <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getSeverity(slotProps.data.status)" />
             </template>
           </Column>
-          <Column field="sentAt" header="ENVIADO">
+          <Column field="sentAt" :header="t('corporate.collaborators.colSent')">
             <template #body="slotProps">
-              {{ slotProps.data.sentAt ? 'Hoy ' + formatTime(slotProps.data.sentAt) : '—' }}
+              {{ slotProps.data.sentAt ? t('corporate.collaborators.sentToday', { time: formatTime(slotProps.data.sentAt) }) : '—' }}
             </template>
           </Column>
         </DataTable>

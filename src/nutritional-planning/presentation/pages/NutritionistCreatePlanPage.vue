@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
@@ -9,6 +10,7 @@ import Message from 'primevue/message'
 import Textarea from 'primevue/textarea'
 import { useNutritionistStore } from '../../application/nutritionist.store'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -17,12 +19,12 @@ const patientId = computed(() => Number(route.params.patientId))
 const patient = computed(() => nutritionistStore.selectedPatient)
 
 const form = reactive({
-  name: 'Plan Nutricional — Semana 1',
+  name: t('nutritionist.createPlan.defaultPlanName'),
   dailyCalories: 1850,
   proteinPercentage: 35,
   carbohydratePercentage: 45,
   fatPercentage: 20,
-  description: 'Plan semanal personalizado según evaluación nutricional.',
+  description: t('nutritionist.createPlan.defaultDescription'),
 })
 
 const macroTotal = computed(
@@ -36,10 +38,10 @@ onMounted(() => {
 async function submit() {
   try {
     await nutritionistStore.createPlan(patientId.value, form)
-    toast.add({ severity: 'success', summary: 'Plan creado', detail: 'El plan quedó propuesto para el paciente.', life: 3000 })
+    toast.add({ severity: 'success', summary: t('nutritionist.createPlan.successTitle'), detail: t('nutritionist.createPlan.successDetail'), life: 3000 })
     router.push(`/nutritionist-patients/${patientId.value}`)
   } catch {
-    toast.add({ severity: 'error', summary: 'No se pudo crear', detail: nutritionistStore.error, life: 3500 })
+    toast.add({ severity: 'error', summary: t('nutritionist.createPlan.errorTitle'), detail: nutritionistStore.error, life: 3500 })
   }
 }
 </script>
@@ -48,39 +50,39 @@ async function submit() {
   <section class="bt-patient-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">Plan nutricional</p>
-        <h1>Crear plan nutricional</h1>
-        <p class="text-muted">Solo puedes crear planes para pacientes asignados con perfil completo.</p>
+        <p class="microcopy">{{ t('nutritionist.createPlan.eyebrow') }}</p>
+        <h1>{{ t('nutritionist.createPlan.title') }}</h1>
+        <p class="text-muted">{{ t('nutritionist.createPlan.subtitle') }}</p>
       </div>
     </header>
 
     <Message v-if="patient && !patient.isComplete" severity="warn">
-      No se puede crear un plan nutricional porque el perfil del paciente está incompleto.
+      {{ t('nutritionist.createPlan.incompleteProfile') }}
     </Message>
 
     <form v-if="patient?.isComplete" class="bt-dashboard-panel bt-form-grid" @submit.prevent="submit">
       <Message v-if="nutritionistStore.error" severity="error">{{ nutritionistStore.error }}</Message>
       <label>
-        Nombre del plan
+        {{ t('nutritionist.createPlan.planName') }}
         <InputText v-model="form.name" />
       </label>
       <label>
-        Calorías diarias
+        {{ t('nutritionist.createPlan.dailyCalories') }}
         <InputNumber v-model="form.dailyCalories" :min="1" suffix=" kcal" />
       </label>
       <div class="bt-auth-grid">
-        <label>Proteínas %<InputNumber v-model="form.proteinPercentage" :min="0" :max="100" /></label>
-        <label>Carbohidratos %<InputNumber v-model="form.carbohydratePercentage" :min="0" :max="100" /></label>
-        <label>Grasas %<InputNumber v-model="form.fatPercentage" :min="0" :max="100" /></label>
+        <label>{{ t('nutritionist.createPlan.proteinsPercent') }}<InputNumber v-model="form.proteinPercentage" :min="0" :max="100" /></label>
+        <label>{{ t('nutritionist.createPlan.carbohydratesPercent') }}<InputNumber v-model="form.carbohydratePercentage" :min="0" :max="100" /></label>
+        <label>{{ t('nutritionist.createPlan.fatsPercent') }}<InputNumber v-model="form.fatPercentage" :min="0" :max="100" /></label>
       </div>
       <label>
-        Descripción
+        {{ t('nutritionist.createPlan.planDescription') }}
         <Textarea v-model="form.description" rows="4" auto-resize />
       </label>
       <Message :severity="macroTotal === 100 ? 'success' : 'warn'">
-        Suma de macronutrientes: {{ macroTotal }}%
+        {{ t('nutritionist.createPlan.macroSum', { total: macroTotal }) }}
       </Message>
-      <Button label="Crear plan propuesto" type="submit" :loading="nutritionistStore.loading" />
+      <Button :label="t('nutritionist.createPlan.createProposed')" type="submit" :loading="nutritionistStore.loading" />
     </form>
   </section>
 </template>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import ProgressBar from 'primevue/progressbar'
 import { usePatientPlanStore } from '../../../nutritional-planning/application/patient-plan.store'
@@ -8,6 +9,7 @@ import { usePatientProgressStore } from '../../application/patient-progress.stor
 import WeightLineChart from '../components/weight-line-chart.vue'
 import WeeklyBarsChart from '../components/weekly-bars-chart.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const planStore = usePatientPlanStore()
 const progressStore = usePatientProgressStore()
@@ -72,31 +74,31 @@ const activeDaysCount = computed(() => weekActiveFlags.value.filter(Boolean).len
 <template>
   <section class="bt-progress-page">
     <header class="bt-patient-heading">
-      <div><h1>Mi progreso</h1><p class="text-muted">Resumen semanal</p></div>
+      <div><h1>{{ t('patient.progress.title') }}</h1><p class="text-muted">{{ t('patient.progress.subtitle') }}</p></div>
     </header>
     <section v-if="!planStore.hasActivePlan" class="bt-lock-card">
-      <div><p class="microcopy">Seguimiento bloqueado</p><h2>Aun no tienes un plan nutricional activo</h2><p class="text-muted">Cuando tu plan se active, podras actualizar tu peso y revisar tu avance nutricional.</p></div>
-      <Button label="Ir a Plan Nutricional" @click="router.push('/nutritional-plan')" />
+      <div><p class="microcopy">{{ t('patient.progress.trackingBlocked') }}</p><h2>{{ t('patient.progress.noActivePlan') }}</h2><p class="text-muted">{{ t('patient.progress.noActivePlanDetail') }}</p></div>
+      <Button :label="t('patient.progress.goToNutritionalPlan')" @click="router.push('/nutritional-plan')" />
     </section>
     <template v-else>
       <section class="bt-progress-summary-grid">
-        <article class="bt-patient-card"><span>Peso inicial</span><strong>{{ formatKg(progressStore.initialWeight) }}</strong></article>
-        <article class="bt-patient-card"><span>Peso actual</span><strong>{{ formatKg(progressStore.currentWeight) }}</strong></article>
-        <article class="bt-patient-card"><span>Peso objetivo</span><strong>{{ formatKg(progressStore.targetWeight) }}</strong></article>
-        <article class="bt-patient-card"><span>IMC actual</span><strong>{{ progressStore.currentBMI == null ? '-' : progressStore.currentBMI.toFixed(1) }}</strong></article>
-        <article class="bt-patient-card"><span>Clasificacion IMC</span><strong>{{ progressStore.bmiStatus }}</strong></article>
-        <article class="bt-patient-card"><span>Diferencia hacia meta</span><strong>{{ formatKg(progressStore.remainingToGoal) }}</strong></article>
-        <article class="bt-patient-card bt-patient-card--blue"><span>Adherencia semanal</span><strong>{{ progressStore.weeklyAdherencePercentage.toFixed(0) }}%</strong><ProgressBar :value="Math.round(progressStore.weeklyAdherencePercentage)" /></article>
-        <article class="bt-patient-card"><span>Dias registrados</span><strong>{{ progressStore.registeredDaysCount }}</strong></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.initialWeight') }}</span><strong>{{ formatKg(progressStore.initialWeight) }}</strong></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.currentWeight') }}</span><strong>{{ formatKg(progressStore.currentWeight) }}</strong></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.targetWeight') }}</span><strong>{{ formatKg(progressStore.targetWeight) }}</strong></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.currentBMI') }}</span><strong>{{ progressStore.currentBMI == null ? '-' : progressStore.currentBMI.toFixed(1) }}</strong></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.bmiClassification') }}</span><strong>{{ progressStore.bmiStatus }}</strong></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.differenceToGoal') }}</span><strong>{{ formatKg(progressStore.remainingToGoal) }}</strong></article>
+        <article class="bt-patient-card bt-patient-card--blue"><span>{{ t('patient.progress.weeklyAdherence') }}</span><strong>{{ progressStore.weeklyAdherencePercentage.toFixed(0) }}%</strong><ProgressBar :value="Math.round(progressStore.weeklyAdherencePercentage)" /></article>
+        <article class="bt-patient-card"><span>{{ t('patient.progress.registeredDays') }}</span><strong>{{ progressStore.registeredDaysCount }}</strong></article>
       </section>
       <section class="bt-progress-grid">
         <article class="bt-dashboard-panel bt-progress-charts pt-scope">
 
-          <!-- Evolución de peso -->
+          <!-- Weight evolution -->
           <div class="prog-chart-header">
             <div>
-              <h3 class="prog-chart-title">Evolución de peso</h3>
-              <p class="prog-chart-sub">Últimos registros</p>
+              <h3 class="prog-chart-title">{{ t('patient.progress.weightEvolution') }}</h3>
+              <p class="prog-chart-sub">{{ t('patient.progress.lastRecords') }}</p>
             </div>
             <span class="prog-badge">{{ formatKg(progressStore.currentWeight) }}</span>
           </div>
@@ -108,13 +110,13 @@ const activeDaysCount = computed(() => weekActiveFlags.value.filter(Boolean).len
               :axis-tick-labels="weightAxisLabels"
             />
           </template>
-          <p v-else class="prog-empty-hint">Registra tu peso al menos 2 veces para ver la evolución.</p>
+          <p v-else class="prog-empty-hint">{{ t('patient.progress.minTwoWeights') }}</p>
 
-          <!-- Adherencia semanal -->
+          <!-- Weekly adherence -->
           <div class="prog-chart-header" style="margin-top: 1.5rem">
             <div>
-              <h3 class="prog-chart-title">Adherencia semanal</h3>
-              <p class="prog-chart-sub">{{ activeDaysCount }} de 7 días registrados</p>
+              <h3 class="prog-chart-title">{{ t('patient.progress.weeklyAdherenceChart') }}</h3>
+              <p class="prog-chart-sub">{{ t('patient.progress.daysRegistered', { count: activeDaysCount }) }}</p>
             </div>
             <span class="prog-badge prog-badge--green">{{ progressStore.weeklyAdherencePercentage.toFixed(0) }}%</span>
           </div>
@@ -122,10 +124,10 @@ const activeDaysCount = computed(() => weekActiveFlags.value.filter(Boolean).len
 
         </article>
         <article class="bt-dashboard-panel">
-          <h3>Acciones</h3>
+          <h3>{{ t('patient.progress.actions') }}</h3>
           <div class="bt-inline-actions">
-            <Button label="Actualizar peso" outlined @click="router.push('/progress-tracking/weight')" />
-            <Button label="Ver consumo diario" outlined @click="router.push('/food-log')" />
+            <Button :label="t('patient.progress.updateWeight')" outlined @click="router.push('/progress-tracking/weight')" />
+            <Button :label="t('patient.progress.viewDailyConsumption')" outlined @click="router.push('/food-log')" />
           </div>
         </article>
       </section>
