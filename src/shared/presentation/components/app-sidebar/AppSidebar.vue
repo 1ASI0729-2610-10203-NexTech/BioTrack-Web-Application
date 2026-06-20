@@ -63,7 +63,7 @@ function getItemLabel(item) {
   >
     <div class="bt-sidebar-top">
       <RouterLink class="bt-brand-mark" to="/corporate-dashboard" @click="$emit('navigate')">
-        <span class="bt-brand-symbol" aria-hidden="true">Bio</span>
+        <img src="../../../../assets/logo.png" alt="BioTrack" class="bt-brand-logo" />
       </RouterLink>
 
       <section class="bt-sidebar-menu">

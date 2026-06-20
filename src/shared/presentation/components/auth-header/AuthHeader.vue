@@ -16,7 +16,7 @@ const { t } = useI18n()
 <template>
   <header class="bt-auth-header" role="banner">
     <RouterLink class="bt-auth-brand" to="/login" aria-label="BioTrack">
-      <span>Bio</span>
+      <img src="../../../../assets/logo.png" alt="BioTrack" class="bt-auth-brand-logo" />
     </RouterLink>
 
     <div class="bt-auth-header-actions">

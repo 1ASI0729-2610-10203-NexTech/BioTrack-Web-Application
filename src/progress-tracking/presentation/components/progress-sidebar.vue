@@ -43,7 +43,7 @@ const progressModuleLinks = [
 
 <template>
   <aside class="pt-sidebar" aria-label="Navegación principal del módulo">
-    <div class="pt-sidebar__brand">BioTrack</div>
+    <img src="../../../assets/logo.png" alt="BioTrack" class="pt-sidebar__brand-logo" />
     <p class="pt-sidebar__menu-label">Menú</p>
     <nav class="pt-sidebar__nav" aria-label="Menú principal">
       <RouterLink

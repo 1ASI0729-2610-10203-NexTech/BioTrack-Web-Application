@@ -302,11 +302,10 @@ label {
   margin-left: 28px;
 }
 
-.bt-brand-symbol {
-  color: var(--bt-success);
-  font-family: var(--font-heading);
-  font-size: 1.75rem;
-  line-height: 1;
+.bt-brand-logo {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
 .bt-sidebar-menu {
