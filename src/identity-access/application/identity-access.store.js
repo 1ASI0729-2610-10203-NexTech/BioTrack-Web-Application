@@ -128,6 +128,27 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.registerStatus = createIdleRegisterState()
     },
 
+    async refreshCurrentUser() {
+      const userId = this.currentUser?.id
+      if (!userId) return null
+      try {
+        const user = await identityAccessApiService.fetchUserById(userId)
+        const updated = mapSessionUser(user, this.currentUser)
+        this.currentUser = updated
+        this.role = user.role
+        persistSession(updated, localStorage.getItem(TOKEN_STORAGE_KEY))
+        return updated
+      } catch {
+        return this.currentUser
+      }
+    },
+
+    async verifyEmail() {
+      if (!this.currentUser) return
+      this.currentUser = { ...this.currentUser, emailVerified: true, status: 'ACTIVE' }
+      persistSession(this.currentUser, localStorage.getItem(TOKEN_STORAGE_KEY))
+    },
+
     logout() {
       this.currentUser = null
       this.isAuthenticated = false

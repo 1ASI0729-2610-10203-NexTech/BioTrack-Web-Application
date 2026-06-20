@@ -11,10 +11,20 @@ export const patientProfileApiService = {
     const updated = await apiService.put('/profile/health-data', {
       heightCm: payload.heightCm,
       weightKg: payload.weightKg,
-      goalWeightKg: payload.goalWeightKg,
+      goalWeightKg: payload.goalWeightKg ?? payload.targetWeightKg ?? payload.weightKg,
       activityLevel: payload.activityLevel,
-      nutritionalObjective: payload.nutritionalObjective,
+      nutritionalObjective: payload.nutritionalObjective ?? payload.nutritionalGoal,
+      age: payload.age ?? null,
+      biologicalSex: payload.biologicalSex ?? null,
+      systolicPressure: payload.systolicPressure ?? null,
+      diastolicPressure: payload.diastolicPressure ?? null,
+      glucoseMgDl: payload.glucoseMgDl ?? null,
     })
+    return PatientProfileAssembler.fromApi(updated)
+  },
+
+  async updateNutritionalGoal(nutritionalObjective) {
+    const updated = await apiService.put('/profile/nutritional-goal', { nutritionalObjective })
     return PatientProfileAssembler.fromApi(updated)
   },
 

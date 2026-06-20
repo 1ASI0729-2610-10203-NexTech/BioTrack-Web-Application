@@ -24,6 +24,10 @@ const activePlanId = computed(() => billingStore.activeSubscription?.planId ?? '
       </div>
     </header>
 
+    <Message v-if="billingStore.error" severity="error" class="bt-billing-message">
+      {{ billingStore.error }}
+    </Message>
+
     <Message v-if="billingStore.subscribedRecently" severity="success" class="bt-billing-message">
       <strong>¡Suscripcion activada exitosamente!</strong>
       <span>

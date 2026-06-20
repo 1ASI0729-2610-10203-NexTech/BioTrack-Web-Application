@@ -45,9 +45,10 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
             }
           : null
         return this.plans
-      } catch (error) {
+      } catch {
         this.error = 'No se pudieron cargar los planes.'
-        throw error
+        this.plans = []
+        this.activeSubscription = null
       } finally {
         this.loading = false
       }
@@ -107,8 +108,8 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
         await usePatientPlanStore().fetchPatientPlan()
         return true
       } catch (error) {
-        this.error = 'No se pudo activar la suscripcion.'
-        throw error
+        this.error = error?.message ?? 'No se pudo activar la suscripcion.'
+        return false
       } finally {
         this.loading = false
       }

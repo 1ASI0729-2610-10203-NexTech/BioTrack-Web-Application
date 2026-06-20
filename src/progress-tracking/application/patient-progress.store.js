@@ -80,7 +80,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
     currentBMI(state) {
       const heightCm = state.patientProfile?.healthData?.heightCm
       if (!this.currentWeight || !heightCm) return null
-      return calculateBMI(this.currentWeight, heightCm).value
+      return calculateBMI(this.currentWeight, heightCm)?.value ?? null
     },
     bmiStatus() {
       return getBMIStatus(this.currentBMI)
@@ -253,10 +253,10 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         })
         this.weightRecords = sortWeightRecordsByDate([...this.weightRecords, created])
         if (profile) {
-          const bmi = calculateBMI(Number(weightRecord.weightKg), profile.healthData.heightCm)
+          const bmi = calculateBMI(Number(weightRecord.weightKg), profile.healthData?.heightCm)
           this.patientProfile = await patientProfileApiService.update(profile.id, {
             weightKg: Number(weightRecord.weightKg),
-            bmi: Number(bmi.value.toFixed(2)),
+            bmi: bmi ? Number(bmi.value.toFixed(2)) : null,
             updatedAt: new Date().toISOString(),
           })
         }
