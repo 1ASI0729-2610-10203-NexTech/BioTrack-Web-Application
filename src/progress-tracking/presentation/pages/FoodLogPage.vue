@@ -13,12 +13,12 @@ import { usePatientProgressStore } from '../../application/patient-progress.stor
 const { t } = useI18n()
 const patientPlanStore = usePatientPlanStore()
 const patientProgressStore = usePatientProgressStore()
-const mealOptions = [
-  { label: t('patient.foodLog.breakfast'), value: 'desayuno' },
-  { label: t('patient.foodLog.lunch'), value: 'almuerzo' },
-  { label: t('patient.foodLog.snack'), value: 'merienda' },
-  { label: t('patient.foodLog.dinner'), value: 'cena' },
-]
+const mealOptions = computed(() => [
+  { label: t('mealTypes.desayuno'), value: 'desayuno' },
+  { label: t('mealTypes.almuerzo'), value: 'almuerzo' },
+  { label: t('mealTypes.merienda'), value: 'merienda' },
+  { label: t('mealTypes.cena'), value: 'cena' },
+])
 const mealIcons = { desayuno: '☀️', almuerzo: '🍽️', merienda: '🥤', cena: '🌙' }
 const form = reactive({ mealType: '', description: '', calories: null })
 const validation = reactive({ mealType: '', description: '', calories: '' })
@@ -96,7 +96,7 @@ async function submitFoodLog() {
           <h3>{{ t('patient.foodLog.todayFoods') }}</h3>
           <div v-if="patientProgressStore.getTodayFoodLogs.length" class="bt-food-log-list">
             <div v-for="log in patientProgressStore.getTodayFoodLogs" :key="`${log.date}-${log.mealType}`" class="bt-meal-row">
-              <span>{{ mealIcons[log.mealType] }}</span><div><strong>{{ log.description }}</strong><small>{{ log.mealType }}</small></div><em>{{ log.calories }} kcal</em>
+              <span>{{ mealIcons[log.mealType] }}</span><div><strong>{{ log.description }}</strong><small>{{ t('mealTypes.' + log.mealType, log.mealType) }}</small></div><em>{{ log.calories }} kcal</em>
             </div>
           </div>
           <p v-else class="text-muted">{{ t('patient.foodLog.noFoodsToday') }}</p>

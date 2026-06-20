@@ -682,6 +682,12 @@ export const messages = {
       cardEnding: 'Card ending in {last4} · {paidAt} · Next renewal: {renewsAt}',
       viewInvoice: 'View invoice',
     },
+    mealTypes: {
+      desayuno: 'Breakfast',
+      almuerzo: 'Lunch',
+      merienda: 'Snack',
+      cena: 'Dinner',
+    },
   },
   'es-419': {
     app: {
@@ -1334,6 +1340,12 @@ export const messages = {
       currentSubscription: 'Plan {planName} - {paymentStatus}',
       cardEnding: 'Tarjeta terminada en {last4} · {paidAt} · Proxima renovacion: {renewsAt}',
       viewInvoice: 'Ver factura',
+    },
+    mealTypes: {
+      desayuno: 'Desayuno',
+      almuerzo: 'Almuerzo',
+      merienda: 'Merienda',
+      cena: 'Cena',
     },
   },
 }

@@ -59,7 +59,7 @@ async function saveNote() {
         <h3>{{ t('nutritionist.followUp.foodLogs') }}</h3>
         <div v-if="patient.foodLogs.length" class="bt-list-stack">
           <div v-for="log in patient.foodLogs" :key="log.id ?? `${log.date}-${log.mealType}`" class="bt-meal-row">
-            <span>{{ log.mealType }}</span>
+            <span>{{ t('mealTypes.' + log.mealType, log.mealType) }}</span>
             <div><strong>{{ log.description }}</strong><small>{{ log.date }}</small></div>
             <em>{{ log.calories }} kcal</em>
           </div>

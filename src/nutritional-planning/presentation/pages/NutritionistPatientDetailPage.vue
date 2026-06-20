@@ -96,7 +96,7 @@ function formatKg(value) {
         <h3>{{ t('nutritionist.patientDetail.lastFoodLogs') }}</h3>
         <div v-if="patient.foodLogs?.length" class="bt-list-stack">
           <div v-for="log in patient.foodLogs.slice(-5)" :key="log.id ?? `${log.date}-${log.mealType}`" class="bt-meal-row">
-            <span>{{ log.mealType }}</span>
+            <span>{{ t('mealTypes.' + log.mealType, log.mealType) }}</span>
             <div><strong>{{ log.description }}</strong><small>{{ log.date }}</small></div>
             <em>{{ log.calories }} kcal</em>
           </div>
