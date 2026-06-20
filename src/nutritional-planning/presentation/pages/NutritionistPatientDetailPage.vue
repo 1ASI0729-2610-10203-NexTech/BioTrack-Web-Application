@@ -46,19 +46,19 @@ function formatKg(value) {
           <span>IMC <strong>{{ patient.bmi }} · {{ patient.bmiStatus }}</strong></span>
           <span>Objetivo <strong>{{ patient.nutritionalGoalLabel }}</strong></span>
           <span>Peso objetivo <strong>{{ formatKg(patient.targetWeightKg) }}</strong></span>
-          <span>Presión arterial <strong>{{ patient.systolicPressure }}/{{ patient.diastolicPressure }}</strong></span>
-          <span>Glucosa <strong>{{ patient.basalGlucose }} mg/dL</strong></span>
+          <span>Presión arterial <strong>{{ patient.systolicPressure != null ? `${patient.systolicPressure}/${patient.diastolicPressure}` : '-' }}</strong></span>
+          <span>Glucosa <strong>{{ patient.basalGlucose != null ? `${patient.basalGlucose} mg/dL` : '-' }}</strong></span>
         </div>
         <p class="text-muted">
           Restricciones:
-          {{ patient.dietaryRestrictions.length ? patient.dietaryRestrictions.join(', ') : 'Sin restricciones' }}
+          {{ patient.dietaryRestrictions?.length ? patient.dietaryRestrictions.join(', ') : 'Sin restricciones' }}
         </p>
       </article>
 
       <aside class="bt-plan-side">
         <article class="bt-plan-highlight">
           <span>Plan actual</span>
-          <strong>{{ patient.planStatus }}</strong>
+          <strong>{{ patient.planStatus === 'ACTIVATED' ? 'Activo' : patient.planStatus === 'DRAFT' ? 'Borrador' : patient.planStatus ?? '-' }}</strong>
           <small>{{ patient.dailyCalories ?? 0 }} kcal diarias</small>
         </article>
         <article class="bt-dashboard-panel">
@@ -84,15 +84,15 @@ function formatKg(value) {
       </article>
       <article class="bt-patient-card bt-patient-card--blue">
         <span>Adherencia</span>
-        <strong>{{ patient.adherence.percentage }}%</strong>
-        <small>{{ patient.adherence.label }}</small>
+        <strong>{{ patient.adherence?.percentage ?? 0 }}%</strong>
+        <small>{{ patient.adherence?.label ?? '' }}</small>
       </article>
     </section>
 
     <section v-if="patient" class="bt-plan-grid">
       <article class="bt-dashboard-panel">
         <h3>Últimos registros de comida</h3>
-        <div v-if="patient.foodLogs.length" class="bt-list-stack">
+        <div v-if="patient.foodLogs?.length" class="bt-list-stack">
           <div v-for="log in patient.foodLogs.slice(-5)" :key="log.id ?? `${log.date}-${log.mealType}`" class="bt-meal-row">
             <span>{{ log.mealType }}</span>
             <div><strong>{{ log.description }}</strong><small>{{ log.date }}</small></div>

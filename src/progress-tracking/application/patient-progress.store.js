@@ -133,8 +133,8 @@ export const usePatientProgressStore = defineStore('patient-progress', {
           patientProgressApiService.fetchActivityLogs(patientProfileId),
           patientProgressApiService.fetchWeightRecords(patientProfileId),
         ])
-        const hasInitialWeight = weightRecords.some((record) => record.type === 'INITIAL')
-        if (!hasInitialWeight && profile?.healthData?.weightKg) {
+        const hasInitialWeight = weightRecords.length === 0
+        if (hasInitialWeight && profile?.healthData?.weightKg) {
           const initialRecord = await this.createInitialWeightRecordFromProfile(profile, weightRecords)
           weightRecords = initialRecord ? [...weightRecords, initialRecord] : weightRecords
         }

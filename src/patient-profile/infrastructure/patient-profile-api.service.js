@@ -36,4 +36,20 @@ export const patientProfileApiService = {
     const updated = await apiService.put('/profile/restrictions', { restrictions })
     return PatientProfileAssembler.fromApi(updated)
   },
+
+  async fetchByUserId(_userId) {
+    const payload = await apiService.get('/profile')
+    return payload ? PatientProfileAssembler.fromApi(payload) : null
+  },
+
+  async update(_profileId, data) {
+    const updated = await apiService.put('/profile/health-data', {
+      heightCm: data.heightCm ?? null,
+      weightKg: data.weightKg ?? null,
+      goalWeightKg: data.goalWeightKg ?? null,
+      activityLevel: data.activityLevel ?? null,
+      nutritionalObjective: data.nutritionalObjective ?? null,
+    })
+    return PatientProfileAssembler.fromApi(updated)
+  },
 }

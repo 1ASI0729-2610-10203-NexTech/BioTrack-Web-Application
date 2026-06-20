@@ -53,7 +53,7 @@ export const usePatientPlanStore = defineStore('patient-plan', {
         }
         await syncNutritionAccessForUser(userId)
         const plans = await patientPlanApiService.fetchPlans()
-        const activePlan = plans.find((p) => p.status === 'ACTIVE') ?? null
+        const activePlan = plans.find((p) => p.status === PatientPlanStatus.ACTIVE) ?? null
         this.currentPlan = activePlan
         this.currentPlanId = activePlan?.id ?? null
         this.planStatus = activePlan?.status ?? PatientPlanStatus.NONE
