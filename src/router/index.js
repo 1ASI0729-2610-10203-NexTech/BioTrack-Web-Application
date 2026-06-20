@@ -22,6 +22,7 @@ import NutritionistEvaluationPage from '../nutritional-planning/presentation/pag
 import NutritionistPlansPage from '../nutritional-planning/presentation/pages/NutritionistPlansPage.vue'
 import NutritionistCreatePlanPage from '../nutritional-planning/presentation/pages/NutritionistCreatePlanPage.vue'
 import NutritionistFollowUpPage from '../nutritional-planning/presentation/pages/NutritionistFollowUpPage.vue'
+import ConsultationsPage from '../nutritional-planning/presentation/pages/ConsultationsPage.vue'
 
 // Patient Profile
 import PatientProfilePage from '../patient-profile/presentation/pages/PatientProfilePage.vue'
@@ -76,8 +77,7 @@ const router = createRouter({
     { path: '/nutritionist-follow-up/:patientId', component: NutritionistFollowUpPage, meta: nutritionistMeta },
     {
       path: '/consultations',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.consultations', eyebrowKey: 'placeholders.biotrack' },
+      component: ConsultationsPage,
       meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA', 'PATIENT', 'NUTRITIONIST'] },
     },
     {
