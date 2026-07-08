@@ -53,8 +53,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: resolveHomeRoute },
-    { path: '/login', component: LoginPage, meta: { layout: 'public', guestOnly: true } },
-    { path: '/register', component: RegisterPage, meta: { layout: 'public', guestOnly: true } },
+    { path: '/login', component: LoginPage, meta: { layout: 'public' } },
+    { path: '/register', component: RegisterPage, meta: { layout: 'public' } },
 
     // ── corporate-management BC ─────────────────────────────────────────
     { path: '/corporate-dashboard', component: CorporateDashboardPage, meta: corporateMeta },
