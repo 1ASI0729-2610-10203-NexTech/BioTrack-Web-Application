@@ -35,49 +35,45 @@ function mapWeightRecord(payload) {
 }
 
 export const patientProgressApiService = {
-  // TS06 — GET /api/v1/patients/{id}/food-log
-  async fetchFoodLogs(patientId) {
-    const logs = await apiService.get(`/patients/${patientId}/food-log`)
-    return (Array.isArray(logs) ? logs : []).map(mapFoodLog)
+  // No GET food-log endpoint in backend — return empty
+  async fetchFoodLogs(_patientId) {
+    return []
   },
 
-  // TS06 — POST /api/v1/patients/{id}/food-log
+  // POST /api/v1/progress/food-entries
   async createFoodLog(patientId, payload) {
-    const created = await apiService.post(`/patients/${patientId}/food-log`, payload)
+    const created = await apiService.post('/progress/food-entries', { ...payload, patientId })
     return mapFoodLog(created)
   },
 
-  // TS06 — GET /api/v1/patients/{id}/activity-log
-  async fetchActivityLogs(patientId) {
-    const logs = await apiService.get(`/patients/${patientId}/activity-log`)
+  // GET /api/v1/progress/activity-history
+  async fetchActivityLogs(_patientId) {
+    const logs = await apiService.get('/progress/activity-history').catch(() => [])
     return (Array.isArray(logs) ? logs : []).map(mapActivityLog)
   },
 
-  // TS06 — POST /api/v1/patients/{id}/activity-log
+  // POST /api/v1/progress/activity-entries
   async createActivityLog(patientId, payload) {
-    const created = await apiService.post(`/patients/${patientId}/activity-log`, payload)
+    const created = await apiService.post('/progress/activity-entries', { ...payload, patientId })
     return mapActivityLog(created)
   },
 
-  // TS06 — GET /api/v1/patients/{id}/weight
-  async fetchWeightRecords(patientId) {
-    const records = await apiService.get(`/patients/${patientId}/weight`)
-    return (Array.isArray(records) ? records : []).map(mapWeightRecord)
+  // No GET weight endpoint in backend — return empty
+  async fetchWeightRecords(_patientId) {
+    return []
   },
 
-  async fetchRawWeightRecords(patientId) {
-    const records = await apiService.get(`/patients/${patientId}/weight`)
-    return Array.isArray(records) ? records : []
+  async fetchRawWeightRecords(_patientId) {
+    return []
   },
 
-  // TS06 — PATCH /api/v1/patients/{id}/weight
+  // POST /api/v1/progress/weight-records
   async createWeightRecord(patientId, payload) {
-    const created = await apiService.patch(`/patients/${patientId}/weight`, payload)
+    const created = await apiService.post('/progress/weight-records', { ...payload, patientId })
     return mapWeightRecord(created)
   },
 
   async updateWeightRecord(patientId, payload) {
-    const updated = await apiService.patch(`/patients/${patientId}/weight`, payload)
-    return mapWeightRecord(updated)
+    return this.createWeightRecord(patientId, payload)
   },
 }

@@ -2,21 +2,21 @@ import { apiService } from '../../shared/infrastructure/api.service'
 import { PatientProfileAssembler } from './patient-profile.assembler'
 
 export const patientProfileApiService = {
-  // TS04 — GET /api/v1/patients/{id}/health-profile
-  async fetchByUserId(userId) {
-    const payload = await apiService.get(`/patients/${userId}/health-profile`)
+  // GET /api/v1/profile
+  async fetchByUserId(_userId) {
+    const payload = await apiService.get('/profile')
     return payload ? PatientProfileAssembler.fromApi(payload) : null
   },
 
-  // TS04 — POST /api/v1/patients/{id}/health-profile
-  async create(userId, payload) {
-    const created = await apiService.post(`/patients/${userId}/health-profile`, payload)
+  // PUT /api/v1/profile/health-data
+  async create(_userId, payload) {
+    const created = await apiService.put('/profile/health-data', payload)
     return PatientProfileAssembler.fromApi(created)
   },
 
-  // PATCH /api/v1/patients/{id}/health-profile
-  async update(userId, payload) {
-    const updated = await apiService.patch(`/patients/${userId}/health-profile`, payload)
+  // PUT /api/v1/profile/health-data
+  async update(_userId, payload) {
+    const updated = await apiService.put('/profile/health-data', payload)
     return PatientProfileAssembler.fromApi(updated)
   },
 

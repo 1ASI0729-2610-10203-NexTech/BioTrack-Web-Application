@@ -15,22 +15,22 @@ function mapPlan(payload) {
   return new PatientPlan({
     id: payload.id,
     title: payload.name,
-    nutritionist: payload.nutritionistName ?? 'Nutricionista',
-    date: formatDate(payload.createdAt),
-    dailyCalories: payload.dailyCalories,
-    goal: payload.objective,
+    nutritionist: payload.nutritionistName ?? 'Nutricionista asignado',
+    date: formatDate(payload.createdAt ?? payload.updatedAt),
+    dailyCalories: payload.dailyCalories ?? payload.calorieTarget,
+    goal: payload.objective ?? '',
     macros: {
-      proteins: payload.proteinPercentage,
-      carbohydrates: payload.carbohydratePercentage,
-      fats: payload.fatPercentage,
+      proteins: payload.proteinPercentage ?? payload.proteinGrams,
+      carbohydrates: payload.carbohydratePercentage ?? payload.carbsGrams,
+      fats: payload.fatPercentage ?? payload.fatGrams,
     },
     status: payload.status,
   })
 }
 
 export const patientPlanApiService = {
-  async fetchCurrentPlan(patientId) {
-    const plans = await apiService.get('/nutritional-plans', { params: { patientId } })
+  async fetchCurrentPlan(_patientId) {
+    const plans = await apiService.get('/nutritional-plans')
     const plan = Array.isArray(plans) ? plans.at(-1) : plans
     if (!plan) return null
     return {

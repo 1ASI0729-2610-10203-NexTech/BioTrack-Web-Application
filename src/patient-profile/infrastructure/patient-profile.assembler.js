@@ -48,10 +48,13 @@ export const PatientProfileAssembler = {
       dietaryRestrictions: payload.dietaryRestrictions?.length
         ? payload.dietaryRestrictions
         : ['Sin restricciones'],
-      nutritionalGoal: goalByApi[payload.nutritionalGoal] ?? payload.nutritionalGoal,
+      nutritionalGoal:
+        goalByApi[payload.nutritionalGoal ?? payload.nutritionalObjective] ??
+        payload.nutritionalGoal ??
+        payload.nutritionalObjective,
       restrictionsConfirmed: payload.restrictionsConfirmed,
       nutritionist: payload.nutritionist ?? 'Dra. Ana Torres',
-      targetWeightKg: payload.targetWeightKg,
+      targetWeightKg: payload.targetWeightKg ?? payload.goalWeightKg,
       createdAt: payload.createdAt,
       updatedAt: payload.updatedAt,
     })

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { syncNutritionAccessForUser } from '../../subscriptions-billing/application/subscription-nutrition-access.service'
 import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
+import { apiService } from '../../shared/infrastructure/api.service'
 
 const SESSION_STORAGE_KEY = 'biotrack.mock-session'
 const LEGACY_SESSION_KEYS = ['currentUser', 'authSession', 'token', 'accessToken', 'mockToken']
@@ -10,17 +11,19 @@ function persistSession(user) {
 }
 
 function mapSessionUser(user, currentUser = {}) {
-  const [firstName = user.name, ...lastNameParts] = String(user.name ?? '').split(' ')
+  const firstName = user.firstName ?? String(user.name ?? '').split(' ')[0] ?? ''
+  const lastName = user.lastName ?? String(user.name ?? '').split(' ').slice(1).join(' ') ?? ''
   return {
     ...currentUser,
     id: user.id,
     email: user.email,
     role: user.role,
     firstName,
-    lastName: lastNameParts.join(' '),
-    name: user.name,
+    lastName,
+    name: user.name ?? [firstName, lastName].filter(Boolean).join(' '),
     status: user.status,
     emailVerified: user.emailVerified,
+    token: user.token ?? currentUser.token,
   }
 }
 
@@ -87,6 +90,9 @@ export const useIdentityAccessStore = defineStore('identity-access', {
         return false
       }
 
+      if (matchedUser.token) {
+        apiService.setAccessToken(matchedUser.token)
+      }
       this.currentUser = mapSessionUser(matchedUser)
       this.role = matchedUser.role
       this.isAuthenticated = true
@@ -155,6 +161,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
       this.registerStatus = createIdleRegisterState()
     },
     logout() {
+      apiService.setAccessToken(null)
       this.currentUser = null
       this.isAuthenticated = false
       this.role = null

@@ -1,15 +1,15 @@
 import { apiService } from '../../shared/infrastructure/api.service'
 
 export const identityAccessApiService = {
-  // TS02 — POST /api/v1/auth/login
+  // POST /api/v1/auth/tokens
   async login(credentials) {
-    return apiService.post('/auth/login', {
+    return apiService.post('/auth/tokens', {
       email: String(credentials.email ?? '').trim().toLowerCase(),
       password: credentials.password,
     })
   },
 
-  // TS01 — POST /api/v1/users/register
+  // POST /api/v1/users
   async register(command) {
     const roleByAccountType = {
       paciente: 'PACIENTE',
@@ -21,7 +21,7 @@ export const identityAccessApiService = {
       ? command.role
       : roleByAccountType[command.accountType]
 
-    return apiService.post('/users/register', {
+    return apiService.post('/users', {
       firstName: command.firstName,
       lastName: command.lastName,
       email: String(command.email ?? '').trim().toLowerCase(),
@@ -30,9 +30,9 @@ export const identityAccessApiService = {
     })
   },
 
-  // TS03 — GET /api/v1/auth/verify-email?token={token}
+  // POST /api/v1/auth/email-verifications
   async verifyEmail(token) {
-    return apiService.get('/auth/verify-email', { params: { token } })
+    return apiService.post('/auth/email-verifications', { token })
   },
 
   async fetchUserById(userId) {
