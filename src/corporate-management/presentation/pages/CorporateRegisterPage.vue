@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import { corporateRegisterApiService } from '../../infrastructure/corporate-register-api.service'
+
+const { t } = useI18n()
 
 const form = ref({
   name: '',
@@ -27,13 +30,11 @@ async function handleSubmit() {
 
 <template>
   <section class="bt-corporate-dashboard">
-
-    <!-- Cabecera -->
     <header class="bt-dashboard-heading">
       <div>
-        <p class="microcopy">US12 · ESCENARIO 1</p>
-        <h1>Registrar empresa</h1>
-        <p class="text-muted">Perfil corporativo creado</p>
+        <p class="microcopy">{{ t('corporate.register.eyebrow') }}</p>
+        <h1>{{ t('corporate.register.title') }}</h1>
+        <p class="text-muted">{{ t('corporate.register.subtitle') }}</p>
       </div>
       <div
           class="bt-kpi-card"
@@ -43,28 +44,24 @@ async function handleSubmit() {
           : 'background: var(--bt-surface); border-color: var(--bt-border);'"
       >
         <span :style="submitted ? 'color: var(--bt-success-dark);' : 'color: var(--bt-text-muted);'">
-          {{ submitted ? 'Creado ✓' : 'Pendiente' }}
+          {{ submitted ? t('corporate.register.createdStatus') : t('corporate.register.pendingStatus') }}
         </span>
       </div>
     </header>
 
-    <!-- Banner éxito -->
     <div
         v-if="submitted"
         class="bt-panel-note"
         style="border-radius: 8px; padding: 12px 16px; background: var(--bt-success-soft); border-color: var(--bt-success);"
     >
-      ✓ <strong>Perfil corporativo creado</strong> — Procede a validar el RUC para completar la verificación.
+      {{ t('corporate.register.successMessage') }}
     </div>
 
-    <!-- Layout principal -->
     <div class="bt-form-with-side">
-
-      <!-- Formulario -->
       <article class="bt-dashboard-panel" style="align-content: start;">
         <div class="bt-two-col-form">
           <label>
-            Razón social
+            {{ t('corporate.register.legalName') }}
             <input
                 v-model="form.name"
                 class="p-inputtext"
@@ -74,7 +71,7 @@ async function handleSubmit() {
             />
           </label>
           <label>
-            RUC
+            {{ t('corporate.register.ruc') }}
             <input
                 v-model="form.ruc"
                 class="p-inputtext"
@@ -84,29 +81,29 @@ async function handleSubmit() {
             />
           </label>
           <label>
-            Sector
+            {{ t('corporate.register.sector') }}
             <input
                 v-model="form.sector"
                 class="p-inputtext"
                 :class="{ 'bt-input-success': form.sector }"
-                placeholder="Tecnología"
+                :placeholder="t('corporate.register.sectorPlaceholder')"
                 :disabled="submitted"
             />
           </label>
           <label>
-            País
+            {{ t('corporate.register.country') }}
             <input
                 v-model="form.country"
                 class="p-inputtext"
                 :class="{ 'bt-input-success': form.country }"
-                placeholder="Perú"
+                :placeholder="t('corporate.register.countryPlaceholder')"
                 :disabled="submitted"
             />
           </label>
         </div>
 
         <label>
-          Ciudad
+          {{ t('corporate.register.city') }}
           <input
               v-model="form.city"
               class="p-inputtext"
@@ -117,12 +114,12 @@ async function handleSubmit() {
         </label>
 
         <p class="text-muted bt-small" style="margin: 0; padding: 12px 16px; background: var(--bt-primary-soft); border-radius: var(--radius-md);">
-          Siguiente: validar el RUC mediante consulta fiscal automática.
+          {{ t('corporate.register.nextStep') }}
         </p>
 
         <div v-if="!submitted">
           <Button
-              :label="loading ? 'Registrando...' : 'Registrar empresa'"
+              :label="loading ? t('corporate.register.registering') : t('corporate.register.registerCompany')"
               :disabled="loading"
               class="bt-dashboard-export"
               @click="handleSubmit"
@@ -130,43 +127,37 @@ async function handleSubmit() {
         </div>
       </article>
 
-      <!-- Panel lateral -->
       <div style="display: grid; gap: 14px; align-content: start;">
-
-        <!-- Estado -->
         <article class="bt-kpi-card bt-kpi-card--primary" style="min-height: auto;">
-          <span>Estado</span>
-          <strong>Pendiente verificación</strong>
+          <span>{{ t('corporate.register.status') }}</span>
+          <strong>{{ t('corporate.register.pendingVerification') }}</strong>
         </article>
 
-        <!-- Próximos pasos -->
         <article class="bt-dashboard-panel" style="padding: 24px;">
-          <h3 style="margin: 0 0 16px;">Próximos pasos</h3>
+          <h3 style="margin: 0 0 16px;">{{ t('corporate.register.nextSteps') }}</h3>
           <ul class="bt-steps-list">
             <li>
-              <strong>Empresa registrada</strong>
-              <span>{{ submitted ? 'Completado ✓' : 'Pendiente' }}</span>
+              <strong>{{ t('corporate.register.companyRegistered') }}</strong>
+              <span>{{ submitted ? t('common.completed') : t('corporate.register.pendingStatus') }}</span>
             </li>
             <li>
-              <strong>Validar RUC</strong>
-              <span>Pendiente</span>
+              <strong>{{ t('corporate.register.validateRuc') }}</strong>
+              <span>{{ t('corporate.register.pendingStatus') }}</span>
             </li>
             <li>
-              <strong>Subir colaboradores</strong>
-              <span>Pendiente</span>
+              <strong>{{ t('corporate.register.uploadCollaborators') }}</strong>
+              <span>{{ t('corporate.register.pendingStatus') }}</span>
             </li>
           </ul>
 
           <Button
-              label="Validar RUC →"
+              :label="t('corporate.register.validateRucButton')"
               :disabled="!submitted"
               class="bt-dashboard-export"
               style="width: 100%; margin-top: 20px;"
           />
         </article>
-
       </div>
     </div>
-
   </section>
 </template>

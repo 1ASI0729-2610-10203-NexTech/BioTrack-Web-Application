@@ -1,4 +1,5 @@
 import { DomainError } from '../../../shared/domain/domain-error'
+import { t } from '../../../locales'
 
 export class BMI {
   constructor(value) {
@@ -17,9 +18,9 @@ export function calculateBMI(weightKg, heightCm) {
 
 export function getBMIStatus(bmiValue) {
   const value = Number(bmiValue)
-  if (!Number.isFinite(value) || value <= 0) return 'Pendiente'
-  if (value < 18.5) return 'Bajo peso'
-  if (value < 25) return 'Normal'
-  if (value < 30) return 'Sobrepeso'
-  return 'Obesidad'
+  if (!Number.isFinite(value) || value <= 0) return t('stores.bmi.pending')
+  if (value < 18.5) return t('stores.bmi.underweight')
+  if (value < 25) return t('stores.bmi.normal')
+  if (value < 30) return t('stores.bmi.overweight')
+  return t('stores.bmi.obesity')
 }

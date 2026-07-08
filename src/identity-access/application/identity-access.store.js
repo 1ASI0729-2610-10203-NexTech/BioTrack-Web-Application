@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { apiService } from '../../shared/infrastructure/api.service'
+import { t } from '../../locales'
 import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
 
 const SESSION_STORAGE_KEY = 'biotrack.mock-session'
@@ -19,7 +20,8 @@ function mapSessionUser(user, currentUser = {}) {
     role: user.role,
     firstName: user.firstName ?? '',
     lastName: user.lastName ?? '',
-    name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+    name: user.name ?? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+    avatarUrl: user.avatarUrl ?? '',
     status: user.status,
     emailVerified: user.emailVerified,
   }
@@ -80,7 +82,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
 
         this.loginStatus = {
           status: 'success',
-          message: 'Redirigiendo al Dashboard Principal...',
+          message: t('auth.loginRedirecting'),
         }
         return true
       } catch {
@@ -90,8 +92,8 @@ export const useIdentityAccessStore = defineStore('identity-access', {
         this.role = null
         this.error =
           this.loginAttempts >= 5
-            ? 'Cuenta bloqueada temporalmente por demasiados intentos.'
-            : `Email o contraseña inválidos. Intento ${this.loginAttempts} de 5.`
+            ? t('auth.loginBlockedMessage')
+            : t('auth.invalidCredentialsAttempt', { count: this.loginAttempts })
         this.loginStatus = { status: 'error', message: this.error }
         return false
       } finally {
@@ -106,11 +108,11 @@ export const useIdentityAccessStore = defineStore('identity-access', {
         const result = await identityAccessApiService.register(command)
         this.registerStatus = {
           status: 'success',
-          message: 'Tu cuenta fue creada. Ya puedes iniciar sesión.',
+          message: t('auth.registerCreatedMessage'),
         }
         return result
       } catch (err) {
-        this.error = err?.message ?? 'Error al registrar la cuenta.'
+        this.error = err?.message ?? t('auth.registerErrorMessage')
         this.registerStatus = { status: 'error', message: this.error }
         throw err
       } finally {

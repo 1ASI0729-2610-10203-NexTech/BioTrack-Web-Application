@@ -1,3 +1,5 @@
+import { t } from '../../../locales'
+
 function normalizeGoal(goal) {
   return goal?.value ?? goal
 }
@@ -49,15 +51,16 @@ export function calculateTargetWeightByGoal(initialWeight, nutritionalGoal) {
 
 export function buildWeightGoalMessage(targetWeight, initialWeight, nutritionalGoal = null) {
   if (targetWeight == null || initialWeight == null || !nutritionalGoal) {
-    return 'Selecciona un objetivo nutricional para calcular tu peso recomendado.'
+    return t('progressTracking.recommendations.selectGoal')
   }
 
   const goal = normalizeGoal(nutritionalGoal)
+  const formattedTargetWeight = Number(targetWeight).toFixed(1)
   if (goal === 'LOSE_WEIGHT' || goal === 'bajar-peso') {
-    return `Tu peso objetivo recomendado es ${Number(targetWeight).toFixed(1)} kg según tu objetivo de bajar de peso.`
+    return t('progressTracking.recommendations.loseWeight', { targetWeight: formattedTargetWeight })
   }
   if (goal === 'GAIN_MUSCLE' || goal === 'ganar-masa') {
-    return `Tu peso objetivo recomendado es ${Number(targetWeight).toFixed(1)} kg según tu objetivo de ganar masa muscular.`
+    return t('progressTracking.recommendations.gainMass', { targetWeight: formattedTargetWeight })
   }
-  return `Tu peso objetivo recomendado es mantenerte alrededor de ${Number(targetWeight).toFixed(1)} kg.`
+  return t('progressTracking.recommendations.maintainWeight', { targetWeight: formattedTargetWeight })
 }

@@ -45,7 +45,7 @@ const profileIncomplete = computed(
   () => !patientProfileStore.isProfileComplete,
 );
 const hasNutritionSubscription = computed(() =>
-  ["Profesional", "Premium"].includes(billingStore.activeSubscription?.planName),
+  ['basic', 'premium'].includes(billingStore.activeSubscription?.planId),
 );
 const lockedPlanMessage = computed(() => {
   if (!identityAccessStore.hasVerifiedAccount) {

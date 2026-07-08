@@ -1,9 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ProgressCard from '../components/progress-card.vue'
 import ProgressAlert from '../components/progress-alert.vue'
 import { loadWeeklyWeightSnapshot, updateWeeklyWeight } from '../../application/use-cases/update-weekly-weight.use-case.js'
 
+const { t } = useI18n()
 const snapshot = ref(null)
 const weightInput = ref('')
 
@@ -21,7 +23,10 @@ const variationLabel = computed(() => {
 
 const goalLine = computed(() => {
   if (!snapshot.value) return ''
-  return `Meta: ${snapshot.value.goalWeight} kg · Faltan ${snapshot.value.remainingToGoalKg.toFixed(0)} kg`
+  return t('progressTracking.weeklyWeight.goalLine', {
+    goal: snapshot.value.goalWeight,
+    remaining: snapshot.value.remainingToGoalKg.toFixed(0),
+  })
 })
 
 async function handleSave() {
@@ -36,19 +41,19 @@ async function handleSave() {
   <div v-if="snapshot">
     <header class="pt-page-header">
       <div>
-        <p class="pt-eyebrow pt-eyebrow--accent">US29 · Escenario 1</p>
-        <h1 class="pt-title">Actualizar peso semanal</h1>
+        <p class="pt-eyebrow pt-eyebrow--accent">{{ t('progressTracking.weeklyWeight.eyebrow') }}</p>
+        <h1 class="pt-title">{{ t('progressTracking.weeklyWeight.title') }}</h1>
         <p class="pt-subtitle">{{ snapshot.weekLabel }}</p>
       </div>
-      <span class="pt-badge pt-badge--success pt-badge--circle">✓ Actualizado</span>
+      <span class="pt-badge pt-badge--success pt-badge--circle">{{ t('progressTracking.weeklyWeight.updatedBadge') }}</span>
     </header>
 
-    <ProgressAlert message="✓ Peso actualizado — Gráfico de progreso actualizado." class="pt-alert-space" />
+    <ProgressAlert :message="t('progressTracking.weeklyWeight.updatedMessage')" class="pt-alert-space" />
 
     <div class="pt-grid-12">
       <div class="pt-span-6">
         <ProgressCard>
-          <label class="pt-form-label" for="current-weight-input">Peso actual (kg)</label>
+          <label class="pt-form-label" for="current-weight-input">{{ t('progressTracking.weeklyWeight.currentWeightKg') }}</label>
           <div class="pt-input-wrap">
             <input
               id="current-weight-input"
@@ -65,36 +70,36 @@ async function handleSave() {
 
           <div class="pt-mini-grid">
             <div class="pt-muted-box">
-              <p class="pt-metric-label">Peso anterior</p>
+              <p class="pt-metric-label">{{ t('progressTracking.weeklyWeight.previousWeight') }}</p>
               <p class="pt-metric-value pt-metric-value--blue">{{ snapshot.previousWeight.toFixed(1) }} kg</p>
             </div>
             <div class="pt-surface-emerald">
-              <p class="pt-metric-label">Variación</p>
+              <p class="pt-metric-label">{{ t('progressTracking.weeklyWeight.variation') }}</p>
               <p class="pt-metric-value">{{ variationLabel }}</p>
             </div>
           </div>
 
           <div class="pt-muted-box pt-bmi-row">
             <div class="pt-bmi-row__inner">
-              <p class="pt-metric-label">IMC</p>
+              <p class="pt-metric-label">{{ t('progressTracking.weeklyWeight.bmi') }}</p>
               <p class="pt-metric-value pt-metric-value--green">{{ snapshot.bmi.toFixed(1) }}</p>
             </div>
           </div>
 
-          <button type="button" class="pt-btn pt-btn--primary pt-save-btn" aria-label="Guardar peso semanal" @click="handleSave">
-            Guardar peso
+          <button type="button" class="pt-btn pt-btn--primary pt-save-btn" :aria-label="t('progressTracking.weeklyWeight.saveWeight')" @click="handleSave">
+            {{ t('progressTracking.weeklyWeight.saveWeight') }}
           </button>
         </ProgressCard>
       </div>
 
       <div class="pt-span-6 pt-stack">
         <div class="pt-panel-blue">
-          <p class="pt-panel-blue__label">Peso actual</p>
+          <p class="pt-panel-blue__label">{{ t('progressTracking.weeklyWeight.currentWeight') }}</p>
           <p class="pt-panel-blue__value">{{ snapshot.currentWeight.toFixed(1) }} kg</p>
           <p class="pt-panel-blue__hint">{{ goalLine }}</p>
         </div>
 
-        <ProgressCard title="Últimas semanas">
+        <ProgressCard :title="t('progressTracking.weeklyWeight.lastWeeks')">
           <ul class="pt-week-list">
             <li
               v-for="row in snapshot.latestWeeks"

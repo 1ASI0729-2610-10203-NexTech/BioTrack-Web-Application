@@ -1,4 +1,8 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 const MEAL_ICONS = {
   breakfast: 'pi pi-sun',
   lunch: 'pi pi-th-large',
@@ -28,7 +32,7 @@ function iconFor(mealKey) {
         <p class="pt-food-row__title">{{ item.mealLabel }}</p>
         <p class="pt-food-row__desc">{{ item.detailLine }}</p>
       </div>
-      <span v-if="item.completed" class="pt-food-check" aria-label="Registro completo">✓</span>
+      <span v-if="item.completed" class="pt-food-check" :aria-label="t('progressTracking.charts.recordComplete')">✓</span>
     </li>
   </ul>
 </template>

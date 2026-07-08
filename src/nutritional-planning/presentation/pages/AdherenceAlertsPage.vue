@@ -79,7 +79,7 @@ onMounted(() => nutritionistStore.fetchAssignedPatients())
         <div class="bt-adherence-card__stats">
           <span>{{ t('adherenceAlerts.consumed') }}: <strong>{{ patient.adherence?.consumed ?? 0 }} kcal</strong></span>
           <span>{{ t('adherenceAlerts.target') }}: <strong>{{ patient.adherence?.target ?? 0 }} kcal</strong></span>
-          <span v-if="patient.planStatus === 'ACTIVATED'">{{ t('nutritionist.patientDetail.planActive', 'Activo') }}</span>
+          <span v-if="patient.planStatus === 'ACTIVATED'">{{ t('nutritionist.patientDetail.planActive') }}</span>
         </div>
 
         <Button

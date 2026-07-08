@@ -5,6 +5,7 @@ import { ActivityRecord } from '../domain/model/activity-record.entity'
 import { WeightRecord } from '../domain/model/weight-record.entity'
 import { ProgressSummary } from '../domain/model/progress-summary.entity'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { t } from '../../locales'
 import { patientPlanApiService } from '../../nutritional-planning/infrastructure/patient-plan-api.service'
 import { patientProfileApiService } from '../../patient-profile/infrastructure/patient-profile-api.service'
 import { calculateBMI, getBMIStatus } from '../../patient-profile/domain/model/bmi.value-object'
@@ -34,10 +35,10 @@ function getWeekStart() {
 async function resolvePatientContext() {
   const identityStore = useIdentityAccessStore()
   const userId = identityStore.currentUser?.id
-  if (!userId) throw new Error('No existe un usuario autenticado.')
+  if (!userId) throw new Error(t('auth.userRequired'))
   const planResponse = await patientPlanApiService.fetchCurrentPlan(userId)
   const profile = await patientProfileApiService.fetchByUserId(userId)
-  if (!profile?.id) throw new Error('No existe un perfil de paciente asociado al usuario.')
+  if (!profile?.id) throw new Error(t('progressTracking.store.patientProfileRequired'))
   return {
     userId,
     patientProfileId: profile.id,
@@ -147,7 +148,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         this.calculateWeeklyAdherence()
         return this.progressSummary
       } catch (error) {
-        this.error = 'No se pudo cargar el progreso.'
+        this.error = t('progressTracking.store.loadProgress')
         throw error
       } finally {
         this.loading = false
@@ -162,7 +163,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       )
 
       if (duplicatedMeal) {
-        this.error = 'Ya existe un registro para ese tipo de comida hoy.'
+        this.error = t('progressTracking.store.duplicateMeal')
         return false
       }
 
@@ -238,7 +239,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
       this.error = ''
       this.weightSavedRecently = false
       if (this.weightRecords.some((record) => record.date === weightRecord.date)) {
-        this.error = 'Ya existe un registro de peso para esa fecha.'
+        this.error = t('progressTracking.store.duplicateWeight')
         return false
       }
       this.loading = true
@@ -309,7 +310,7 @@ export const usePatientProgressStore = defineStore('patient-progress', {
         weightKg: profile.healthData.weightKg,
         type: 'INITIAL',
         source: 'HEALTH_PROFILE',
-        comment: 'Peso inicial registrado desde perfil de salud',
+        comment: t('progressTracking.store.initialWeightComment'),
       })
     },
   },

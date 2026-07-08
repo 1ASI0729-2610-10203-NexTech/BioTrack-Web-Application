@@ -1,56 +1,63 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ProgressCard from '../components/progress-card.vue'
 import MetricCard from '../components/metric-card.vue'
 import { getAdherenceSummary } from '../../application/use-cases/get-adherence-summary.use-case.js'
 
+const { t } = useI18n()
 const summary = ref(null)
 
 onMounted(async () => {
   summary.value = await getAdherenceSummary()
 })
 
-const alertLabel = computed(() => (summary.value?.nutritionistAlertSent ? 'Enviada' : 'No enviada'))
+const alertLabel = computed(() => (summary.value?.nutritionistAlertSent ? t('common.sent') : t('common.notSent')))
 </script>
 
 <template>
   <div v-if="summary">
     <header class="pt-page-header">
       <div>
-        <p class="pt-eyebrow">US31 · Escenario 1</p>
-        <h1 class="pt-title">Adherencia al plan</h1>
+        <p class="pt-eyebrow">{{ t('progressTracking.adherencePlan.eyebrow') }}</p>
+        <h1 class="pt-title">{{ t('progressTracking.adherencePlan.title') }}</h1>
         <p class="pt-subtitle">{{ summary.weekLabel }}</p>
       </div>
-      <span class="pt-badge pt-badge--soft-blue pt-badge--circle" aria-label="Estado del cálculo">Calculado ✓</span>
+      <span class="pt-badge pt-badge--soft-blue pt-badge--circle" :aria-label="t('progressTracking.adherencePlan.calculatedAria')">
+        {{ t('progressTracking.adherencePlan.calculatedBadge') }}
+      </span>
     </header>
 
     <div class="pt-metric-grid pt-four-cols">
       <MetricCard
         variant="blue"
-        label="Adherencia semanal"
+        :label="t('progressTracking.adherencePlan.weeklyAdherence')"
         :value="`${summary.weeklyAdherence}%`"
-        hint="Buen cumplimiento"
+        :hint="t('progressTracking.adherencePlan.goodCompliance')"
       />
       <MetricCard
-        label="Días registrados"
+        :label="t('progressTracking.adherencePlan.registeredDays')"
         :value="`${summary.registeredDays}/${summary.totalDays}`"
       />
       <MetricCard
-        label="Comidas según plan"
+        :label="t('progressTracking.adherencePlan.mealsAccordingToPlan')"
         :value="`${summary.mealsAccordingToPlan}%`"
         value-tone="green"
       />
       <MetricCard
-        label="Alerta nutricionista"
+        :label="t('progressTracking.adherencePlan.nutritionistAlert')"
         :value="alertLabel"
         :value-tone="summary.nutritionistAlertSent ? 'default' : 'green'"
       />
     </div>
 
-    <ProgressCard class="pt-detail-card" title="Detalle por día">
+    <ProgressCard class="pt-detail-card" :title="t('progressTracking.adherencePlan.detailByDay')">
       <div class="pt-day-bars" role="list">
         <div v-for="row in summary.dayDetails" :key="row.day" class="pt-day-bar" role="listitem">
-          <div class="pt-day-bar__col" :aria-label="`Adherencia ${row.day} ${row.percent} por ciento`">
+          <div
+            class="pt-day-bar__col"
+            :aria-label="t('progressTracking.adherencePlan.dayAdherenceAria', { day: row.day, percent: row.percent })"
+          >
             <div
               v-if="row.percent === 0"
               class="pt-day-bar__fill pt-day-bar__fill--muted pt-day-bar__fill--empty"

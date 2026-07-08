@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { HealthData } from '../domain/model/health-data.value-object'
 import { calculateBMI, getBMIStatus } from '../domain/model/bmi.value-object'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { t } from '../../locales'
 import { patientProgressApiService } from '../../progress-tracking/infrastructure/patient-progress-api.service'
 import {
   buildWeightGoalMessage,
@@ -99,11 +100,11 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     },
     goalLabel(state) {
       const labels = {
-        'bajar-peso': 'Bajar de peso',
-        'mantener-peso': 'Mantener peso',
-        'ganar-masa': 'Ganar masa muscular',
+        'bajar-peso': t('nutritionalGoal.loseWeight'),
+        'mantener-peso': t('nutritionalGoal.maintainWeight'),
+        'ganar-masa': t('nutritionalGoal.gainMass'),
       }
-      return labels[state.nutritionalGoal?.value] ?? 'Sin objetivo'
+      return labels[state.nutritionalGoal?.value] ?? t('stores.patientProfile.noGoal')
     },
   },
   actions: {
@@ -111,7 +112,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       if (this.profile) return this.profile
       const identityStore = useIdentityAccessStore()
       const userId = identityStore.currentUser?.id
-      if (!userId) throw new Error('No existe un usuario autenticado.')
+      if (!userId) throw new Error(t('auth.userRequired'))
 
       const createdProfile = await patientProfileApiService.create({
         userId,
@@ -191,7 +192,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         await this.syncEligibleNutritionAccess()
         return this.healthData
       } catch (error) {
-        this.error = 'No se pudieron guardar los datos'
+        this.error = t('stores.patientProfile.saveHealthData')
         throw error
       } finally {
         this.loading = false
@@ -225,14 +226,14 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         this.checkProfileCompletion()
         await this.syncEligibleNutritionAccess()
       } catch (error) {
-        this.error = 'No se pudo guardar el objetivo nutricional.'
+        this.error = t('stores.patientProfile.saveGoal')
         throw error
       }
     },
     async saveDietaryRestrictions(restrictions) {
       if (!this.profile) await this.fetchPatientProfile()
       if (!this.profile) await this.ensurePatientProfile()
-      const normalizedRestrictions = restrictions.includes('Sin restricciones') ? [] : restrictions
+      const normalizedRestrictions = restrictions.includes(t('dietaryRestrictions.noRestrictions')) ? [] : restrictions
       const updatedProfile = await patientProfileApiService.updateRestrictions(normalizedRestrictions)
       this.profile = updatedProfile
       this.dietaryRestrictions = updatedProfile.dietaryRestrictions
@@ -286,7 +287,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         weightKg,
         type: 'INITIAL',
         source: 'HEALTH_PROFILE',
-        comment: 'Peso inicial registrado desde perfil de salud',
+        comment: t('stores.patientProfile.initialWeightComment'),
       }
 
       if (!initialRecord) return patientProgressApiService.createWeightRecord(payload)

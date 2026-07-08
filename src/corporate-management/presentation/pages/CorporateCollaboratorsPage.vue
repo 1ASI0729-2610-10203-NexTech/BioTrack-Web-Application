@@ -7,7 +7,7 @@ import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import { corporateCollaboratorApiService } from '../../infrastructure/corporate-collaborator-api.service'
 
-const { t } = useI18n()
+const { locale, t } = useI18n()
 const COMPANY_ID = 1
 
 const collaborators = ref([])
@@ -35,6 +35,10 @@ function handleFileChange(event) {
   uploadError.value = ''
 }
 
+function openFilePicker() {
+  fileInput.value?.click()
+}
+
 async function handleUpload() {
   if (!selectedFile.value) return
   uploading.value = true
@@ -46,7 +50,7 @@ async function handleUpload() {
     if (fileInput.value) fileInput.value.value = ''
     await loadData()
   } catch {
-    uploadError.value = t('corporate.collaborators.uploadError') || 'Error al cargar el archivo. Verifique el formato e intente nuevamente.'
+    uploadError.value = t('corporate.collaborators.uploadError')
   } finally {
     uploading.value = false
   }
@@ -54,7 +58,7 @@ async function handleUpload() {
 
 function formatTime(isoString) {
   if (!isoString) return '—'
-  return new Date(isoString).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+  return new Date(isoString).toLocaleTimeString(locale.value === 'es-419' ? 'es-PE' : 'en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
 const getSeverity = (status) => (status === 'ACTIVE' ? 'success' : 'warning')
@@ -107,18 +111,38 @@ onMounted(loadData)
 
       <article class="bt-dashboard-panel" style="margin-bottom: 24px;">
         <h3 style="margin: 0 0 16px; font-size: 1rem;">{{ t('corporate.collaborators.uploadSection') }}</h3>
-        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div class="bt-upload-actions">
           <input
             ref="fileInput"
             type="file"
             accept=".csv,.xlsx,.xls"
-            style="flex: 1; min-width: 200px;"
+            class="bt-file-input"
+            :aria-label="t('corporate.collaborators.fileInputLabel')"
             @change="handleFileChange"
           />
+          <button
+            type="button"
+            class="bt-file-picker"
+            :disabled="uploading"
+            @click="openFilePicker"
+          >
+            <span class="bt-file-picker__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M12 3v12m0-12 4 4m-4-4-4 4" />
+                <path d="M5 15v3a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-3" />
+              </svg>
+            </span>
+            <span class="bt-file-picker__text">
+              <strong>{{ selectedFile ? selectedFile.name : t('corporate.collaborators.noFileSelected') }}</strong>
+              <small>{{ t('corporate.collaborators.chooseFile') }}</small>
+            </span>
+          </button>
           <Button
-            :label="uploading ? t('corporate.collaborators.uploading') : t('corporate.collaborators.uploadFile')"
+            icon="pi pi-upload"
+            :loading="uploading"
+            :aria-label="t('corporate.collaborators.uploadFileLabel')"
             :disabled="uploading || !selectedFile"
-            class="p-button-primary"
+            class="p-button-primary bt-upload-icon-button"
             @click="handleUpload"
           />
         </div>
@@ -147,3 +171,95 @@ onMounted(loadData)
     </template>
   </section>
 </template>
+
+<style scoped>
+.bt-upload-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bt-file-input {
+  display: none;
+}
+
+.bt-file-picker {
+  flex: 1 1 280px;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--surface-border, #d7dde7);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--bt-navy, #0b2147);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bt-file-picker:hover:not(:disabled),
+.bt-file-picker:focus-visible {
+  border-color: var(--primary-color, #155a92);
+  box-shadow: 0 0 0 3px rgba(21, 90, 146, 0.12);
+  outline: none;
+}
+
+.bt-file-picker:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.bt-file-picker__icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: rgba(21, 90, 146, 0.1);
+  color: var(--primary-color, #155a92);
+}
+
+.bt-file-picker__icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bt-file-picker__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bt-file-picker__text strong,
+.bt-file-picker__text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bt-file-picker__text strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.bt-file-picker__text small {
+  color: var(--text-color-secondary, #64748b);
+  font-size: 0.8rem;
+}
+
+.bt-upload-icon-button {
+  width: 48px;
+  min-width: 48px;
+}
+</style>

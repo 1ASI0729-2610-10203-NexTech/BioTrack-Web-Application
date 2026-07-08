@@ -29,7 +29,7 @@ onMounted(async () => {
 
 const plan = computed(() => patientPlanStore.currentPlan)
 const hasNutritionSubscription = computed(() =>
-  ['Profesional', 'Premium'].includes(billingStore.activeSubscription?.planName),
+  ['basic', 'premium'].includes(billingStore.activeSubscription?.planId),
 )
 
 async function acceptPlan() {

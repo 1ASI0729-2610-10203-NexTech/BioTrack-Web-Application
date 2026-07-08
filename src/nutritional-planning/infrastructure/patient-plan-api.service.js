@@ -1,4 +1,5 @@
 import { apiService } from '../../shared/infrastructure/api.service'
+import { resolveInitialLocale, t } from '../../locales'
 
 function mapPlan(payload) {
   const cal = payload.calorieTarget || 1
@@ -11,9 +12,9 @@ function mapPlan(payload) {
     name: payload.name,
     dailyCalories: payload.calorieTarget,
     calorieTarget: payload.calorieTarget,
-    goal: 'Mantener peso',
-    nutritionist: 'Nutricionista asignado',
-    date: payload.createdAt ? new Date(payload.createdAt).toLocaleDateString('es-PE') : '',
+    goal: t('nutritionalGoal.maintainWeight'),
+    nutritionist: t('profile.nutritionist'),
+    date: payload.createdAt ? new Date(payload.createdAt).toLocaleDateString(resolveInitialLocale() === 'es-419' ? 'es-PE' : 'en-US') : '',
     macros: { proteins: proteinPct, carbohydrates: carbsPct, fats: fatPct },
     proteinGrams: payload.proteinGrams,
     carbsGrams: payload.carbsGrams,

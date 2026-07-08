@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
+import { t } from '../../locales'
 import { nutritionalPlanningApiService } from '../infrastructure/nutritional-planning-api.service'
 
 function getAuthenticatedUserId() {
   const identityAccessStore = useIdentityAccessStore()
   const userId = identityAccessStore.currentUser?.id
-  if (!userId) throw new Error('No existe un usuario autenticado.')
+  if (!userId) throw new Error(t('auth.userRequired'))
   return userId
 }
 
@@ -62,7 +63,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
         this.plans = patients.map((patient) => patient.plan).filter(Boolean)
         return patients
       } catch (error) {
-        this.error = error.message || 'No se pudieron cargar los pacientes asignados.'
+        this.error = error.message || t('stores.nutritionist.loadAssignedPatients')
         throw error
       } finally {
         this.loading = false
@@ -81,7 +82,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
         this.followUpNotes = patient.followUpNotes
         return patient
       } catch (error) {
-        this.error = error.message || 'No se pudo cargar el detalle del paciente.'
+        this.error = error.message || t('stores.nutritionist.loadPatientDetail')
         throw error
       } finally {
         this.loading = false
@@ -93,13 +94,13 @@ export const useNutritionistStore = defineStore('nutritionist', {
       this.savedRecently = false
       try {
         if (!payload.observations?.trim()) {
-          throw new Error('Las observaciones clínicas son obligatorias.')
+          throw new Error(t('stores.nutritionist.observationsRequired'))
         }
         if (!payload.targetCalories || Number(payload.targetCalories) <= 0) {
-          throw new Error('Las calorías objetivo son obligatorias.')
+          throw new Error(t('stores.nutritionist.targetCaloriesRequired'))
         }
         if (!validateMacroDistribution(payload)) {
-          throw new Error('La suma de proteínas, carbohidratos y grasas debe ser 100%.')
+          throw new Error(t('stores.nutritionist.macroDistributionInvalid'))
         }
         const userId = getAuthenticatedUserId()
         const evaluation = await nutritionalPlanningApiService.createEvaluation(
@@ -111,7 +112,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
         this.savedRecently = true
         return evaluation
       } catch (error) {
-        this.error = error.message || 'No se pudo crear la evaluación.'
+        this.error = error.message || t('stores.nutritionist.createEvaluation')
         throw error
       } finally {
         this.loading = false
@@ -122,12 +123,12 @@ export const useNutritionistStore = defineStore('nutritionist', {
       this.error = ''
       this.savedRecently = false
       try {
-        if (!payload.name?.trim()) throw new Error('El nombre del plan es obligatorio.')
+        if (!payload.name?.trim()) throw new Error(t('stores.nutritionist.planNameRequired'))
         if (!payload.dailyCalories || Number(payload.dailyCalories) <= 0) {
-          throw new Error('Las calorías diarias son obligatorias.')
+          throw new Error(t('stores.nutritionist.dailyCaloriesRequired'))
         }
         if (!validateMacroDistribution(payload)) {
-          throw new Error('La suma de proteínas, carbohidratos y grasas debe ser 100%.')
+          throw new Error(t('stores.nutritionist.macroDistributionInvalid'))
         }
         const userId = getAuthenticatedUserId()
         const result = await nutritionalPlanningApiService.createPlan(userId, patientId, payload)
@@ -136,7 +137,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
         await this.fetchPatientDetail(patientId)
         return result
       } catch (error) {
-        this.error = error.message || 'No se pudo crear el plan nutricional.'
+        this.error = error.message || t('stores.nutritionist.createPlan')
         throw error
       } finally {
         this.loading = false
@@ -157,7 +158,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
         await this.fetchAssignedPatients()
         return updatedPlan
       } catch (error) {
-        this.error = error.message || 'No se pudo actualizar el estado del plan.'
+        this.error = error.message || t('stores.nutritionist.updatePlanStatus')
         throw error
       } finally {
         this.loading = false
@@ -171,7 +172,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
       this.error = ''
       this.savedRecently = false
       try {
-        if (!note?.trim()) throw new Error('La nota de seguimiento es obligatoria.')
+        if (!note?.trim()) throw new Error(t('stores.nutritionist.noteRequired'))
         const userId = getAuthenticatedUserId()
         const savedNote = await nutritionalPlanningApiService.saveFollowUpNote(
           userId,
@@ -182,7 +183,7 @@ export const useNutritionistStore = defineStore('nutritionist', {
         this.savedRecently = true
         return savedNote
       } catch (error) {
-        this.error = error.message || 'No se pudo registrar la nota.'
+        this.error = error.message || t('stores.nutritionist.saveNote')
         throw error
       } finally {
         this.loading = false

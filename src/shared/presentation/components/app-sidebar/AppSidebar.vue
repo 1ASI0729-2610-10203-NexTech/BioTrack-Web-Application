@@ -19,17 +19,22 @@ defineEmits(['navigate'])
 const route = useRoute()
 const { t } = useI18n()
 const identityAccessStore = useIdentityAccessStore()
+const DEFAULT_AVATAR_URL = 'https://i.pravatar.cc/150?img=33'
 
 const navigationItems = computed(() =>
   getSidebarNavigationByRole(identityAccessStore.currentUser?.role),
 )
 
 const currentUserName = computed(() => {
+  if (identityAccessStore.currentUser?.name) return identityAccessStore.currentUser.name
   const firstName = identityAccessStore.currentUser?.firstName ?? ''
   const lastName = identityAccessStore.currentUser?.lastName ?? ''
   const fullName = `${firstName} ${lastName}`.trim()
-  return fullName || identityAccessStore.currentUser?.email || 'Usuario'
+  return fullName || t('auth.user')
 })
+const currentUserAvatarUrl = computed(() =>
+  identityAccessStore.currentUser ? identityAccessStore.currentUser.avatarUrl || DEFAULT_AVATAR_URL : '',
+)
 const currentUserRole = computed(() => identityAccessStore.currentUser?.role ?? '')
 const currentUserRoleLabel = computed(() =>
   t(`roles.${currentUserRole.value || 'USUARIO'}`),
@@ -93,7 +98,13 @@ function getItemLabel(item) {
     </div>
 
     <footer class="bt-sidebar-profile">
-      <Avatar :label="currentUserInitials" shape="circle" class="bt-sidebar-avatar" />
+      <Avatar
+        :image="currentUserAvatarUrl || undefined"
+        :label="currentUserAvatarUrl ? undefined : currentUserInitials"
+        :image-alt="currentUserName"
+        shape="circle"
+        class="bt-sidebar-avatar"
+      />
       <div class="bt-sidebar-profile-copy">
         <strong>{{ currentUserName }}</strong>
         <span>{{ currentUserRoleLabel }}</span>
