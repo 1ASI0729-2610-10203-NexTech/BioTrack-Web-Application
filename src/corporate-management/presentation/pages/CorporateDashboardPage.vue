@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {useCorporateManagementStore} from "../../application/corporate-management.store.js";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
@@ -8,6 +9,7 @@ import Message from "primevue/message";
 import { useIdentityAccessStore } from "../../../identity-access/application/identity-access.store";
 import {corporateManagementApiService} from "../../infrastructure/corporate-management-api.service.js";
 
+const { t } = useI18n();
 const corporateStore = useCorporateManagementStore();
 
 
@@ -24,52 +26,51 @@ const hasData = computed(() => currentMetrics.value && currentMetrics.value.aver
 
 <template>
   <div class="bt-corporate-layout">
-    <!-- Header principal -->
+    <!-- Main header -->
     <header class="bt-dashboard-header">
       <div class="header-info">
-        <p class="microcopy">ADMIN CORPORATIVO</p>
-        <h1>Dashboard Corporativo</h1>
+        <p class="microcopy">{{ t('corporate.dashboard.eyebrow') }}</p>
+        <h1>{{ t('corporate.dashboard.title') }}</h1>
         <p class="text-muted">
-          Métricas grupales de bienestar — datos anonimizados · Actualizado {{ new Date().toLocaleDateString() }}
+          {{ t('corporate.dashboard.subtitle', { date: new Date().toLocaleDateString() }) }}
         </p>
       </div>
-      <Button label="Exportar informe" icon="pi pi-download" class="p-button-rounded p-button-sm" />
+      <Button :label="t('corporate.dashboard.exportReport')" icon="pi pi-download" class="p-button-rounded p-button-sm" />
     </header>
-    <!-- Grid de métricas principales (image_dbc4f9.png) -->
+    <!-- Main metrics grid -->
     <section class="bt-metrics-grid">
       <article class="bt-metric-card bt-card-blue">
-        <span class="card-label">Colaboradores activos</span>
+        <span class="card-label">{{ t('corporate.dashboard.activeCollaborators') }}</span>
         <strong class="card-value">{{ currentMetrics?.sampleSize ?? 0 }}</strong>
-        <small class="card-footer"><i class="pi pi-arrow-up"></i> 12% vs. mes anterior</small>
+        <small class="card-footer"><i class="pi pi-arrow-up"></i> {{ t('corporate.dashboard.vsLastMonth', { percent: 12 }) }}</small>
       </article>
 
       <article class="bt-metric-card">
-        <span class="card-label">Adherencia promedio</span>
+        <span class="card-label">{{ t('corporate.dashboard.averageAdherence') }}</span>
         <strong class="card-value">{{ currentMetrics?.averages?.adherence ?? 0 }}%</strong>
         <ProgressBar :value="currentMetrics?.averages?.adherence ?? 0" :showValue="false" class="bt-progress-sm" />
       </article>
 
       <article class="bt-metric-card">
-        <span class="card-label">IMC promedio grupal</span>
+        <span class="card-label">{{ t('corporate.dashboard.averageGroupBMI') }}</span>
         <strong class="card-value">{{ currentMetrics?.averages?.bmi ?? '--' }}</strong>
-        <small class="card-footer">Rango normal (18.5—24.9)</small>
+        <small class="card-footer">{{ t('corporate.dashboard.normalRange') }}</small>
       </article>
 
       <article class="bt-metric-card bt-card-green">
-        <span class="card-label">Licencias utilizadas</span>
+        <span class="card-label">{{ t('corporate.dashboard.usedLicenses') }}</span>
         <strong class="card-value">247/300</strong>
-        <small class="card-footer">82% de capacidad</small>
+        <small class="card-footer">{{ t('corporate.dashboard.capacity', { percent: 82 }) }}</small>
       </article>
     </section>
 
-    <!-- Sección inferior: Gráfico y Objetivos -->
+    <!-- Lower section: Chart and Goals -->
     <div class="bt-content-split">
       <section class="bt-panel bt-evolution-chart">
         <div class="panel-header">
-          <h3>Evolución de adherencia mensual</h3>
+          <h3>{{ t('corporate.dashboard.monthlyAdherenceEvolution') }}</h3>
         </div>
         <div class="chart-mock">
-          <!-- Aquí integrarías tu librería de gráficos -->
           <div class="mock-bars"></div>
           <div class="mock-labels">
              <span>En</span><span>Feb</span><span>Mar</span><span>Abr</span>
@@ -78,25 +79,25 @@ const hasData = computed(() => currentMetrics.value && currentMetrics.value.aver
       </section>
 
       <section class="bt-panel bt-goals-distribution">
-        <h3>Distribución de objetivos (anónimo)</h3>
+        <h3>{{ t('corporate.dashboard.goalsDistribution') }}</h3>
 
         <div class="goal-item">
-          <div class="goal-info"><span>Bajar de peso</span> <b>42%</b></div>
+          <div class="goal-info"><span>{{ t('corporate.dashboard.loseWeight') }}</span> <b>42%</b></div>
           <ProgressBar :value="42" :showValue="false" class="goal-bar goal-blue" />
         </div>
 
         <div class="goal-item">
-          <div class="goal-info"><span>Mantener peso</span> <b>35%</b></div>
+          <div class="goal-info"><span>{{ t('corporate.dashboard.maintainWeight') }}</span> <b>35%</b></div>
           <ProgressBar :value="35" :showValue="false" class="goal-bar goal-green" />
         </div>
 
         <div class="goal-item">
-          <div class="goal-info"><span>Ganar masa</span> <b>23%</b></div>
+          <div class="goal-info"><span>{{ t('corporate.dashboard.gainMass') }}</span> <b>23%</b></div>
           <ProgressBar :value="23" :showValue="false" class="goal-bar goal-orange" />
         </div>
 
         <p class="disclaimer">
-          <i class="pi pi-exclamation-triangle"></i> Datos anonimizados — no se exponen métricas individuales
+          <i class="pi pi-exclamation-triangle"></i> {{ t('corporate.dashboard.anonymousDisclaimer') }}
         </p>
       </section>
     </div>

@@ -26,12 +26,16 @@ const patientPlanStore = usePatientPlanStore()
 const nutritionistStore = useNutritionistStore()
 const patientProgressStore = usePatientProgressStore()
 const subscriptionsBillingStore = useSubscriptionsBillingStore()
+const DEFAULT_AVATAR_URL = 'https://i.pravatar.cc/150?img=33'
 
 const currentUser = computed(() => identityAccessStore.currentUser)
 const userName = computed(() => {
   if (currentUser.value?.name) return currentUser.value.name
   return [currentUser.value?.firstName, currentUser.value?.lastName].filter(Boolean).join(' ')
 })
+const userAvatarUrl = computed(() =>
+  currentUser.value ? currentUser.value.avatarUrl || DEFAULT_AVATAR_URL : '',
+)
 const userInitials = computed(() => {
   const nameParts = userName.value.trim().split(/\s+/).filter(Boolean)
   if (!nameParts.length) return 'BT'
@@ -134,12 +138,24 @@ async function handleLogout() {
         aria-haspopup="menu"
         @click="toggleUserMenu"
       >
-        <Avatar :label="userInitials" shape="circle" class="bt-topbar-avatar" />
+        <Avatar
+          :image="userAvatarUrl || undefined"
+          :label="userAvatarUrl ? undefined : userInitials"
+          :image-alt="userName || 'BioTrack'"
+          shape="circle"
+          class="bt-topbar-avatar"
+        />
       </button>
       <Menu ref="userMenu" :model="menuItems" popup class="bt-user-menu">
         <template #start>
           <div class="bt-user-menu-header">
-            <Avatar :label="userInitials" shape="circle" class="bt-user-menu-avatar" />
+            <Avatar
+              :image="userAvatarUrl || undefined"
+              :label="userAvatarUrl ? undefined : userInitials"
+              :image-alt="userName || 'BioTrack'"
+              shape="circle"
+              class="bt-user-menu-avatar"
+            />
             <div>
               <strong>{{ userName || 'BioTrack' }}</strong>
               <span>{{ roleLabel }}</span>

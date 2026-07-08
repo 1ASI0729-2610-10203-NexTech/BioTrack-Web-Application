@@ -1,83 +1,105 @@
 import { apiService } from '../../shared/infrastructure/api.service'
-import { ActivityRecord } from '../domain/model/activity-record.entity'
-import { FoodLog } from '../domain/model/food-log.entity'
-import { WeightRecord } from '../domain/model/weight-record.entity'
-
-function mapFoodLog(payload) {
-  return new FoodLog({
-    mealType: payload.mealType,
-    description: payload.description,
-    calories: payload.calories,
-    date: payload.date,
-  })
-}
-
-function mapActivityLog(payload) {
-  return new ActivityRecord({
-    type: payload.activityType,
-    durationMinutes: payload.durationMinutes,
-    intensity: payload.intensity,
-    burnedCalories: payload.burnedCalories,
-    date: payload.date,
-  })
-}
-
-function mapWeightRecord(payload) {
-  return new WeightRecord({
-    id: payload.id,
-    patientId: payload.patientId,
-    weightKg: payload.weightKg,
-    date: payload.date,
-    type: payload.type,
-    source: payload.source,
-    comment: payload.comment,
-  })
-}
 
 export const patientProgressApiService = {
-  // TS06 — GET /api/v1/patients/{id}/food-log
-  async fetchFoodLogs(patientId) {
-    const logs = await apiService.get(`/patients/${patientId}/food-log`)
-    return (Array.isArray(logs) ? logs : []).map(mapFoodLog)
+  async fetchFoodLogs(_patientProfileId) {
+    const data = await apiService.get('/progress/food-logs')
+    return (Array.isArray(data) ? data : []).map((r) => ({
+      id: r.id,
+      mealType: r.mealType,
+      description: r.description ?? r.foodName,
+      calories: Number(r.calories),
+      date: r.date,
+      loggedAt: r.loggedAt,
+    }))
   },
 
-  // TS06 — POST /api/v1/patients/{id}/food-log
-  async createFoodLog(patientId, payload) {
-    const created = await apiService.post(`/patients/${patientId}/food-log`, payload)
-    return mapFoodLog(created)
+  async fetchActivityLogs(_patientProfileId) {
+    const data = await apiService.get('/progress/activity-history')
+    return (Array.isArray(data) ? data : []).map((r) => ({
+      id: r.id,
+      activityType: r.activityType,
+      durationMinutes: r.durationMinutes,
+      burnedCalories: r.caloriesBurned,
+      intensity: r.intensity ?? 'media',
+      date: r.loggedAt ? new Date(r.loggedAt).toISOString().slice(0, 10) : null,
+    }))
   },
 
-  // TS06 — GET /api/v1/patients/{id}/activity-log
-  async fetchActivityLogs(patientId) {
-    const logs = await apiService.get(`/patients/${patientId}/activity-log`)
-    return (Array.isArray(logs) ? logs : []).map(mapActivityLog)
+  async fetchWeightRecords(_patientProfileId) {
+    const data = await apiService.get('/progress/weight-records')
+    return (Array.isArray(data) ? data : []).map((r) => ({
+      id: r.id,
+      weightKg: r.weightKg,
+      date: r.date,
+      type: r.type ?? 'PROGRESS',
+      source: r.source ?? 'MANUAL',
+      comment: r.comment ?? '',
+    }))
   },
 
-  // TS06 — POST /api/v1/patients/{id}/activity-log
-  async createActivityLog(patientId, payload) {
-    const created = await apiService.post(`/patients/${patientId}/activity-log`, payload)
-    return mapActivityLog(created)
+  async createFoodLog(_patientProfileId, payload) {
+    const data = await apiService.post('/progress/food-log', {
+      mealType: payload.mealType,
+      foodName: payload.description,
+      calories: payload.calories,
+    })
+    return {
+      id: data.id,
+      mealType: data.mealType,
+      description: data.foodName,
+      calories: Number(data.calories),
+      date: data.loggedAt ? new Date(data.loggedAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+      loggedAt: data.loggedAt,
+    }
   },
 
-  // TS06 — GET /api/v1/patients/{id}/weight
-  async fetchWeightRecords(patientId) {
-    const records = await apiService.get(`/patients/${patientId}/weight`)
-    return (Array.isArray(records) ? records : []).map(mapWeightRecord)
+  async createActivityLog(_patientProfileId, payload) {
+    const data = await apiService.post('/progress/activity-log', {
+      activityType: payload.activityType,
+      durationMinutes: payload.durationMinutes,
+    })
+    return {
+      id: data.id,
+      activityType: data.activityType,
+      durationMinutes: data.durationMinutes,
+      burnedCalories: data.caloriesBurned,
+      intensity: payload.intensity ?? 'media',
+      date: data.loggedAt ? new Date(data.loggedAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+    }
   },
 
-  async fetchRawWeightRecords(patientId) {
-    const records = await apiService.get(`/patients/${patientId}/weight`)
-    return Array.isArray(records) ? records : []
+  async createWeightRecord(_patientProfileId, payload) {
+    const data = await apiService.post('/progress/weight-update', {
+      weightKg: payload.weightKg,
+      notes: payload.comment ?? '',
+    })
+    return {
+      id: data.id,
+      weightKg: data.weightKg,
+      date: data.recordedAt ? new Date(data.recordedAt).toISOString().slice(0, 10) : payload.date,
+      type: payload.type ?? 'PROGRESS',
+      source: payload.source ?? 'MANUAL',
+      comment: payload.comment ?? '',
+    }
   },
 
-  // TS06 — PATCH /api/v1/patients/{id}/weight
-  async createWeightRecord(patientId, payload) {
-    const created = await apiService.patch(`/patients/${patientId}/weight`, payload)
-    return mapWeightRecord(created)
+  async logFood(mealType, foodName, calories) {
+    return apiService.post('/progress/food-log', { mealType, foodName, calories })
   },
 
-  async updateWeightRecord(patientId, payload) {
-    const updated = await apiService.patch(`/patients/${patientId}/weight`, payload)
-    return mapWeightRecord(updated)
+  async logActivity(activityType, durationMinutes) {
+    return apiService.post('/progress/activity-log', { activityType, durationMinutes })
+  },
+
+  async recordWeight(weightKg, notes = '') {
+    return apiService.post('/progress/weight-update', { weightKg, notes })
+  },
+
+  async fetchCharts() {
+    return apiService.get('/progress/charts')
+  },
+
+  async fetchActivityHistory() {
+    return apiService.get('/progress/activity-history')
   },
 }

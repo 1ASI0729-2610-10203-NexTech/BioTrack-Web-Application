@@ -1,12 +1,14 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Tag from 'primevue/tag'
 import { useNutritionistStore } from '../../application/nutritionist.store'
 
+const { t } = useI18n()
 const router = useRouter()
 const nutritionistStore = useNutritionistStore()
 
@@ -31,9 +33,9 @@ async function changePlanStatus(patient, status) {
   <section class="bt-patient-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">Nutricionista</p>
-        <h1>Planes nutricionales</h1>
-        <p class="text-muted">Planes asociados únicamente a tus pacientes asignados.</p>
+        <p class="microcopy">{{ t('nutritionist.plans.eyebrow') }}</p>
+        <h1>{{ t('nutritionist.plans.title') }}</h1>
+        <p class="text-muted">{{ t('nutritionist.plans.subtitle') }}</p>
       </div>
     </header>
 
@@ -44,41 +46,41 @@ async function changePlanStatus(patient, status) {
         responsive-layout="scroll"
         data-key="id"
       >
-        <Column field="name" header="Paciente" />
-        <Column header="Plan">
-          <template #body="{ data }">{{ data.plan?.name ?? 'Sin plan' }}</template>
+        <Column field="name" :header="t('nutritionist.plans.colPatient')" />
+        <Column :header="t('nutritionist.plans.colPlan')">
+          <template #body="{ data }">{{ data.plan?.name ?? t('nutritionist.plans.noPlan') }}</template>
         </Column>
-        <Column header="Estado">
+        <Column :header="t('nutritionist.plans.colStatus')">
           <template #body="{ data }">
             <Tag :value="data.planStatus" :severity="statusSeverity(data.planStatus)" />
           </template>
         </Column>
-        <Column header="Calorías">
+        <Column :header="t('nutritionist.plans.colCalories')">
           <template #body="{ data }">{{ data.dailyCalories ?? '-' }}</template>
         </Column>
-        <Column header="Acción">
+        <Column :header="t('nutritionist.plans.colAction')">
           <template #body="{ data }">
             <div class="bt-table-actions">
               <Button
-                :label="data.plan ? 'Ver paciente' : 'Crear plan'"
+                :label="data.plan ? t('nutritionist.plans.viewPatient') : t('nutritionist.plans.createPlan')"
                 outlined
                 @click="router.push(data.plan ? `/nutritionist-patients/${data.id}` : `/nutritionist-plans/create/${data.id}`)"
               />
               <Button
                 v-if="data.plan && data.planStatus !== 'PROPOSED'"
-                label="Proponer"
+                :label="t('nutritionist.plans.propose')"
                 text
                 @click="changePlanStatus(data, 'PROPOSED')"
               />
               <Button
                 v-if="data.plan && data.planStatus !== 'ACTIVATED'"
-                label="Activar"
+                :label="t('nutritionist.plans.activate')"
                 text
                 @click="changePlanStatus(data, 'ACTIVATED')"
               />
               <Button
                 v-if="data.plan && data.planStatus !== 'REJECTED'"
-                label="Rechazar"
+                :label="t('nutritionist.plans.reject')"
                 text
                 severity="danger"
                 @click="changePlanStatus(data, 'REJECTED')"

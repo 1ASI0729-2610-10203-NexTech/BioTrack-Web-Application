@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Message from 'primevue/message'
@@ -8,6 +9,7 @@ import Select from 'primevue/select'
 import { usePatientPlanStore } from '../../../nutritional-planning/application/patient-plan.store'
 import { usePatientProgressStore } from '../../application/patient-progress.store'
 
+const { t } = useI18n()
 const router = useRouter()
 const planStore = usePatientPlanStore()
 const progressStore = usePatientProgressStore()
@@ -23,10 +25,10 @@ onMounted(async () => {
 })
 
 function validate() {
-  validation.type = !form.type ? 'Selecciona una actividad.' : ''
+  validation.type = !form.type ? t('patient.activity.typeRequired') : ''
   validation.durationMinutes =
-    !form.durationMinutes || form.durationMinutes <= 0 ? 'La duracion debe ser mayor a 0.' : ''
-  validation.intensity = !form.intensity ? 'Selecciona intensidad.' : ''
+    !form.durationMinutes || form.durationMinutes <= 0 ? t('patient.activity.durationRequired') : ''
+  validation.intensity = !form.intensity ? t('patient.activity.intensityRequired') : ''
   return !validation.type && !validation.durationMinutes && !validation.intensity
 }
 async function submit() {
@@ -42,27 +44,27 @@ async function submit() {
 
 <template>
   <section class="bt-activity-page">
-    <header class="bt-patient-heading"><div><h1>Registrar actividad fisica</h1><p class="text-muted">Calculamos calorias quemadas con una regla mock simple.</p></div></header>
+    <header class="bt-patient-heading"><div><h1>{{ t('patient.activity.title') }}</h1><p class="text-muted">{{ t('patient.activity.subtitle') }}</p></div></header>
     <section v-if="!planStore.hasActivePlan" class="bt-lock-card">
-      <div><h2>Aun no tienes un plan nutricional activo</h2><p class="text-muted">Activa tu plan para registrar actividad como seguimiento.</p></div>
-      <Button label="Ir a Plan Nutricional" @click="router.push('/nutritional-plan')" />
+      <div><h2>{{ t('patient.activity.noActivePlan') }}</h2><p class="text-muted">{{ t('patient.activity.noActivePlanDetail') }}</p></div>
+      <Button :label="t('patient.activity.goToNutritionalPlan')" @click="router.push('/nutritional-plan')" />
     </section>
     <template v-else>
-      <Message v-if="progressStore.activitySavedRecently" severity="success">Actividad guardada correctamente.</Message>
+      <Message v-if="progressStore.activitySavedRecently" severity="success">{{ t('patient.activity.activitySaved') }}</Message>
       <section class="bt-form-with-side">
         <form class="bt-dashboard-panel bt-food-form" @submit.prevent="submit">
-          <label>Tipo de actividad<Select v-model="form.type" :options="activityOptions" :invalid="Boolean(validation.type)" /></label>
+          <label>{{ t('patient.activity.activityType') }}<Select v-model="form.type" :options="activityOptions" :invalid="Boolean(validation.type)" /></label>
           <p v-if="validation.type" class="bt-auth-helper">{{ validation.type }}</p>
-          <label>Duracion en minutos<InputNumber v-model="form.durationMinutes" :min="1" :invalid="Boolean(validation.durationMinutes)" /></label>
+          <label>{{ t('patient.activity.durationMinutes') }}<InputNumber v-model="form.durationMinutes" :min="1" :invalid="Boolean(validation.durationMinutes)" /></label>
           <p v-if="validation.durationMinutes" class="bt-auth-helper">{{ validation.durationMinutes }}</p>
-          <label>Intensidad<Select v-model="form.intensity" :options="intensityOptions" :invalid="Boolean(validation.intensity)" /></label>
+          <label>{{ t('patient.activity.intensity') }}<Select v-model="form.intensity" :options="intensityOptions" :invalid="Boolean(validation.intensity)" /></label>
           <p v-if="validation.intensity" class="bt-auth-helper">{{ validation.intensity }}</p>
-          <article class="bt-mini-stat"><span>Calorias quemadas estimadas</span><strong>{{ burnedCalories }} kcal</strong></article>
-          <Button label="Guardar actividad" :loading="progressStore.loading" type="submit" />
+          <article class="bt-mini-stat"><span>{{ t('patient.activity.estimatedCalories') }}</span><strong>{{ burnedCalories }} kcal</strong></article>
+          <Button :label="t('patient.activity.saveActivity')" :loading="progressStore.loading" type="submit" />
         </form>
         <aside class="bt-dashboard-panel">
-          <h3>Actividad de la semana</h3>
-          <p class="text-muted">{{ progressStore.weeklyActivityMinutes }} minutos · {{ progressStore.weeklyBurnedCalories }} kcal</p>
+          <h3>{{ t('patient.activity.weeklyActivity') }}</h3>
+          <p class="text-muted">{{ t('patient.activity.weeklyStats', { minutes: progressStore.weeklyActivityMinutes, kcal: progressStore.weeklyBurnedCalories }) }}</p>
           <div class="bt-food-log-list">
             <div v-for="record in progressStore.getWeeklyActivityLogs" :key="`${record.date}-${record.type}-${record.durationMinutes}`" class="bt-meal-row">
               <span>🏃</span><div><strong>{{ record.type }}</strong><small>{{ record.durationMinutes }} min · {{ record.intensity }}</small></div><em>{{ record.burnedCalories }} kcal</em>

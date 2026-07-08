@@ -1,26 +1,28 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
 import MultiSelect from 'primevue/multiselect'
 import { usePatientProfileStore } from '../../application/patient-profile.store'
 
+const { t } = useI18n()
 const router = useRouter()
 const profileStore = usePatientProfileStore()
 const restrictionOptions = [
-  'Sin restricciones',
-  'Lactosa',
-  'Gluten',
-  'Frutos secos',
-  'Mariscos',
-  'Huevo',
-  'Vegetarianismo',
-  'Veganismo',
-  'Diabetes',
-  'Hipertension',
-  'Otra',
+  t('dietaryRestrictions.noRestrictions'),
+  t('dietaryRestrictions.lactose'),
+  t('dietaryRestrictions.gluten'),
+  t('dietaryRestrictions.nuts'),
+  t('dietaryRestrictions.seafood'),
+  t('dietaryRestrictions.egg'),
+  t('dietaryRestrictions.vegetarian'),
+  t('dietaryRestrictions.vegan'),
+  t('dietaryRestrictions.diabetes'),
+  t('dietaryRestrictions.hypertension'),
+  t('dietaryRestrictions.other'),
 ]
 const selectedRestrictions = ref(
   profileStore.dietaryRestrictions.map((restriction) => restriction.label),
@@ -28,15 +30,15 @@ const selectedRestrictions = ref(
 const otherRestriction = ref('')
 const attemptedSave = ref(false)
 const saved = ref(false)
-const needsOther = computed(() => selectedRestrictions.value.includes('Otra'))
+const needsOther = computed(() => selectedRestrictions.value.includes(t('dietaryRestrictions.other')))
 const hasSelection = computed(() => selectedRestrictions.value.length > 0)
 const hasOtherError = computed(
   () => attemptedSave.value && needsOther.value && !otherRestriction.value.trim(),
 )
 
 function normalizeSelection(value) {
-  if (value.includes('Sin restricciones')) {
-    selectedRestrictions.value = ['Sin restricciones']
+  if (value.includes(t('dietaryRestrictions.noRestrictions'))) {
+    selectedRestrictions.value = [t('dietaryRestrictions.noRestrictions')]
     return
   }
   selectedRestrictions.value = value
@@ -47,7 +49,7 @@ async function saveRestrictions() {
   saved.value = false
   if (!hasSelection.value || hasOtherError.value) return
   const restrictions = selectedRestrictions.value.map((restriction) =>
-    restriction === 'Otra' ? otherRestriction.value.trim() : restriction,
+    restriction === t('dietaryRestrictions.other') ? otherRestriction.value.trim() : restriction,
   )
   await profileStore.saveDietaryRestrictions(restrictions)
   saved.value = true
@@ -63,31 +65,31 @@ onMounted(async () => {
   <section class="bt-restrictions-page">
     <header class="bt-patient-heading">
       <div>
-        <h1>Registrar restricciones alimentarias</h1>
-        <p class="text-muted">Confirma alergias, condiciones o ausencia de restricciones.</p>
+        <h1>{{ t('dietaryRestrictions.title') }}</h1>
+        <p class="text-muted">{{ t('dietaryRestrictions.subtitle') }}</p>
       </div>
     </header>
-    <Message v-if="attemptedSave && !hasSelection" severity="error">Selecciona al menos una opcion.</Message>
-    <Message v-if="saved" severity="success">Restricciones alimentarias confirmadas.</Message>
+    <Message v-if="attemptedSave && !hasSelection" severity="error">{{ t('dietaryRestrictions.selectionRequired') }}</Message>
+    <Message v-if="saved" severity="success">{{ t('dietaryRestrictions.restrictionsSaved') }}</Message>
     <section class="bt-dashboard-panel bt-restrictions-card">
       <label>
-        Restricciones
+        {{ t('dietaryRestrictions.restrictions') }}
         <MultiSelect
           :model-value="selectedRestrictions"
           :options="restrictionOptions"
-          placeholder="Selecciona restricciones"
+          :placeholder="t('dietaryRestrictions.placeholder')"
           display="chip"
           @update:model-value="normalizeSelection"
         />
       </label>
       <label v-if="needsOther">
-        Especifica la restriccion
-        <InputText v-model="otherRestriction" :invalid="hasOtherError" placeholder="Describe la restriccion" />
+        {{ t('dietaryRestrictions.specifyOther') }}
+        <InputText v-model="otherRestriction" :invalid="hasOtherError" :placeholder="t('dietaryRestrictions.specifyOtherPlaceholder')" />
       </label>
-      <p v-if="hasOtherError" class="bt-auth-helper">Debes especificar la opcion Otra.</p>
+      <p v-if="hasOtherError" class="bt-auth-helper">{{ t('dietaryRestrictions.otherRequired') }}</p>
       <div class="bt-inline-actions">
-        <Button label="Guardar restricciones" :disabled="!hasSelection" @click="saveRestrictions" />
-        <Button label="Volver al perfil" outlined @click="router.push('/patient-profile')" />
+        <Button :label="t('dietaryRestrictions.saveRestrictions')" :disabled="!hasSelection" @click="saveRestrictions" />
+        <Button :label="t('dietaryRestrictions.backToProfile')" outlined @click="router.push('/patient-profile')" />
       </div>
     </section>
   </section>

@@ -1,72 +1,182 @@
 import { apiService } from '../../shared/infrastructure/api.service'
 import { SubscriptionPlan } from '../domain/model/subscription-plan.entity'
-import { IndividualSubscription } from '../domain/model/individual-subscription.entity'
-import { Payment } from '../domain/model/payment.entity'
-import { Invoice } from '../domain/model/invoice.entity'
+
+const FREE_PLAN_ID = 'free'
+const ACTIVE_STATUS = 'ACTIVE'
+
+function addMonths(date, months) {
+  const next = new Date(date)
+  next.setMonth(next.getMonth() + months)
+  return next.toISOString().slice(0, 10)
+}
+
+function normalizePlan(plan) {
+  return new SubscriptionPlan({
+    id: plan.id,
+    code: plan.code,
+    name: plan.name,
+    nameKey: plan.nameKey,
+    price: Number(plan.price ?? 0),
+    description: plan.description,
+    descriptionKey: plan.descriptionKey,
+    featured: Boolean(plan.featured),
+    contactOnly: Boolean(plan.contactOnly),
+    internal: Boolean(plan.internal),
+    features: plan.features ?? [],
+    disabledFeatures: plan.disabledFeatures ?? [],
+  })
+}
+
+async function fetchActiveSubscriptionRecord(userId) {
+  const subscriptions = await apiService.get('/subscriptions', {
+    params: { userId, status: ACTIVE_STATUS },
+  })
+  return Array.isArray(subscriptions) ? subscriptions[subscriptions.length - 1] : null
+}
+
+async function fetchPlanById(planId) {
+  if (!planId) return null
+  const plan = await apiService.get(`/subscriptionPlans/${planId}`)
+  return plan ? normalizePlan(plan) : null
+}
+
+async function fetchPayments(subscriptionId) {
+  const payments = await apiService.get('/payments', { params: { subscriptionId } })
+  return Array.isArray(payments) ? payments : []
+}
+
+async function fetchInvoice(subscriptionId) {
+  const invoices = await apiService.get('/invoices', { params: { subscriptionId } })
+  return Array.isArray(invoices) ? invoices[0] ?? null : null
+}
+
+async function deactivateCurrentSubscription(userId) {
+  const current = await fetchActiveSubscriptionRecord(userId)
+  if (current?.id) {
+    await apiService.patch(`/subscriptions/${current.id}`, { status: 'REPLACED' })
+  }
+}
+
+async function createSubscription({ userId, plan, status = ACTIVE_STATUS }) {
+  const startDate = new Date().toISOString().slice(0, 10)
+  return apiService.post('/subscriptions', {
+    userId,
+    planId: plan.id,
+    status,
+    startedAt: startDate,
+    nextRenewalAt: plan.price > 0 ? addMonths(startDate, 1) : null,
+  })
+}
+
+async function createPayment({ subscription, plan }) {
+  if (plan.price <= 0) return null
+  const paidAt = new Date().toISOString().slice(0, 10)
+  return apiService.post('/payments', {
+    subscriptionId: subscription.id,
+    userId: subscription.userId,
+    planId: plan.id,
+    amount: plan.price,
+    currency: 'PEN',
+    status: 'PAID',
+    paidAt,
+    cardLastFourDigits: '4521',
+  })
+}
+
+async function createInvoice({ subscription, payment }) {
+  if (!payment) return null
+  const issuedAt = payment.paidAt
+  return apiService.post('/invoices', {
+    subscriptionId: subscription.id,
+    number: `INV-${issuedAt.replaceAll('-', '')}-${subscription.id}`,
+    issuedAt,
+    status: 'PAID',
+  })
+}
 
 export const subscriptionsBillingApiService = {
   async fetchPlans() {
-    const plans = await apiService.get('/subscription-plans')
-    return (Array.isArray(plans) ? plans : []).map(
-      (plan) =>
-        new SubscriptionPlan({
-          id: plan.id,
-          name: plan.name,
-          price: plan.price,
-          description: plan.description,
-          featured: Boolean(plan.featured),
-        }),
-    )
+    const plans = await apiService.get('/subscriptionPlans')
+    return Array.isArray(plans)
+      ? plans.map(normalizePlan).filter((plan) => !plan.internal)
+      : []
   },
 
-  // TS07 — GET /api/v1/subscriptions/{id}
-  async fetchActiveSubscription(userId) {
-    const subscriptions = await apiService.get('/subscriptions', {
-      params: { userId, status: 'ACTIVE' },
-    })
-    const list = Array.isArray(subscriptions) ? subscriptions : []
-    const active = list[0]
-    if (!active) return null
+  async fetchActiveSubscription(userId, { ensureFree = false } = {}) {
+    let raw = await fetchActiveSubscriptionRecord(userId)
 
-    const detail = await apiService.get(`/subscriptions/${active.id}`)
+    if (!raw && ensureFree) {
+      const freePlan = await fetchPlanById(FREE_PLAN_ID)
+      raw = await createSubscription({ userId, plan: freePlan })
+    }
+
+    if (!raw) return null
+
+    const plan = await fetchPlanById(raw.planId)
+    const payments = await fetchPayments(raw.id)
+    const invoice = await fetchInvoice(raw.id)
 
     return {
-      subscription: detail,
-      entity: new IndividualSubscription({
-        planId: detail.planId,
-        planName: detail.planName ?? 'Plan activo',
-        status: detail.status,
-        activatedAt: detail.startedAt,
-        renewsAt: detail.nextRenewalAt,
-      }),
-      payments: (detail.payments ?? []).map(
-        (payment) =>
-          new Payment({
-            planName: detail.planName ?? 'Plan activo',
-            amount: payment.amount,
-            paidAt: payment.paidAt,
-            cardLastFourDigits: payment.cardLastFourDigits,
-          }),
-      ),
-      invoice: detail.invoice
-        ? new Invoice({
-            number: detail.invoice.number,
-            issuedAt: detail.invoice.issuedAt,
-          })
-        : null,
+      entity: {
+        planId: raw.planId,
+        planName: plan?.name ?? raw.planName,
+        planNameKey: plan?.nameKey,
+        status: raw.status,
+        activatedAt: raw.startedAt ?? raw.startDate,
+        renewsAt: raw.nextRenewalAt ?? raw.nextBillingDate,
+      },
+      payments: payments.map((p) => ({
+        amount: p.amount,
+        paidAt: p.paidAt ?? p.paid_at,
+        cardLastFourDigits: p.cardLastFourDigits ?? '----',
+      })),
+      invoice,
     }
   },
 
-  // TS07 — POST /api/v1/subscriptions/payments
   async subscribeToPlan({ userId, plan }) {
-    const today = new Date().toISOString().slice(0, 10)
-    return apiService.post('/subscriptions/payments', {
-      userId,
-      planId: plan.id,
-      planName: plan.name,
-      amount: plan.price,
-      currency: 'PEN',
-      paidAt: today,
-    })
+    await deactivateCurrentSubscription(userId)
+    const subscription = await createSubscription({ userId, plan })
+    const payment = await createPayment({ subscription, plan })
+    const invoice = await createInvoice({ subscription, payment })
+
+    return {
+      subscription: {
+        id: subscription.id,
+        status: subscription.status,
+        nextRenewalAt: subscription.nextRenewalAt,
+      },
+      payment: {
+        amount: plan.price,
+        paidAt: payment?.paidAt ?? subscription.startedAt,
+        cardLastFourDigits: payment?.cardLastFourDigits ?? '----',
+      },
+      invoice: {
+        number: invoice?.number ?? null,
+        issuedAt: invoice?.issuedAt ?? null,
+      },
+    }
+  },
+
+  async activateSubscription(planId, startDate) {
+    return apiService.post('/subscriptions', { planId, startDate, status: ACTIVE_STATUS })
+  },
+
+  async suspendSubscription(subscriptionId) {
+    return apiService.patch(`/subscriptions/${subscriptionId}`, { status: 'SUSPENDED' })
+  },
+
+  async reactivateSubscription(subscriptionId) {
+    return apiService.patch(`/subscriptions/${subscriptionId}`, { status: ACTIVE_STATUS })
+  },
+
+  async processRenewal(subscriptionId) {
+    return apiService.post('/payments', { subscriptionId, status: 'PAID' })
+  },
+
+  async fetchBillingSummary(subscriptionId) {
+    const payments = await fetchPayments(subscriptionId)
+    const invoice = await fetchInvoice(subscriptionId)
+    return { payments, invoice }
   },
 }

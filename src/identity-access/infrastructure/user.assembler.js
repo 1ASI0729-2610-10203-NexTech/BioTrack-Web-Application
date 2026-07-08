@@ -5,11 +5,11 @@ export const UserAssembler = {
     return new User({
       id: payload.id,
       email: payload.email,
-      passwordHash: payload.password_hash ?? '$demo-hash-123',
-      accountType: payload.account_type,
-      accountStatus: payload.account_status,
-      createdAt: payload.created_at,
-      updatedAt: payload.updated_at,
+      firstName: payload.firstName ?? '',
+      lastName: payload.lastName ?? '',
+      role: payload.role,
+      status: payload.status,
+      emailVerified: payload.emailVerified ?? false,
     })
   },
 }

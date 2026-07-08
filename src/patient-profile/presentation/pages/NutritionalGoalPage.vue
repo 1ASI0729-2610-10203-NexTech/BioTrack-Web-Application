@@ -1,19 +1,21 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { usePatientProfileStore } from '../../application/patient-profile.store'
 
+const { t } = useI18n()
 const router = useRouter()
 const profileStore = usePatientProfileStore()
 const selectedGoal = ref(profileStore.nutritionalGoal?.value ?? '')
 const attemptedSave = ref(false)
 const saved = ref(false)
 const goals = [
-  { value: 'bajar-peso', label: 'Bajar de peso', description: 'Reducir grasa con un plan sostenible.' },
-  { value: 'mantener-peso', label: 'Mantener peso', description: 'Conservar equilibrio y energia estable.' },
-  { value: 'ganar-masa', label: 'Ganar masa muscular', description: 'Impulsar rendimiento y fuerza.' },
+  { value: 'bajar-peso', label: t('nutritionalGoal.loseWeight'), description: t('nutritionalGoal.loseWeightDesc') },
+  { value: 'mantener-peso', label: t('nutritionalGoal.maintainWeight'), description: t('nutritionalGoal.maintainWeightDesc') },
+  { value: 'ganar-masa', label: t('nutritionalGoal.gainMass'), description: t('nutritionalGoal.gainMassDesc') },
 ]
 const hasError = computed(() => attemptedSave.value && !selectedGoal.value)
 const previewInitialWeight = computed(
@@ -50,12 +52,12 @@ onMounted(async () => {
   <section class="bt-goal-page">
     <header class="bt-patient-heading">
       <div>
-        <h1>Seleccionar objetivo nutricional</h1>
-        <p class="text-muted">Elige el enfoque que guiara tu plan nutricional.</p>
+        <h1>{{ t('nutritionalGoal.title') }}</h1>
+        <p class="text-muted">{{ t('nutritionalGoal.subtitle') }}</p>
       </div>
     </header>
-    <Message v-if="hasError" severity="error">Debes seleccionar un objetivo antes de continuar.</Message>
-    <Message v-if="saved" severity="success">Objetivo nutricional guardado correctamente.</Message>
+    <Message v-if="hasError" severity="error">{{ t('nutritionalGoal.goalRequired') }}</Message>
+    <Message v-if="saved" severity="success">{{ t('nutritionalGoal.goalSaved') }}</Message>
     <Message severity="info">{{ targetWeightMessage }}</Message>
     <section class="bt-goal-grid">
       <button
@@ -72,8 +74,8 @@ onMounted(async () => {
       </button>
     </section>
     <div class="bt-inline-actions">
-      <Button label="Guardar objetivo" :disabled="!selectedGoal" @click="saveGoal" />
-      <Button label="Volver al perfil" outlined @click="router.push('/patient-profile')" />
+      <Button :label="t('nutritionalGoal.saveGoal')" :disabled="!selectedGoal" @click="saveGoal" />
+      <Button :label="t('nutritionalGoal.backToProfile')" outlined @click="router.push('/patient-profile')" />
     </div>
   </section>
 </template>

@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -9,6 +10,7 @@ import AuthLayout from '../../../shared/presentation/layouts/auth-layout/AuthLay
 import { useIdentityAccessStore } from '../../application/identity-access.store'
 
 const identityAccessStore = useIdentityAccessStore()
+const router = useRouter()
 const { t } = useI18n()
 
 const accountOptions = computed(() => [
@@ -69,7 +71,12 @@ function validateForm() {
 async function submitRegister() {
   identityAccessStore.resetRegisterFeedback()
   if (!validateForm()) return
-  await identityAccessStore.register(form)
+  try {
+    await identityAccessStore.register(form)
+    await router.push('/login')
+  } catch {
+    // error shown in store
+  }
 }
 </script>
 

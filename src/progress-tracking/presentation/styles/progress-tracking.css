@@ -53,12 +53,13 @@
   min-height: 100%;
 }
 
-.pt-sidebar__brand {
+.pt-sidebar__brand-logo {
+  display: block;
+  height: 32px;
+  width: auto;
   padding: 1.25rem 1rem;
+  box-sizing: content-box;
   border-bottom: 0.0625rem solid var(--pt-border);
-  font-family: var(--pt-font-display);
-  font-size: 1.25rem;
-  color: var(--pt-blue);
 }
 
 .pt-sidebar__menu-label {
@@ -204,10 +205,10 @@
   z-index: 5;
 }
 
-.pt-topbar__logo {
-  font-family: var(--pt-font-display);
-  font-size: 1.25rem;
-  color: var(--pt-blue);
+.pt-topbar__logo-img {
+  height: 32px;
+  width: auto;
+  display: block;
 }
 
 .pt-topbar__actions {

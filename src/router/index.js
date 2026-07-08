@@ -22,6 +22,9 @@ import NutritionistEvaluationPage from '../nutritional-planning/presentation/pag
 import NutritionistPlansPage from '../nutritional-planning/presentation/pages/NutritionistPlansPage.vue'
 import NutritionistCreatePlanPage from '../nutritional-planning/presentation/pages/NutritionistCreatePlanPage.vue'
 import NutritionistFollowUpPage from '../nutritional-planning/presentation/pages/NutritionistFollowUpPage.vue'
+import ConsultationsPage from '../nutritional-planning/presentation/pages/ConsultationsPage.vue'
+import AdherenceAlertsPage from '../nutritional-planning/presentation/pages/AdherenceAlertsPage.vue'
+import ReportsPage from '../nutritional-planning/presentation/pages/ReportsPage.vue'
 
 // Patient Profile
 import PatientProfilePage from '../patient-profile/presentation/pages/PatientProfilePage.vue'
@@ -45,9 +48,9 @@ function resolveHomeRoute() {
     : '/login'
 }
 
-const corporateMeta = { requiresAuth: true, roles: ['ADMIN_CORPORATIVO'] }
-const patientMeta = { requiresAuth: true, roles: ['PACIENTE'] }
-const nutritionistMeta = { requiresAuth: true, roles: ['NUTRICIONISTA'] }
+const corporateMeta = { requiresAuth: true, roles: ['ADMIN_CORPORATIVO', 'ADMIN'] }
+const patientMeta = { requiresAuth: true, roles: ['PACIENTE', 'PATIENT'] }
+const nutritionistMeta = { requiresAuth: true, roles: ['NUTRICIONISTA', 'NUTRITIONIST'] }
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -76,22 +79,11 @@ const router = createRouter({
     { path: '/nutritionist-follow-up/:patientId', component: NutritionistFollowUpPage, meta: nutritionistMeta },
     {
       path: '/consultations',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.consultations', eyebrowKey: 'placeholders.biotrack' },
-      meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA'] },
+      component: ConsultationsPage,
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'NUTRICIONISTA', 'PATIENT', 'NUTRITIONIST'] },
     },
-    {
-      path: '/adherence-alerts',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.adherenceAlerts', eyebrowKey: 'placeholders.nutritionist' },
-      meta: nutritionistMeta,
-    },
-    {
-      path: '/reports',
-      component: PlaceholderPage,
-      props: { titleKey: 'placeholders.reports', eyebrowKey: 'placeholders.nutritionist' },
-      meta: nutritionistMeta,
-    },
+    { path: '/adherence-alerts', component: AdherenceAlertsPage, meta: nutritionistMeta },
+    { path: '/reports', component: ReportsPage, meta: nutritionistMeta },
 
     // ── patient-profile BC ──────────────────────────────────────────────
     { path: '/patient-profile', component: PatientProfilePage, meta: patientMeta },
@@ -109,7 +101,7 @@ const router = createRouter({
     {
       path: '/subscriptions-billing',
       component: SubscriptionsBillingPage,
-      meta: { requiresAuth: true, roles: ['PACIENTE', 'ADMIN_CORPORATIVO'] },
+      meta: { requiresAuth: true, roles: ['PACIENTE', 'ADMIN_CORPORATIVO', 'PATIENT', 'ADMIN'] },
     },
 
     { path: '/not-authorized', component: NotAuthorizedPage, meta: { requiresAuth: true } },

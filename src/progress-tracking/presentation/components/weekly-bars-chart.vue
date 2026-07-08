@@ -1,8 +1,13 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
+const props = defineProps({
   labels: {
     type: Array,
-    default: () => ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+    default: () => [],
   },
   activeFlags: {
     type: Array,
@@ -14,6 +19,10 @@ defineProps({
     default: 'pill',
   },
 })
+
+const resolvedLabels = computed(() => props.labels.length ? props.labels : ['M', 'T', 'W', 'T', 'F', 'S', 'S'])
+const activityLabel = (day, index) =>
+  `${day} ${props.activeFlags[index] ? t('progressTracking.charts.active') : t('progressTracking.charts.inactive')}`
 </script>
 
 <template>
@@ -22,12 +31,12 @@ defineProps({
     :class="{ 'pt-week-strip--blocks': variant === 'blocks' }"
     role="list"
   >
-    <div v-for="(day, index) in labels" :key="day" class="pt-week-pill" role="listitem">
+    <div v-for="(day, index) in resolvedLabels" :key="`${day}-${index}`" class="pt-week-pill" role="listitem">
       <span>{{ day }}</span>
       <div
         class="pt-week-pill__bar"
         :class="{ 'pt-week-pill__bar--on': activeFlags[index] }"
-        :aria-label="`${day} ${activeFlags[index] ? 'activo' : 'sin actividad'}`"
+        :aria-label="activityLabel(day, index)"
       />
     </div>
   </div>

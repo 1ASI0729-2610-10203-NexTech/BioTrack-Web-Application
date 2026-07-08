@@ -1,8 +1,10 @@
+import { t } from '../../locales'
+
 /** Centralized mock data for progress-tracking bounded context (local demo). */
 export const progressTrackingMockRoot = {
   user: {
-    fullName: 'Juan Pérez',
-    role: 'Paciente',
+    fullName: t('progressTracking.mock.userName'),
+    role: t('roles.PACIENTE'),
     initials: 'JP',
   },
   consumption: {
@@ -13,29 +15,29 @@ export const progressTrackingMockRoot = {
     meals: [
       {
         mealKey: 'breakfast',
-        mealLabel: 'Desayuno',
-        description: 'Avena con leche + 1 plátano',
+        mealLabel: t('patient.foodLog.breakfast'),
+        description: t('progressTracking.mock.breakfastDescription'),
         calories: 380,
         completed: true,
       },
       {
         mealKey: 'lunch',
-        mealLabel: 'Almuerzo',
-        description: 'Arroz integral + pollo a la plancha + ensalada',
+        mealLabel: t('patient.foodLog.lunch'),
+        description: t('progressTracking.mock.lunchDescription'),
         calories: 620,
         completed: true,
       },
       {
         mealKey: 'snack',
-        mealLabel: 'Merienda',
-        description: 'Yogur griego + almendras',
+        mealLabel: t('patient.foodLog.snack'),
+        description: t('progressTracking.mock.snackDescription'),
         calories: 230,
         completed: true,
       },
       {
         mealKey: 'dinner',
-        mealLabel: 'Cena',
-        description: 'Crema de verduras + pan integral',
+        mealLabel: t('patient.foodLog.dinner'),
+        description: t('progressTracking.mock.dinnerDescription'),
         calories: 380,
         completed: true,
       },
@@ -56,24 +58,24 @@ export const progressTrackingMockRoot = {
     activeWeeks: 8,
   },
   adherence: {
-    weekLabel: 'Semana del 21 al 27 de abril — cálculo completado',
+    weekLabel: t('progressTracking.mock.weekCompleted'),
     weeklyAdherence: 82,
     registeredDays: 6,
     totalDays: 7,
     mealsAccordingToPlan: 87,
     nutritionistAlertSent: false,
     dayDetails: [
-      { day: 'L', percent: 90 },
-      { day: 'M', percent: 85 },
-      { day: 'X', percent: 0 },
-      { day: 'J', percent: 95 },
-      { day: 'V', percent: 88 },
+      { day: 'M', percent: 90 },
+      { day: 'T', percent: 85 },
+      { day: 'W', percent: 0 },
+      { day: 'T', percent: 95 },
+      { day: 'F', percent: 88 },
       { day: 'S', percent: 72 },
-      { day: 'D', percent: 80 },
+      { day: 'S', percent: 80 },
     ],
   },
   weeklyWeight: {
-    weekLabel: 'Semana del 21 al 27 de abril',
+    weekLabel: t('progressTracking.mock.week'),
     currentWeight: 78.0,
     previousWeight: 79.2,
     variation: -1.2,
@@ -88,11 +90,11 @@ export const progressTrackingMockRoot = {
   },
   activity: {
     date: '2026-04-24',
-    activityName: 'Caminata rápida',
-    intensity: 'Moderada',
-    duration: '45 minutos',
+    activityName: t('progressTracking.mock.activityName'),
+    intensity: t('progressTracking.mock.activityIntensity'),
+    duration: t('progressTracking.mock.activityDuration'),
     burnedCalories: 280,
-    notes: 'Parque, 3 vueltas completas',
+    notes: t('progressTracking.mock.activityNotes'),
     weekActivity: [true, true, true, true, false, false, false],
   },
 }

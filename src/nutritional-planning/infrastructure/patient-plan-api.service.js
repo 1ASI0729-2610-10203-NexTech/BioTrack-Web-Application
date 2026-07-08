@@ -1,72 +1,46 @@
 import { apiService } from '../../shared/infrastructure/api.service'
-import { PatientPlan } from '../domain/model/patient-plan.entity'
-import { WeeklyDiet } from '../domain/model/weekly-diet.entity'
-
-function formatDate(value) {
-  if (!value) return ''
-  return new Date(value).toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-}
+import { resolveInitialLocale, t } from '../../locales'
 
 function mapPlan(payload) {
-  return new PatientPlan({
+  const cal = payload.calorieTarget || 1
+  const proteinPct = Math.round((payload.proteinGrams * 4 / cal) * 100)
+  const carbsPct = Math.round((payload.carbsGrams * 4 / cal) * 100)
+  const fatPct = 100 - proteinPct - carbsPct
+  return {
     id: payload.id,
     title: payload.name,
-    nutritionist: payload.nutritionistName ?? 'Nutricionista',
-    date: formatDate(payload.createdAt),
-    dailyCalories: payload.dailyCalories,
-    goal: payload.objective,
-    macros: {
-      proteins: payload.proteinPercentage,
-      carbohydrates: payload.carbohydratePercentage,
-      fats: payload.fatPercentage,
-    },
+    name: payload.name,
+    dailyCalories: payload.calorieTarget,
+    calorieTarget: payload.calorieTarget,
+    goal: t('nutritionalGoal.maintainWeight'),
+    nutritionist: t('profile.nutritionist'),
+    date: payload.createdAt ? new Date(payload.createdAt).toLocaleDateString(resolveInitialLocale() === 'es-419' ? 'es-PE' : 'en-US') : '',
+    macros: { proteins: proteinPct, carbohydrates: carbsPct, fats: fatPct },
+    proteinGrams: payload.proteinGrams,
+    carbsGrams: payload.carbsGrams,
+    fatGrams: payload.fatGrams,
     status: payload.status,
-  })
+    nutritionistId: payload.nutritionistId,
+    createdAt: payload.createdAt,
+    updatedAt: payload.updatedAt,
+  }
 }
 
 export const patientPlanApiService = {
-  async fetchCurrentPlan(patientId) {
-    const plans = await apiService.get('/nutritional-plans', { params: { patientId } })
-    const plan = Array.isArray(plans) ? plans.at(-1) : plans
-    if (!plan) return null
-    return {
-      raw: plan,
-      entity: mapPlan(plan),
-    }
+  async fetchPlans() {
+    const plans = await apiService.get('/nutritional-plans')
+    return (Array.isArray(plans) ? plans : []).map(mapPlan)
+  },
+
+  async fetchCurrentPlan(_userId) {
+    const plans = await apiService.get('/nutritional-plans')
+    const mapped = (Array.isArray(plans) ? plans : []).map(mapPlan)
+    const active = mapped.find((p) => p.status === 'ACTIVATED') ?? null
+    if (!active) return null
+    return { entity: { dailyCalories: active.dailyCalories }, raw: active }
   },
 
   async fetchWeeklyDiet(planId) {
-    const diet = await apiService.get(`/nutritional-plans/${planId}/weekly-diet`)
-    const iconByMealType = {
-      desayuno: '☀️',
-      almuerzo: '🍽️',
-      merienda: '🥤',
-      cena: '🌙',
-    }
-    return diet
-      ? new WeeklyDiet({
-          days: diet.days.map((day) => ({
-            ...day,
-            meals: day.meals.map((meal) => ({
-              ...meal,
-              icon: meal.icon ?? iconByMealType[meal.type] ?? '•',
-            })),
-          })),
-        })
-      : null
-  },
-
-  // TS05 — PATCH /api/v1/nutritional-plans/{planId}/accept
-  async acceptPlan(planId) {
-    return apiService.patch(`/nutritional-plans/${planId}/accept`)
-  },
-
-  // TS05 — PATCH /api/v1/nutritional-plans/{planId}/reject
-  async rejectPlan(planId, rejectedReason) {
-    return apiService.patch(`/nutritional-plans/${planId}/reject`, { rejectedReason })
+    return apiService.get(`/nutritional-plans/${planId}/weekly-diet`)
   },
 }

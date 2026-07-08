@@ -23,20 +23,27 @@
 }
 
 .bt-dashboard-shell {
+  height: 100vh;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
+  overflow: hidden;
   background: var(--bt-background);
 }
 
 .bt-dashboard-stage {
   min-width: 0;
+  min-height: 0;
+  height: 100vh;
   display: grid;
   grid-template-rows: 60px minmax(0, 1fr);
+  overflow: hidden;
 }
 
 .bt-dashboard-content {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   padding: 32px;
   background: var(--bt-background);
 }

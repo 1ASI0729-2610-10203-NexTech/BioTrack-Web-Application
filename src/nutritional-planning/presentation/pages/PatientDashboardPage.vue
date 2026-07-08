@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
 import Message from "primevue/message";
@@ -11,6 +12,7 @@ import { useSubscriptionsBillingStore } from "../../../subscriptions-billing/app
 import { usePatientPlanStore } from "../../application/patient-plan.store";
 import { usePatientProgressStore } from "../../../progress-tracking/application/patient-progress.store";
 
+const { t } = useI18n();
 const router = useRouter();
 const toast = useToast();
 const identityAccessStore = useIdentityAccessStore();
@@ -20,19 +22,21 @@ const patientPlanStore = usePatientPlanStore();
 const patientProgressStore = usePatientProgressStore();
 
 onMounted(async () => {
-  await identityAccessStore.refreshCurrentUser();
-  await patientProfileStore.fetchPatientProfile();
-  await billingStore.fetchPlans();
-  const plan = await patientPlanStore.fetchPatientPlan();
+  const [, , , plan] = await Promise.all([
+    identityAccessStore.refreshCurrentUser(),
+    patientProfileStore.fetchPatientProfile(),
+    billingStore.fetchPlans(),
+    patientPlanStore.fetchPatientPlan(),
+  ]);
   patientProgressStore.setDailyCalories(plan?.dailyCalories ?? 0);
 });
 
 const planLabel = computed(() =>
   patientPlanStore.hasActivePlan
-    ? "Activo"
+    ? t('patient.dashboard.planActive')
     : patientPlanStore.hasProposedPlan
-      ? "Propuesto"
-      : "Sin plan",
+      ? t('patient.dashboard.planProposed')
+      : t('patient.dashboard.planNone'),
 );
 const requiresEmailVerification = computed(
   () => !identityAccessStore.hasVerifiedAccount,
@@ -41,27 +45,27 @@ const profileIncomplete = computed(
   () => !patientProfileStore.isProfileComplete,
 );
 const hasNutritionSubscription = computed(() =>
-  ["Profesional", "Premium"].includes(billingStore.activeSubscription?.planName),
+  ['basic', 'premium'].includes(billingStore.activeSubscription?.planId),
 );
 const lockedPlanMessage = computed(() => {
   if (!identityAccessStore.hasVerifiedAccount) {
-    return "Verifica tu correo para habilitar el flujo nutricional.";
+    return t('patient.dashboard.lockedVerifyEmail');
   }
   if (!patientProfileStore.isProfileComplete) {
-    return "Completa tu perfil de salud, objetivo nutricional y restricciones.";
+    return t('patient.dashboard.lockedCompleteProfile');
   }
   if (!hasNutritionSubscription.value) {
-    return "Contrata un plan Profesional o Premium para activar tu plan nutricional.";
+    return t('patient.dashboard.lockedSubscription');
   }
-  return "Tu acceso nutricional está siendo sincronizado. Revisa nuevamente en unos segundos.";
+  return t('patient.dashboard.lockedSyncing');
 });
 
 async function verifyEmail() {
   await identityAccessStore.verifyEmail();
   toast.add({
     severity: "success",
-    summary: "Correo verificado",
-    detail: "Correo verificado correctamente",
+    summary: t('patient.dashboard.emailVerified'),
+    detail: t('patient.dashboard.emailVerifiedDetail'),
     life: 3000,
   });
   await patientPlanStore.fetchPatientPlan();
@@ -72,13 +76,13 @@ async function verifyEmail() {
   <section class="bt-patient-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">Paciente</p>
-        <h1>Dashboard paciente: {{ identityAccessStore.currentUser?.name }}</h1>
+        <p class="microcopy">{{ t('patient.dashboard.eyebrow') }}</p>
+        <h1>{{ t('patient.dashboard.title', { name: identityAccessStore.currentUser?.name }) }}</h1>
         <p class="text-muted">
-          Resumen de tu progreso nutricional y accesos principales.
+          {{ t('patient.dashboard.subtitle') }}
         </p>
       </div>
-      <Tag :value="`Plan: ${planLabel}`" severity="info" />
+      <Tag :value="t('patient.dashboard.planLabel', { label: planLabel })" severity="info" />
     </header>
 
     <Message
@@ -87,12 +91,9 @@ async function verifyEmail() {
       class="bt-verification-message"
     >
       <div class="bt-verification-content">
-        <span
-          >Tu correo aún no ha sido verificado. Verifica tu cuenta para acceder
-          a todas las funcionalidades.</span
-        >
+        <span>{{ t('patient.dashboard.verifyEmailWarning') }}</span>
         <Button
-          label="Verificar correo"
+          :label="t('patient.dashboard.verifyEmailButton')"
           size="small"
           :loading="identityAccessStore.loading"
           @click="verifyEmail"
@@ -104,8 +105,7 @@ async function verifyEmail() {
       severity="info"
       class="bt-verification-message"
     >
-      Completa tus datos de salud, objetivo nutricional y restricciones para
-      habilitar tu plan.
+      {{ t('patient.dashboard.completeProfileInfo') }}
     </Message>
 
     <section class="bt-patient-summary-grid">
@@ -113,55 +113,53 @@ async function verifyEmail() {
         class="bt-patient-card bt-patient-card--blue"
         v-if="patientPlanStore.hasActivePlan"
       >
-        <span>Calorías restantes</span>
+        <span>{{ t('patient.dashboard.remainingCalories') }}</span>
         <strong>{{
           patientPlanStore.currentPlan?.dailyCalories -
           patientProgressStore.dailyConsumedCalories
         }}</strong>
-        <small>
-          de {{ patientPlanStore.currentPlan?.dailyCalories ?? 0 }} kcal</small
-        >
+        <small>{{ t('patient.dashboard.ofKcal', { kcal: patientPlanStore.currentPlan?.dailyCalories ?? 0 }) }}</small>
       </article>
       <article class="bt-patient-card">
-        <span>Estado del plan</span>
+        <span>{{ t('patient.dashboard.planStatus') }}</span>
         <strong>{{ planLabel }}</strong>
         <small>{{ patientPlanStore.nutritionist }}</small>
       </article>
       <article class="bt-patient-card">
-        <span>Adherencia actual</span>
+        <span>{{ t('patient.dashboard.currentAdherence') }}</span>
         <strong
           >{{ patientProgressStore.dailyAdherence.value.toFixed(0) }}%</strong
         >
-        <small>Consumo de hoy</small>
+        <small>{{ t('patient.dashboard.todayConsumption') }}</small>
       </article>
       <article class="bt-patient-card">
-        <span>Perfil de salud</span>
+        <span>{{ t('patient.dashboard.healthProfile') }}</span>
         <strong>{{
-          patientProfileStore.isProfileComplete ? "Completado" : "Pendiente"
+          patientProfileStore.isProfileComplete ? t('patient.dashboard.profileComplete') : t('patient.dashboard.profilePending')
         }}</strong>
         <small>{{
           patientProfileStore.isProfileComplete
-            ? "Listo para plan nutricional"
-            : "Completa el perfil para continuar"
+            ? t('patient.dashboard.profileReadyForPlan')
+            : t('patient.dashboard.profileCompleteToGo')
         }}</small>
       </article>
     </section>
 
     <section v-if="!patientPlanStore.hasActivePlan" class="bt-lock-card">
       <div>
-        <p class="microcopy">Seguimiento bloqueado</p>
-        <h2>Aun no tienes un plan nutricional activo.</h2>
+        <p class="microcopy">{{ t('patient.dashboard.trackingBlocked') }}</p>
+        <h2>{{ t('patient.dashboard.noActivePlan') }}</h2>
         <p class="text-muted">
           {{ lockedPlanMessage }}
         </p>
       </div>
       <Button
-        label="Ver plan nutricional"
+        :label="t('patient.dashboard.viewNutritionalPlan')"
         @click="router.push('/nutritional-plan')"
       />
       <Button
         v-if="identityAccessStore.hasVerifiedAccount && patientProfileStore.isProfileComplete && !hasNutritionSubscription"
-        label="Ir a Facturación"
+        :label="t('patient.dashboard.goToBilling')"
         outlined
         @click="router.push('/subscriptions-billing')"
       />
@@ -169,18 +167,18 @@ async function verifyEmail() {
 
     <section class="bt-quick-actions">
       <Button
-        label="Registrar comida"
+        :label="t('patient.dashboard.logFood')"
         icon="pi pi-plus"
         :disabled="!patientPlanStore.hasActivePlan"
         @click="router.push('/food-log')"
       />
       <Button
-        label="Ver plan nutricional"
+        :label="t('patient.dashboard.viewNutritionalPlan')"
         outlined
         @click="router.push('/nutritional-plan')"
       />
       <Button
-        label="Ir a facturacion"
+        :label="t('patient.dashboard.goToBilling')"
         outlined
         @click="router.push('/subscriptions-billing')"
       />
