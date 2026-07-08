@@ -60,7 +60,7 @@
       "updatedAt": "2026-05-13T00:00:00.000Z"
     },
     {
-      "id": 2,
+      "id": 4,
       "userId": 4,
       "weightKg": 64,
       "heightCm": 162,
@@ -103,7 +103,7 @@
     },
     {
       "id": 2,
-      "patientId": 2,
+      "patientId": 4,
       "nutritionistId": 1,
       "assignedAt": "2026-05-01",
       "status": "ACTIVE"
@@ -127,7 +127,7 @@
     },
     {
       "id": 2,
-      "patientId": 2,
+      "patientId": 4,
       "nutritionistId": 1,
       "name": "Plan Nutricional — Mantenimiento",
       "objective": "mantener peso",
@@ -584,7 +584,7 @@
     },
     {
       "id": 3,
-      "patientId": 2,
+      "patientId": 4,
       "planId": 2,
       "date": "2026-05-14",
       "mealType": "desayuno",
@@ -614,7 +614,7 @@
     },
     {
       "id": 3,
-      "patientId": 2,
+      "patientId": 4,
       "date": "2026-05-01",
       "weightKg": 64,
       "type": "INITIAL",
@@ -722,7 +722,7 @@
     },
     {
       "id": 2,
-      "patientId": 2,
+      "patientId": 4,
       "nutritionistId": 1,
       "status": "COMPLETED",
       "completedAt": "2026-05-02",
@@ -744,7 +744,7 @@
     {
       "id": 2,
       "nutritionistId": 1,
-      "patientId": 2,
+      "patientId": 4,
       "note": "Lucía prefiere opciones sin lactosa. Considerar sustitutos en merienda.",
       "createdAt": "2026-05-14T10:00:00.000Z"
     }
@@ -760,7 +760,7 @@
     },
     {
       "id": 2,
-      "patientId": 2,
+      "patientId": 4,
       "nutritionistId": 1,
       "date": "2026-05-22",
       "status": "SCHEDULED",
@@ -787,7 +787,7 @@
     },
     {
       "id": 2,
-      "patientId": 2,
+      "patientId": 4,
       "period": "2026-05",
       "status": "PENDING",
       "generatedAt": null
