@@ -3,6 +3,7 @@ import { PatientPlan } from '../domain/model/patient-plan.entity'
 import { PatientPlanStatus } from '../domain/model/plan-status.value-object'
 import { useIdentityAccessStore } from '../../identity-access/application/identity-access.store'
 import { usePatientProfileStore } from '../../patient-profile/application/patient-profile.store'
+import { t } from '../../locales'
 import { syncNutritionAccessForUser } from '../../subscriptions-billing/application/subscription-nutrition-access.service'
 import { patientPlanApiService } from '../infrastructure/patient-plan-api.service'
 
@@ -36,7 +37,10 @@ export const usePatientPlanStore = defineStore('patient-plan', {
         const identityStore = useIdentityAccessStore()
         const patientProfileStore = usePatientProfileStore()
         const userId = identityStore.currentUser?.id
-        if (!userId) throw new Error('No existe un usuario autenticado.')
+        if (!userId) {
+          this.planStatus = PatientPlanStatus.NONE
+          return null
+        }
         if (!patientProfileStore.profile) {
           await patientProfileStore.fetchPatientProfile()
         }
@@ -49,18 +53,21 @@ export const usePatientPlanStore = defineStore('patient-plan', {
           return null
         }
         await syncNutritionAccessForUser(userId)
-        const response = await patientPlanApiService.fetchCurrentPlan(userId)
-        this.currentPlan = response?.entity ?? null
-        this.currentPlanId = response?.raw?.id ?? null
-        this.planStatus = response?.raw?.status ?? PatientPlanStatus.NONE
-        this.nutritionist = response?.entity?.nutritionist ?? ''
+        const plans = await patientPlanApiService.fetchPlans()
+        const activePlan = plans.find((p) => p.status === PatientPlanStatus.ACTIVE) ?? null
+        this.currentPlan = activePlan
+        this.currentPlanId = activePlan?.id ?? null
+        this.planStatus = activePlan?.status ?? PatientPlanStatus.NONE
+        this.nutritionist = ''
         this.weeklyDiet = this.currentPlanId
           ? await patientPlanApiService.fetchWeeklyDiet(this.currentPlanId)
           : null
         return this.currentPlan
       } catch (error) {
-        this.error = 'No se pudo cargar el plan nutricional.'
-        throw error
+        this.error = t('stores.patientPlan.loadPlan')
+        this.currentPlan = null
+        this.planStatus = PatientPlanStatus.NONE
+        return null
       } finally {
         this.loading = false
       }
@@ -70,7 +77,7 @@ export const usePatientPlanStore = defineStore('patient-plan', {
       this.error = ''
       try {
         if (!this.currentPlanId) await this.fetchPatientPlan()
-        if (!this.currentPlanId) throw new Error('Patient plan not found')
+        if (!this.currentPlanId) throw new Error(t('stores.patientPlan.planNotFound'))
         const updatedPlan = await patientPlanApiService.acceptPlan(this.currentPlanId)
         this.planStatus = updatedPlan.status
         this.currentPlan = new PatientPlan({
@@ -79,7 +86,7 @@ export const usePatientPlanStore = defineStore('patient-plan', {
         })
         this.acceptedRecently = true
       } catch (error) {
-        this.error = 'No se pudo aceptar el plan.'
+        this.error = t('stores.patientPlan.acceptPlan')
         throw error
       } finally {
         this.loading = false

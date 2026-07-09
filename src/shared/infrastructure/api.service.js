@@ -48,6 +48,15 @@ class ApiService {
     }
   }
 
+  restoreTokenFromSession() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('biotrack.mock-session') ?? 'null')
+      if (stored?.token) this.setAccessToken(stored.token)
+    } catch {
+      // no stored session
+    }
+  }
+
   setAccessToken(token) {
     if (token) {
       this.client.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -75,3 +84,4 @@ class ApiService {
 }
 
 export const apiService = new ApiService()
+apiService.restoreTokenFromSession()

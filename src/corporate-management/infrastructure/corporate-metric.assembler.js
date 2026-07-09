@@ -3,14 +3,13 @@ import { CorporateMetric } from '../domain/model/corporate-management.entity'
 export const CorporateMetricAssembler = {
   fromApi(payload) {
     return new CorporateMetric({
-      id: payload.id,
       companyId: payload.companyId,
-      sampleSize: payload.sampleSize,
-      threshold: payload.threshold,
-      averages: {
-        adherence: payload.averageAdherence,
-        bmi: payload.averageBmi,
-      },
+      companyName: payload.companyName,
+      totalCollaborators: payload.totalCollaborators,
+      activeCollaborators: payload.activeCollaborators,
+      inactiveCollaborators: payload.inactiveCollaborators,
+      pendingCollaborators: payload.pendingCollaborators,
+      lastUpdated: payload.lastUpdated,
     })
   },
 }

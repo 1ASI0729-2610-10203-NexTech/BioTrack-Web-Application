@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { projectWeightsToPoints } from '../../domain/services/weight-progress.service.js'
+
+const { t } = useI18n()
 
 const props = defineProps({
   weights: {
@@ -50,7 +53,7 @@ const axisTicks = computed(() => {
     viewBox="0 0 400 200"
     preserveAspectRatio="xMidYMid meet"
     role="img"
-    aria-label="Gráfico de evolución de peso"
+    :aria-label="t('progressTracking.charts.weightEvolutionAria')"
   >
     <g class="pt-line-chart__grid">
       <line x1="28" y1="40" x2="372" y2="40" />

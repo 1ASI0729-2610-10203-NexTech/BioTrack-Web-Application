@@ -1,12 +1,18 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
+
 <template>
   <div class="metric-grid">
     <article class="metric-box">
-      <span>Adherencia</span>
-      <strong>Dias registrados / dias objetivo</strong>
+      <span>{{ t('progressTracking.alertSummary.adherence') }}</span>
+      <strong>{{ t('progressTracking.alertSummary.registeredDaysGoal') }}</strong>
     </article>
     <article class="metric-box">
-      <span>Alerta</span>
-      <strong>Se dispara bajo 60%</strong>
+      <span>{{ t('progressTracking.alertSummary.alert') }}</span>
+      <strong>{{ t('progressTracking.alertSummary.threshold') }}</strong>
     </article>
   </div>
 </template>

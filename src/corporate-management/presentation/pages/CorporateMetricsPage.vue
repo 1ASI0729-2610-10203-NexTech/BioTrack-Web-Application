@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import { useCorporateManagementStore } from '../../application/corporate-management.store'
 
+const { t } = useI18n()
 const store = useCorporateManagementStore()
 const loading = ref(true)
 const publishing = ref(false)
@@ -38,9 +40,9 @@ onMounted(loadMetrics)
 
     <header class="bt-dashboard-heading">
       <div>
-        <p class="microcopy">US17 · ESCENARIO 1</p>
-        <h1>Consolidación de métricas</h1>
-        <p class="text-muted">Anonimización completada · Abril 2026</p>
+        <p class="microcopy">{{ t('corporate.metrics.eyebrow') }}</p>
+        <h1>{{ t('corporate.metrics.title') }}</h1>
+        <p class="text-muted">{{ t('corporate.metrics.subtitle') }}</p>
       </div>
       <div
           class="bt-kpi-card"
@@ -48,12 +50,12 @@ onMounted(loadMetrics)
           :style="published ? 'background: var(--bt-success); border-color: var(--bt-success);' : 'background: var(--bt-success-soft); border-color: var(--bt-success);'"
       >
         <span :style="published ? 'color: white;' : 'color: var(--bt-success-dark);'">
-          {{ published ? 'Publicado ✓' : 'Pendiente' }}
+          {{ published ? t('corporate.metrics.published') : t('corporate.metrics.pendingPublish') }}
         </span>
       </div>
     </header>
 
-    <p v-if="loading" class="text-muted">Cargando métricas...</p>
+    <p v-if="loading" class="text-muted">{{ t('corporate.metrics.loading') }}</p>
 
     <template v-else>
 
@@ -62,33 +64,33 @@ onMounted(loadMetrics)
           class="bt-panel-note"
           style="border-radius: 8px; padding: 12px 16px; background: var(--bt-success-soft); border-color: var(--bt-success);"
       >
-        ✓ <strong>Métricas consolidadas y publicadas</strong> — Datos grupales anonimizados. Ningún dato individual es identificable.
+        ✓ <strong>{{ t('corporate.metrics.publishedSuccess') }}</strong>
       </div>
 
       <section class="bt-kpi-grid" v-if="metric">
         <article class="bt-kpi-card bt-kpi-card--primary">
-          <span>Colaboradores incluidos</span>
+          <span>{{ t('corporate.metrics.includedCollaborators') }}</span>
           <strong>{{ metric.sampleSize }}</strong>
         </article>
         <article class="bt-kpi-card">
-          <span>Adherencia promedio</span>
+          <span>{{ t('corporate.metrics.averageAdherence') }}</span>
           <strong>{{ metric.averages?.adherence }}%</strong>
           <div class="bt-mini-track"><span /></div>
         </article>
         <article class="bt-kpi-card">
-          <span>IMC promedio grupal</span>
+          <span>{{ t('corporate.metrics.averageGroupBMI') }}</span>
           <strong>{{ metric.averages?.bmi }}</strong>
-          <small>Rango normal (18.5–24.9)</small>
+          <small>{{ t('corporate.metrics.normalRange') }}</small>
         </article>
         <article class="bt-kpi-card" :class="published ? 'bt-kpi-card--success' : ''">
-          <span>Estado</span>
-          <strong>{{ published ? 'Publicado' : 'Sin publicar' }}</strong>
+          <span>{{ t('corporate.metrics.status') }}</span>
+          <strong>{{ published ? t('corporate.metrics.statusPublished') : t('corporate.metrics.statusUnpublished') }}</strong>
         </article>
       </section>
 
       <div v-if="!published">
         <Button
-            :label="publishing ? 'Publicando...' : 'Publicar métricas'"
+            :label="publishing ? t('corporate.metrics.publishing') : t('corporate.metrics.publishMetrics')"
             :disabled="publishing || !canPublish"
             class="bt-dashboard-export"
             @click="handlePublish"
@@ -97,23 +99,23 @@ onMounted(loadMetrics)
 
       <article class="bt-dashboard-panel" v-if="metric">
         <div class="bt-panel-header">
-          <h3>Detalle de anonimización</h3>
+          <h3>{{ t('corporate.metrics.anonymizationDetail') }}</h3>
         </div>
         <div class="bt-goal-list">
           <div class="bt-goal-row">
-            <span>Datos procesados</span>
-            <strong>{{ metric.sampleSize }} perfiles</strong>
+            <span>{{ t('corporate.metrics.processedData') }}</span>
+            <strong>{{ t('corporate.metrics.processedProfiles', { count: metric.sampleSize }) }}</strong>
           </div>
           <div class="bt-goal-row">
-            <span>Umbral mínimo de anonimato</span>
-            <strong>10 perfiles</strong>
+            <span>{{ t('corporate.metrics.minAnonymityThreshold') }}</span>
+            <strong>{{ t('corporate.metrics.minAnonymityValue') }}</strong>
           </div>
           <div class="bt-goal-row">
-            <span>Datos individuales expuestos</span>
-            <strong style="color: var(--bt-danger)">0 — NINGUNO</strong>
+            <span>{{ t('corporate.metrics.exposedIndividualData') }}</span>
+            <strong style="color: var(--bt-danger)">{{ t('corporate.metrics.exposedIndividualValue') }}</strong>
           </div>
           <div class="bt-goal-row">
-            <span>Período</span>
+            <span>{{ t('corporate.metrics.period') }}</span>
             <strong>01/04/2026 – 30/04/2026</strong>
           </div>
         </div>

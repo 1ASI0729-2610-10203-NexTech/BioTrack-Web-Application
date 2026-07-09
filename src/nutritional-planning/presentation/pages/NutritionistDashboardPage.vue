@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import { useNutritionistStore } from '../../application/nutritionist.store'
 
+const { t } = useI18n()
 const router = useRouter()
 const nutritionistStore = useNutritionistStore()
 
@@ -27,32 +29,32 @@ function goToPatient(patientId) {
   <section class="bt-patient-page">
     <header class="bt-patient-heading">
       <div>
-        <p class="microcopy">Nutricionista</p>
-        <h1>Dashboard del nutricionista</h1>
-        <p class="text-muted">Pacientes asignados, evaluaciones y seguimiento básico.</p>
+        <p class="microcopy">{{ t('nutritionist.dashboard.eyebrow') }}</p>
+        <h1>{{ t('nutritionist.dashboard.title') }}</h1>
+        <p class="text-muted">{{ t('nutritionist.dashboard.subtitle') }}</p>
       </div>
-      <Button label="Ver pacientes" icon="pi pi-users" @click="router.push('/nutritionist-patients')" />
+      <Button :label="t('nutritionist.dashboard.viewPatients')" icon="pi pi-users" @click="router.push('/nutritionist-patients')" />
     </header>
 
     <section class="bt-patient-summary-grid">
       <article class="bt-patient-card bt-patient-card--blue">
-        <span>Pacientes asignados</span>
+        <span>{{ t('nutritionist.dashboard.assignedPatients') }}</span>
         <strong>{{ nutritionistStore.totalAssignedPatients }}</strong>
       </article>
       <article class="bt-patient-card">
-        <span>Perfiles completos</span>
+        <span>{{ t('nutritionist.dashboard.completeProfiles') }}</span>
         <strong>{{ nutritionistStore.completeProfilesCount }}</strong>
       </article>
       <article class="bt-patient-card">
-        <span>Planes activos</span>
+        <span>{{ t('nutritionist.dashboard.activePlans') }}</span>
         <strong>{{ nutritionistStore.activePlansCount }}</strong>
       </article>
       <article class="bt-patient-card">
-        <span>Pendientes de evaluación</span>
+        <span>{{ t('nutritionist.dashboard.pendingEvaluation') }}</span>
         <strong>{{ nutritionistStore.pendingEvaluationCount }}</strong>
       </article>
       <article class="bt-patient-card">
-        <span>Baja adherencia</span>
+        <span>{{ t('nutritionist.dashboard.lowAdherence') }}</span>
         <strong>{{ nutritionistStore.lowAdherenceCount }}</strong>
       </article>
     </section>
@@ -60,8 +62,8 @@ function goToPatient(patientId) {
     <section class="bt-dashboard-panel">
       <div class="bt-panel-header">
         <div>
-          <h3>Pacientes recientes</h3>
-          <p class="text-muted">Solo se muestran pacientes asignados a tu perfil.</p>
+          <h3>{{ t('nutritionist.dashboard.recentPatients') }}</h3>
+          <p class="text-muted">{{ t('nutritionist.dashboard.recentPatientsSubtitle') }}</p>
         </div>
       </div>
 
@@ -83,7 +85,7 @@ function goToPatient(patientId) {
               :severity="adherenceSeverity(patient.adherence.percentage)"
             />
           </div>
-          <Button label="Ver paciente" outlined @click="goToPatient(patient.id)" />
+          <Button :label="t('nutritionist.dashboard.viewPatient')" outlined @click="goToPatient(patient.id)" />
         </article>
       </div>
     </section>

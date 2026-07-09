@@ -7,7 +7,8 @@
       "password": "password123",
       "role": "PACIENTE",
       "status": "ACTIVE",
-      "emailVerified": true
+      "emailVerified": true,
+      "avatarUrl": "https://i.pravatar.cc/150?img=33"
     },
     {
       "id": 2,
@@ -16,7 +17,8 @@
       "password": "password123",
       "role": "NUTRICIONISTA",
       "status": "ACTIVE",
-      "emailVerified": true
+      "emailVerified": true,
+      "avatarUrl": "https://i.pravatar.cc/150?img=33"
     },
     {
       "id": 3,
@@ -25,7 +27,8 @@
       "password": "password123",
       "role": "ADMIN_CORPORATIVO",
       "status": "ACTIVE",
-      "emailVerified": true
+      "emailVerified": true,
+      "avatarUrl": "https://i.pravatar.cc/150?img=33"
     },
     {
       "id": 4,
@@ -34,7 +37,8 @@
       "password": "password123",
       "role": "PACIENTE",
       "status": "ACTIVE",
-      "emailVerified": true
+      "emailVerified": true,
+      "avatarUrl": "https://i.pravatar.cc/150?img=33"
     }
   ],
   "patientProfiles": [
@@ -624,86 +628,139 @@
   ],
   "subscriptionPlans": [
     {
-      "id": 1,
-      "name": "Básico",
-      "price": 29,
+      "id": "free",
+      "code": "FREE",
+      "nameKey": "billing.plans.free.name",
+      "price": 0,
       "currency": "PEN",
       "interval": "MONTHLY",
-      "description": "Para empezar tu camino"
+      "descriptionKey": "billing.plans.free.description",
+      "features": [
+        "billing.plans.free.feature1",
+        "billing.plans.free.feature2",
+        "billing.plans.free.feature3"
+      ]
     },
     {
-      "id": 2,
-      "name": "Profesional",
-      "price": 59,
+      "id": "basic",
+      "code": "BASIC",
+      "nameKey": "billing.plans.basic.name",
+      "price": 19.9,
       "currency": "PEN",
       "interval": "MONTHLY",
-      "description": "Nutricionista + seguimiento completo",
+      "descriptionKey": "billing.plans.basic.description",
+      "features": [
+        "billing.plans.basic.feature1",
+        "billing.plans.basic.feature2",
+        "billing.plans.basic.feature3",
+        "billing.plans.basic.feature4"
+      ],
+      "disabledFeatures": [
+        "billing.plans.basic.disabled1",
+        "billing.plans.basic.disabled2"
+      ]
+    },
+    {
+      "id": "premium",
+      "code": "PREMIUM",
+      "nameKey": "billing.plans.premium.name",
+      "price": 39.9,
+      "currency": "PEN",
+      "interval": "MONTHLY",
+      "descriptionKey": "billing.plans.premium.description",
+      "features": [
+        "billing.plans.premium.feature1",
+        "billing.plans.premium.feature2",
+        "billing.plans.premium.feature3",
+        "billing.plans.premium.feature4",
+        "billing.plans.premium.feature5",
+        "billing.plans.premium.feature6"
+      ],
       "featured": true
     },
     {
-      "id": 3,
-      "name": "Premium",
-      "price": 99,
+      "id": "organization",
+      "code": "ORGANIZATION",
+      "nameKey": "billing.plans.organization.name",
+      "price": 199.9,
       "currency": "PEN",
       "interval": "MONTHLY",
-      "description": "Máximo rendimiento"
+      "descriptionKey": "billing.plans.organization.description",
+      "contactOnly": true,
+      "features": [
+        "billing.plans.organization.feature1",
+        "billing.plans.organization.feature2",
+        "billing.plans.organization.feature3",
+        "billing.plans.organization.feature4",
+        "billing.plans.organization.feature5",
+        "billing.plans.organization.feature6"
+      ]
+    },
+    {
+      "id": "staff",
+      "code": "STAFF",
+      "nameKey": "billing.plans.staff.name",
+      "price": 0,
+      "currency": "PEN",
+      "interval": "INTERNAL",
+      "descriptionKey": "billing.plans.staff.description",
+      "internal": true
     }
   ],
   "subscriptions": [
     {
       "id": 1,
       "userId": 1,
-      "planId": 2,
+      "planId": "free",
       "status": "ACTIVE",
       "startedAt": "2026-05-13",
-      "nextRenewalAt": "2026-06-13"
+      "nextRenewalAt": null
     },
     {
       "id": 2,
       "userId": 4,
-      "planId": 2,
+      "planId": "free",
       "status": "ACTIVE",
       "startedAt": "2026-05-14",
-      "nextRenewalAt": "2026-06-14"
+      "nextRenewalAt": null
+    },
+    {
+      "id": 3,
+      "userId": 2,
+      "planId": "staff",
+      "status": "ACTIVE",
+      "startedAt": "2026-05-01",
+      "nextRenewalAt": null
+    },
+    {
+      "id": 4,
+      "userId": 3,
+      "planId": "organization",
+      "status": "ACTIVE",
+      "startedAt": "2026-05-01",
+      "nextRenewalAt": "2026-06-01",
+      "assignedBy": "BioTrack"
     }
   ],
   "payments": [
     {
       "id": 1,
-      "subscriptionId": 1,
-      "userId": 1,
-      "planId": 2,
-      "amount": 59,
+      "subscriptionId": 4,
+      "userId": 3,
+      "planId": "organization",
+      "amount": 199.9,
       "currency": "PEN",
       "status": "PAID",
-      "paidAt": "2026-05-13",
-      "cardLastFourDigits": "4521"
-    },
-    {
-      "id": 2,
-      "subscriptionId": 2,
-      "userId": 4,
-      "planId": 2,
-      "amount": 59,
-      "currency": "PEN",
-      "status": "PAID",
-      "paidAt": "2026-05-14",
+      "paidAt": "2026-05-01",
       "cardLastFourDigits": "4521"
     }
   ],
   "invoices": [
     {
       "id": 1,
-      "subscriptionId": 1,
-      "number": "INV-20260513-1",
-      "issuedAt": "2026-05-13",
-      "status": "PAID"
-    },
-    {
-      "id": 2,
-      "subscriptionId": 2,
-      "number": "INV-20260514-2",
-      "issuedAt": "2026-05-14",
+      "subscriptionId": 4,
+      "number": "INV-20260501-4",
+      "issuedAt": "2026-05-01",
       "status": "PAID"
     }
   ],
