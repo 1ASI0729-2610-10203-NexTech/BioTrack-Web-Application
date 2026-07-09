@@ -46,6 +46,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     loading: false,
     error: '',
     savedRecently: false,
+    profileLoaded: false,
   }),
   getters: {
     currentProfile(state) {
@@ -140,10 +141,12 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       return createdProfile
     },
     async fetchPatientProfile() {
+      if (this.profileLoaded) return this.profile
       this.loading = true
       this.error = ''
       try {
         const fetchedProfile = await patientProfileApiService.fetchProfile()
+        this.profileLoaded = true
         this.profile = fetchedProfile
         this.healthData = fetchedProfile?.healthData ?? null
         this.nutritionalGoal = fetchedProfile?.nutritionalGoal ?? null
@@ -153,6 +156,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         this.checkProfileCompletion()
         return this.profile
       } catch {
+        this.profileLoaded = true
         this.error = ''
         this.profile = null
         return null
@@ -183,6 +187,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
         }
         const updatedProfile = await patientProfileApiService.updateHealthData(healthPayload)
         this.profile = updatedProfile
+        this.profileLoaded = true
         this.healthData = updatedProfile.healthData
         this.nutritionalGoal = updatedProfile.nutritionalGoal
         this.dietaryRestrictions = updatedProfile.dietaryRestrictions
@@ -232,9 +237,12 @@ export const usePatientProfileStore = defineStore('patient-profile', {
     },
     async saveDietaryRestrictions(restrictions) {
       if (!this.profile) await this.fetchPatientProfile()
-      if (!this.profile) await this.ensurePatientProfile()
-      const normalizedRestrictions = restrictions.includes(t('dietaryRestrictions.noRestrictions')) ? [] : restrictions
-      const updatedProfile = await patientProfileApiService.updateRestrictions(normalizedRestrictions)
+      if (!this.profile) {
+        const error = new Error(t('patient.plan.needsCompleteProfile'))
+        this.error = error.message
+        throw error
+      }
+      const updatedProfile = await patientProfileApiService.updateRestrictions(restrictions)
       this.profile = updatedProfile
       this.dietaryRestrictions = updatedProfile.dietaryRestrictions
       this.restrictionsConfirmed = true
@@ -306,6 +314,7 @@ export const usePatientProfileStore = defineStore('patient-profile', {
       this.isProfileComplete = false
       this.profileCompletionEvent = null
       this.savedRecently = false
+      this.profileLoaded = false
       this.error = ''
     },
   },

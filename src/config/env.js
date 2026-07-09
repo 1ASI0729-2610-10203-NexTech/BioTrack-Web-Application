@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = 'http://localhost:3001'
+const DEFAULT_API_BASE_URL = 'https://biotrack-platform.onrender.com/api/v1'
 const DEFAULT_API_TIMEOUT = 8000
 const DEFAULT_APP_ENV = 'development'
 const TRUE_VALUES = ['true', '1', 'yes']
@@ -6,7 +6,6 @@ const TRUE_VALUES = ['true', '1', 'yes']
 function resolveApiBaseUrl() {
   const configuredUrl = String(import.meta.env.VITE_API_BASE_URL ?? '').trim()
   if (configuredUrl) return configuredUrl.replace(/\/$/, '')
-  if (import.meta.env.PROD) return ''
   return DEFAULT_API_BASE_URL
 }
 

@@ -33,10 +33,7 @@ export const useSubscriptionsBillingStore = defineStore('subscriptions-billing',
         this.plans = await subscriptionsBillingApiService.fetchPlans()
         const userId = identityStore.currentUser?.id
         if (!userId) throw new Error(t('auth.userRequired'))
-        const isPatient = ['PACIENTE', 'PATIENT'].includes(identityStore.currentUser?.role)
-        const active = await subscriptionsBillingApiService.fetchActiveSubscription(userId, {
-          ensureFree: isPatient,
-        })
+        const active = await subscriptionsBillingApiService.fetchActiveSubscription(userId)
         this.activeSubscription = active?.entity ?? null
         this.payments = active?.payments ?? []
         this.billingSummary = active

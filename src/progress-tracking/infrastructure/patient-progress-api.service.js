@@ -1,23 +1,30 @@
 import { apiService } from '../../shared/infrastructure/api.service'
+import { ActivityRecord } from '../domain/model/activity-record.entity'
+import { FoodLog } from '../domain/model/food-log.entity'
+import { WeightRecord } from '../domain/model/weight-record.entity'
+
+function chartCollection(charts, ...keys) {
+  for (const key of keys) {
+    if (Array.isArray(charts?.[key])) return charts[key]
+  }
+  return []
+}
 
 export const patientProgressApiService = {
   async fetchFoodLogs(_patientProfileId) {
-    const data = await apiService.get('/progress/food-logs')
-    return (Array.isArray(data) ? data : []).map((r) => ({
-      id: r.id,
+    const charts = await apiService.get('/progress/charts')
+    return chartCollection(charts, 'foodEntries', 'foodHistory').map((r) => new FoodLog({
       mealType: r.mealType,
       description: r.description ?? r.foodName,
       calories: Number(r.calories),
-      date: r.date,
-      loggedAt: r.loggedAt,
+      date: (r.loggedAt ?? r.date ?? '').slice(0, 10),
     }))
   },
 
   async fetchActivityLogs(_patientProfileId) {
     const data = await apiService.get('/progress/activity-history')
-    return (Array.isArray(data) ? data : []).map((r) => ({
-      id: r.id,
-      activityType: r.activityType,
+    return (Array.isArray(data) ? data : []).map((r) => new ActivityRecord({
+      type: r.activityType,
       durationMinutes: r.durationMinutes,
       burnedCalories: r.caloriesBurned,
       intensity: r.intensity ?? 'media',
@@ -26,19 +33,19 @@ export const patientProgressApiService = {
   },
 
   async fetchWeightRecords(_patientProfileId) {
-    const data = await apiService.get('/progress/weight-records')
-    return (Array.isArray(data) ? data : []).map((r) => ({
+    const charts = await apiService.get('/progress/charts')
+    return chartCollection(charts, 'weightRecords', 'weightHistory').map((r) => new WeightRecord({
       id: r.id,
       weightKg: r.weightKg,
-      date: r.date,
+      date: (r.recordedAt ?? r.date ?? '').slice(0, 10),
       type: r.type ?? 'PROGRESS',
-      source: r.source ?? 'MANUAL',
-      comment: r.comment ?? '',
+      source: r.source ?? 'API',
+      comment: r.notes ?? r.comment ?? '',
     }))
   },
 
   async createFoodLog(_patientProfileId, payload) {
-    const data = await apiService.post('/progress/food-log', {
+    const data = await apiService.post('/progress/food-entries', {
       mealType: payload.mealType,
       foodName: payload.description,
       calories: payload.calories,
@@ -54,7 +61,7 @@ export const patientProgressApiService = {
   },
 
   async createActivityLog(_patientProfileId, payload) {
-    const data = await apiService.post('/progress/activity-log', {
+    const data = await apiService.post('/progress/activity-entries', {
       activityType: payload.activityType,
       durationMinutes: payload.durationMinutes,
     })
@@ -69,7 +76,7 @@ export const patientProgressApiService = {
   },
 
   async createWeightRecord(_patientProfileId, payload) {
-    const data = await apiService.post('/progress/weight-update', {
+    const data = await apiService.post('/progress/weight-records', {
       weightKg: payload.weightKg,
       notes: payload.comment ?? '',
     })
@@ -84,15 +91,15 @@ export const patientProgressApiService = {
   },
 
   async logFood(mealType, foodName, calories) {
-    return apiService.post('/progress/food-log', { mealType, foodName, calories })
+    return apiService.post('/progress/food-entries', { mealType, foodName, calories })
   },
 
   async logActivity(activityType, durationMinutes) {
-    return apiService.post('/progress/activity-log', { activityType, durationMinutes })
+    return apiService.post('/progress/activity-entries', { activityType, durationMinutes })
   },
 
   async recordWeight(weightKg, notes = '') {
-    return apiService.post('/progress/weight-update', { weightKg, notes })
+    return apiService.post('/progress/weight-records', { weightKg, notes })
   },
 
   async fetchCharts() {
@@ -101,5 +108,14 @@ export const patientProgressApiService = {
 
   async fetchActivityHistory() {
     return apiService.get('/progress/activity-history')
+  },
+
+  async fetchRawWeightRecords() {
+    const charts = await apiService.get('/progress/charts')
+    return chartCollection(charts, 'weightRecords', 'weightHistory')
+  },
+
+  async updateWeightRecord(_recordId, payload) {
+    return this.createWeightRecord(null, payload)
   },
 }
