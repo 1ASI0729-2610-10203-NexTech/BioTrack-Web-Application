@@ -30,6 +30,7 @@ const selectedRestrictions = ref(
 const otherRestriction = ref('')
 const attemptedSave = ref(false)
 const saved = ref(false)
+const saveError = ref('')
 const needsOther = computed(() => selectedRestrictions.value.includes(t('dietaryRestrictions.other')))
 const hasSelection = computed(() => selectedRestrictions.value.length > 0)
 const hasOtherError = computed(
@@ -47,12 +48,17 @@ function normalizeSelection(value) {
 async function saveRestrictions() {
   attemptedSave.value = true
   saved.value = false
+  saveError.value = ''
   if (!hasSelection.value || hasOtherError.value) return
   const restrictions = selectedRestrictions.value.map((restriction) =>
     restriction === t('dietaryRestrictions.other') ? otherRestriction.value.trim() : restriction,
   )
-  await profileStore.saveDietaryRestrictions(restrictions)
-  saved.value = true
+  try {
+    await profileStore.saveDietaryRestrictions(restrictions)
+    saved.value = true
+  } catch (error) {
+    saveError.value = error?.message ?? t('patient.plan.needsCompleteProfile')
+  }
 }
 
 onMounted(async () => {
@@ -71,6 +77,7 @@ onMounted(async () => {
     </header>
     <Message v-if="attemptedSave && !hasSelection" severity="error">{{ t('dietaryRestrictions.selectionRequired') }}</Message>
     <Message v-if="saved" severity="success">{{ t('dietaryRestrictions.restrictionsSaved') }}</Message>
+    <Message v-if="saveError" severity="error">{{ saveError }}</Message>
     <section class="bt-dashboard-panel bt-restrictions-card">
       <label>
         {{ t('dietaryRestrictions.restrictions') }}

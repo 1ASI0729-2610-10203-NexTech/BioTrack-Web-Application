@@ -3,9 +3,9 @@ import { apiService } from '../../shared/infrastructure/api.service'
 import { t } from '../../locales'
 import { identityAccessApiService } from '../infrastructure/identity-access-api.service'
 
-const SESSION_STORAGE_KEY = 'biotrack.mock-session'
+const SESSION_STORAGE_KEY = 'biotrack.session'
 const TOKEN_STORAGE_KEY = 'biotrack.access-token'
-const LEGACY_SESSION_KEYS = ['currentUser', 'authSession', 'token', 'accessToken', 'mockToken']
+const LEGACY_SESSION_KEYS = ['biotrack.mock-session', 'currentUser', 'authSession', 'token', 'accessToken', 'mockToken']
 
 function persistSession(user, token) {
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user))

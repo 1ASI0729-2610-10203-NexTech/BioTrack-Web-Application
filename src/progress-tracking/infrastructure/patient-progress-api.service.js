@@ -1,15 +1,30 @@
 import { apiService } from '../../shared/infrastructure/api.service'
+import { ActivityRecord } from '../domain/model/activity-record.entity'
+import { FoodLog } from '../domain/model/food-log.entity'
+import { WeightRecord } from '../domain/model/weight-record.entity'
+
+function chartCollection(charts, ...keys) {
+  for (const key of keys) {
+    if (Array.isArray(charts?.[key])) return charts[key]
+  }
+  return []
+}
 
 export const patientProgressApiService = {
   async fetchFoodLogs(_patientProfileId) {
-    return []
+    const charts = await apiService.get('/progress/charts')
+    return chartCollection(charts, 'foodEntries', 'foodHistory').map((r) => new FoodLog({
+      mealType: r.mealType,
+      description: r.description ?? r.foodName,
+      calories: Number(r.calories),
+      date: (r.loggedAt ?? r.date ?? '').slice(0, 10),
+    }))
   },
 
   async fetchActivityLogs(_patientProfileId) {
     const data = await apiService.get('/progress/activity-history')
-    return (Array.isArray(data) ? data : []).map((r) => ({
-      id: r.id,
-      activityType: r.activityType,
+    return (Array.isArray(data) ? data : []).map((r) => new ActivityRecord({
+      type: r.activityType,
       durationMinutes: r.durationMinutes,
       burnedCalories: r.caloriesBurned,
       intensity: r.intensity ?? 'media',
@@ -18,7 +33,15 @@ export const patientProgressApiService = {
   },
 
   async fetchWeightRecords(_patientProfileId) {
-    return []
+    const charts = await apiService.get('/progress/charts')
+    return chartCollection(charts, 'weightRecords', 'weightHistory').map((r) => new WeightRecord({
+      id: r.id,
+      weightKg: r.weightKg,
+      date: (r.recordedAt ?? r.date ?? '').slice(0, 10),
+      type: r.type ?? 'PROGRESS',
+      source: r.source ?? 'API',
+      comment: r.notes ?? r.comment ?? '',
+    }))
   },
 
   async createFoodLog(_patientProfileId, payload) {
@@ -85,5 +108,14 @@ export const patientProgressApiService = {
 
   async fetchActivityHistory() {
     return apiService.get('/progress/activity-history')
+  },
+
+  async fetchRawWeightRecords() {
+    const charts = await apiService.get('/progress/charts')
+    return chartCollection(charts, 'weightRecords', 'weightHistory')
+  },
+
+  async updateWeightRecord(_recordId, payload) {
+    return this.createWeightRecord(null, payload)
   },
 }
