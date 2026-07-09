@@ -24,7 +24,7 @@ export const patientProfileApiService = {
   },
 
   async updateNutritionalGoal(nutritionalObjective) {
-    const updated = await apiService.put('/profile/nutritional-goal', { nutritionalObjective })
+    const updated = await apiService.put('/profile/health-data', { nutritionalObjective })
     return PatientProfileAssembler.fromApi(updated)
   },
 

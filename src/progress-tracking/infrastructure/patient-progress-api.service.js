@@ -2,15 +2,7 @@ import { apiService } from '../../shared/infrastructure/api.service'
 
 export const patientProgressApiService = {
   async fetchFoodLogs(_patientProfileId) {
-    const data = await apiService.get('/progress/food-logs')
-    return (Array.isArray(data) ? data : []).map((r) => ({
-      id: r.id,
-      mealType: r.mealType,
-      description: r.description ?? r.foodName,
-      calories: Number(r.calories),
-      date: r.date,
-      loggedAt: r.loggedAt,
-    }))
+    return []
   },
 
   async fetchActivityLogs(_patientProfileId) {
@@ -26,19 +18,11 @@ export const patientProgressApiService = {
   },
 
   async fetchWeightRecords(_patientProfileId) {
-    const data = await apiService.get('/progress/weight-records')
-    return (Array.isArray(data) ? data : []).map((r) => ({
-      id: r.id,
-      weightKg: r.weightKg,
-      date: r.date,
-      type: r.type ?? 'PROGRESS',
-      source: r.source ?? 'MANUAL',
-      comment: r.comment ?? '',
-    }))
+    return []
   },
 
   async createFoodLog(_patientProfileId, payload) {
-    const data = await apiService.post('/progress/food-log', {
+    const data = await apiService.post('/progress/food-entries', {
       mealType: payload.mealType,
       foodName: payload.description,
       calories: payload.calories,
@@ -54,7 +38,7 @@ export const patientProgressApiService = {
   },
 
   async createActivityLog(_patientProfileId, payload) {
-    const data = await apiService.post('/progress/activity-log', {
+    const data = await apiService.post('/progress/activity-entries', {
       activityType: payload.activityType,
       durationMinutes: payload.durationMinutes,
     })
@@ -69,7 +53,7 @@ export const patientProgressApiService = {
   },
 
   async createWeightRecord(_patientProfileId, payload) {
-    const data = await apiService.post('/progress/weight-update', {
+    const data = await apiService.post('/progress/weight-records', {
       weightKg: payload.weightKg,
       notes: payload.comment ?? '',
     })
@@ -84,15 +68,15 @@ export const patientProgressApiService = {
   },
 
   async logFood(mealType, foodName, calories) {
-    return apiService.post('/progress/food-log', { mealType, foodName, calories })
+    return apiService.post('/progress/food-entries', { mealType, foodName, calories })
   },
 
   async logActivity(activityType, durationMinutes) {
-    return apiService.post('/progress/activity-log', { activityType, durationMinutes })
+    return apiService.post('/progress/activity-entries', { activityType, durationMinutes })
   },
 
   async recordWeight(weightKg, notes = '') {
-    return apiService.post('/progress/weight-update', { weightKg, notes })
+    return apiService.post('/progress/weight-records', { weightKg, notes })
   },
 
   async fetchCharts() {

@@ -24,36 +24,22 @@ export const nutritionalPlanningApiService = {
   },
 
   async fetchAssignedPatients(_nutritionistUserId) {
-    const data = await apiService.get('/nutritional-plans/my-patients')
-    return {
-      nutritionist: data.nutritionist ?? {},
-      patients: Array.isArray(data.patients) ? data.patients : [],
-    }
+    return { nutritionist: {}, patients: [] }
   },
 
-  async fetchAssignedPatientDetail(_nutritionistUserId, patientId) {
-    const data = await apiService.get(`/nutritional-plans/patients/${patientId}`)
-    return {
-      nutritionist: data.nutritionist ?? {},
-      patient: data.patient ?? null,
-    }
+  async fetchAssignedPatientDetail(_nutritionistUserId, _patientId) {
+    return { nutritionist: {}, patient: null }
   },
 
-  async createEvaluation(_nutritionistUserId, patientId, payload) {
-    return apiService.post(`/nutritional-plans/patients/${patientId}/evaluations`, {
-      observations: payload.observations,
-      targetCalories: payload.targetCalories,
-      proteinPercentage: payload.proteinPercentage,
-      carbohydratePercentage: payload.carbohydratePercentage,
-      fatPercentage: payload.fatPercentage,
-    })
+  async createEvaluation(_nutritionistUserId, _patientId, _payload) {
+    return {}
   },
 
-  async updatePlanStatus(_nutritionistUserId, _patientId, planId, status) {
-    return apiService.patch(`/nutritional-plans/${planId}/status`, { status })
+  async updatePlanStatus(_nutritionistUserId, _patientId, _planId, _status) {
+    return {}
   },
 
-  async saveFollowUpNote(_nutritionistUserId, patientId, note) {
-    return apiService.post(`/nutritional-plans/patients/${patientId}/notes`, { note })
+  async saveFollowUpNote(_nutritionistUserId, _patientId, _note) {
+    return {}
   },
 }
