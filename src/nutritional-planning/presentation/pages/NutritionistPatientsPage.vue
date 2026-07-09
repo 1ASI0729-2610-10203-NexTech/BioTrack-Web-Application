@@ -1,16 +1,24 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
+import Dialog from 'primevue/dialog'
+import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import { useNutritionistStore } from '../../application/nutritionist.store'
 
 const { t } = useI18n()
 const router = useRouter()
 const nutritionistStore = useNutritionistStore()
+
+const showSearch = ref(false)
+const searchEmail = ref('')
+const allPatients = ref([])
+const searchResults = ref([])
+const searchLoading = ref(false)
 
 onMounted(() => {
   nutritionistStore.fetchAssignedPatients()
@@ -22,6 +30,35 @@ function planSeverity(status) {
   if (status === 'REJECTED') return 'danger'
   return 'secondary'
 }
+
+async function openSearch() {
+  showSearch.value = true
+  searchEmail.value = ''
+  searchResults.value = []
+  searchLoading.value = true
+  try {
+    allPatients.value = await nutritionistStore.fetchAllPatients()
+    searchResults.value = allPatients.value
+  } finally {
+    searchLoading.value = false
+  }
+}
+
+function filterPatients() {
+  const q = searchEmail.value.trim().toLowerCase()
+  searchResults.value = q
+    ? allPatients.value.filter(
+        (p) =>
+          p.email.toLowerCase().includes(q) ||
+          p.name.toLowerCase().includes(q),
+      )
+    : allPatients.value
+}
+
+function selectPatient(patient) {
+  showSearch.value = false
+  router.push(`/nutritionist-plans/create/${patient.id}`)
+}
 </script>
 
 <template>
@@ -32,6 +69,7 @@ function planSeverity(status) {
         <h1>{{ t('nutritionist.patients.title') }}</h1>
         <p class="text-muted">{{ t('nutritionist.patients.subtitle') }}</p>
       </div>
+      <Button icon="pi pi-user-plus" :label="t('nutritionist.patients.addPatient') || 'Añadir paciente'" @click="openSearch" />
     </header>
 
     <article class="bt-dashboard-panel">
@@ -77,5 +115,31 @@ function planSeverity(status) {
         </Column>
       </DataTable>
     </article>
+
+    <Dialog v-model:visible="showSearch" modal header="Buscar paciente" :style="{ width: '480px' }">
+      <div class="p-fluid" style="display:flex;flex-direction:column;gap:1rem;">
+        <InputText
+          v-model="searchEmail"
+          placeholder="Buscar por nombre o email..."
+          @input="filterPatients"
+        />
+        <DataTable
+          :value="searchResults"
+          :loading="searchLoading"
+          data-key="id"
+          :rows="6"
+          paginator
+          responsive-layout="scroll"
+        >
+          <Column field="name" header="Nombre" />
+          <Column field="email" header="Email" />
+          <Column header="">
+            <template #body="{ data }">
+              <Button label="Crear plan" size="small" @click="selectPatient(data)" />
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+    </Dialog>
   </section>
 </template>

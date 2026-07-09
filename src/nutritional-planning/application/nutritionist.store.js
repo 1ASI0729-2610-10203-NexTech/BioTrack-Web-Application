@@ -69,6 +69,18 @@ export const useNutritionistStore = defineStore('nutritionist', {
         this.loading = false
       }
     },
+    async fetchAllPatients() {
+      this.loading = true
+      this.error = ''
+      try {
+        return await nutritionalPlanningApiService.fetchAllPatients()
+      } catch (error) {
+        this.error = error.message || 'Error al cargar pacientes'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
     async fetchPatientDetail(patientId) {
       this.loading = true
       this.error = ''

@@ -60,7 +60,7 @@ async function submit() {
       {{ t('nutritionist.createPlan.incompleteProfile') }}
     </Message>
 
-    <form v-if="patient?.isComplete" class="bt-dashboard-panel bt-form-grid" @submit.prevent="submit">
+    <form class="bt-dashboard-panel bt-form-grid" @submit.prevent="submit">
       <Message v-if="nutritionistStore.error" severity="error">{{ nutritionistStore.error }}</Message>
       <label>
         {{ t('nutritionist.createPlan.planName') }}

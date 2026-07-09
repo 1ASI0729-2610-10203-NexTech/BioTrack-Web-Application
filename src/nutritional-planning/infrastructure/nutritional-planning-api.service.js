@@ -63,11 +63,26 @@ export const nutritionalPlanningApiService = {
   },
 
   // GET /api/v1/nutritional-plans/my-patients → filtra por patientId
+  // Si no está en my-patients, lo busca en /users/:id
   async fetchAssignedPatientDetail(_nutritionistUserId, patientId) {
     const data = await apiService.get('/nutritional-plans/my-patients')
     const patients = (Array.isArray(data.patients) ? data.patients : []).map(mapPatient)
-    const patient = patients.find((p) => String(p.id) === String(patientId)) ?? null
+    let patient = patients.find((p) => String(p.id) === String(patientId)) ?? null
+    if (!patient) {
+      try {
+        const raw = await apiService.get(`/users/${patientId}`)
+        patient = raw ? mapPatient(raw) : null
+      } catch {
+        patient = null
+      }
+    }
     return { nutritionist: data.nutritionist ?? {}, patient }
+  },
+
+  // GET /api/v1/users/patients — todos los pacientes registrados
+  async fetchAllPatients() {
+    const users = await apiService.get('/users/patients')
+    return (Array.isArray(users) ? users : []).map((u) => mapPatient(u))
   },
 
   async createEvaluation(_nutritionistUserId, _patientId, _payload) {
