@@ -13,7 +13,7 @@ export const identityAccessApiService = {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      role: data.role,
+      role: (data.role ?? '').toUpperCase(),
       emailVerified: data.emailVerified,
       status: data.status,
       avatarUrl: DEFAULT_AVATAR_URL,
