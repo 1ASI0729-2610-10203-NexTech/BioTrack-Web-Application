@@ -43,7 +43,7 @@ export const useIdentityAccessStore = defineStore('identity-access', {
     return {
       currentUser: storedSession,
       isAuthenticated: Boolean(storedSession),
-      role: storedSession?.role ?? null,
+      role: storedSession?.role ? storedSession.role.toUpperCase() : null,
       loginStatus: createIdleLoginState(),
       registerStatus: createIdleRegisterState(),
       loginAttempts: 0,
