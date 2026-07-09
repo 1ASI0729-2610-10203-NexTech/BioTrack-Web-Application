@@ -21,6 +21,11 @@ export const patientProfileApiService = {
       ),
       activityLevel: payload.activityLevel,
       nutritionalObjective: payload.nutritionalObjective ?? payload.nutritionalGoal ?? 'MAINTAIN_WEIGHT',
+      age: payload.age != null ? Number(payload.age) : null,
+      biologicalSex: payload.biologicalSex ?? null,
+      systolicPressure: payload.systolic != null ? Number(payload.systolic) : null,
+      diastolicPressure: payload.diastolic != null ? Number(payload.diastolic) : null,
+      glucoseMgDl: payload.glucoseMgDl != null ? Number(payload.glucoseMgDl) : null,
     })
     return PatientProfileAssembler.fromApi(updated)
   },
@@ -71,6 +76,11 @@ export const patientProfileApiService = {
       activityLevel: data.activityLevel ?? current.activityLevel,
       nutritionalObjective:
         data.nutritionalObjective ?? data.nutritionalGoal ?? current.nutritionalObjective,
+      age: data.age != null ? Number(data.age) : (current.age ?? null),
+      biologicalSex: data.biologicalSex ?? current.biologicalSex ?? null,
+      systolicPressure: data.systolic != null ? Number(data.systolic) : (current.systolicPressure ?? null),
+      diastolicPressure: data.diastolic != null ? Number(data.diastolic) : (current.diastolicPressure ?? null),
+      glucoseMgDl: data.glucoseMgDl != null ? Number(data.glucoseMgDl) : (current.glucoseMgDl ?? null),
     })
     return PatientProfileAssembler.fromApi(updated)
   },
