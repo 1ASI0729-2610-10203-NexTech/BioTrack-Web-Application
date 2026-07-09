@@ -2,10 +2,29 @@ const DEFAULT_API_BASE_URL = 'https://biotrack-platform.onrender.com/api/v1'
 const DEFAULT_API_TIMEOUT = 8000
 const DEFAULT_APP_ENV = 'development'
 const TRUE_VALUES = ['true', '1', 'yes']
+const PRODUCTION_API_HOST = 'biotrack-platform.onrender.com'
+const FRONTEND_HOSTS = new Set([
+  'biotrack-frontend-blkn.onrender.com',
+  'biotrack-app-nextech.web.app',
+])
 
 function resolveApiBaseUrl() {
   const configuredUrl = String(import.meta.env.VITE_API_BASE_URL ?? '').trim()
-  if (configuredUrl) return configuredUrl.replace(/\/$/, '')
+  if (configuredUrl) {
+    try {
+      const url = new URL(configuredUrl)
+      if (FRONTEND_HOSTS.has(url.hostname)) return DEFAULT_API_BASE_URL
+      if (url.hostname === PRODUCTION_API_HOST) {
+        url.pathname = '/api/v1'
+        url.search = ''
+        url.hash = ''
+        return url.toString().replace(/\/$/, '')
+      }
+      return configuredUrl.replace(/\/$/, '')
+    } catch {
+      return DEFAULT_API_BASE_URL
+    }
+  }
   return DEFAULT_API_BASE_URL
 }
 

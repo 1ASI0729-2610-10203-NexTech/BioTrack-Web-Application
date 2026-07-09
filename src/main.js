@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { apiService } from './shared/infrastructure/api.service'
 import { createI18n } from 'vue-i18n'
 import PrimeVue from 'primevue/config'
 import Ripple from 'primevue/ripple'
@@ -30,11 +29,6 @@ const i18n = createI18n({
 document.documentElement.lang = initialLocale
 
 app.use(createPinia())
-
-const _storedSession = JSON.parse(localStorage.getItem('biotrack.mock-session') ?? 'null')
-if (_storedSession?.token) {
-  apiService.setAccessToken(_storedSession.token)
-}
 
 app.use(router)
 app.use(i18n)
